@@ -182,6 +182,7 @@ A linha de comando não tem ação de mover nem de apagar.
 - **Dado pessoal:** nome de pasta e de arquivo pode trazer nome de pessoa, como a pasta de perfil em `C:\Users`. O relatório e o registro de ações ficam só na máquina onde o programa rodou, na pasta que o técnico escolher. O programa não envia nada para fora.
 - **Repositório:** relatório gerado em máquina de cliente, registro de ações e print de tela real nunca entram no git. Imagem de tela sai só do modo `--demonstracao`.
 - **Segredos:** o programa não usa senha, chave nem token.
+- **Enquadramento jurídico:** `docs/legal/verificacao-distribuicao-e-lgpd-2026-09-28.md`. Na distribuição, a MT não trata os dados de quem usa o programa. No atendimento a clientes, a MT é operadora e age por instrução do cliente. Os textos de confirmação, de uso autorizado e de licença saem da seção 5 da verificação.
 
 ## 11. Ordem das fatias
 
