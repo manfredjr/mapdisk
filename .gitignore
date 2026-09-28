@@ -1,0 +1,20 @@
+# Saidas de compilacao
+bin/
+obj/
+publicar/
+*.user
+.vs/
+.vscode/
+TestResults/
+
+# Relatorios e registros gerados em maquina de cliente nunca vao para o repositorio
+/relatorios/
+mapdisk-*.html
+mapdisk-*.csv
+acoes.log
+
+# Programa de terceiros usado como referencia
+TreeSizeFreeSetup.exe
+
+# Rascunhos locais
+.superpowers/
