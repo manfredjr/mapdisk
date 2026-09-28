@@ -206,7 +206,7 @@ A ordem das fatias 3 a 7 pode mudar por decisão do Manfred.
 5. **Linha de comando:** leitura dos argumentos e ausência de qualquer ação destrutiva.
 6. **Convenções herdadas do MapNet:** caracteres proibidos, nome de arquivo em minúsculas, fonte e licença embutidas, nenhum dado real no repositório.
 
-Os testes de integração criam em `%TEMP%` uma árvore com tamanhos conhecidos, junção, hard link, caminho longo e pasta com permissão negada, e comparam a varredura com o esperado.
+Os testes de integração criam dentro da pasta de saída dos testes (`testes/mapdisk.testes/bin/...`) uma árvore com tamanhos conhecidos, junção, hard link, caminho longo e pasta com permissão negada, e comparam a varredura com o esperado.
 
 Teste manual antes de cada versão: C: com e sem administrador, compartilhamento de rede, mover e Lixeira em pasta de teste, e um Windows Server.
 
