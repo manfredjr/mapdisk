@@ -72,7 +72,8 @@ internal static partial class LeitorPasta
         Func<long, bool> primeiraVez,
         List<ArquivoInfo> arquivos,
         List<EntradaPasta> subpastas,
-        out string? motivo)
+        out string? motivo,
+        ConjuntoNomes? nomes = null)
     {
         motivo = null;
         using var pasta = CreateFile(Alvo.Longo(caminho), ListarPasta, CompartilharTudo, 0, AbrirExistente, SemanticaDeBackup, 0);
@@ -111,7 +112,7 @@ internal static partial class LeitorPasta
                 }
 
                 primeira = false;
-                Interpretar(buffer, comId, raizDoVolume, primeiraVez, arquivos, subpastas);
+                Interpretar(buffer, comId, raizDoVolume, primeiraVez, arquivos, subpastas, nomes);
             }
         }
     }
@@ -122,7 +123,8 @@ internal static partial class LeitorPasta
         bool raizDoVolume,
         Func<long, bool> primeiraVez,
         List<ArquivoInfo> arquivos,
-        List<EntradaPasta> subpastas)
+        List<EntradaPasta> subpastas,
+        ConjuntoNomes? nomes)
     {
         var posNome = comId ? PosNomeComId : PosNomeCompleta;
         var inicio = 0;
@@ -131,8 +133,8 @@ internal static partial class LeitorPasta
             var entrada = buffer[inicio..];
             var proxima = MemoryMarshal.Read<int>(entrada[PosProxima..]);
             var tamanhoNome = MemoryMarshal.Read<int>(entrada[PosTamanhoNome..]);
-            var nome = new string(MemoryMarshal.Cast<byte, char>(entrada.Slice(posNome, tamanhoNome)));
-            if (nome is not ("." or ".."))
+            var nomeLido = MemoryMarshal.Cast<byte, char>(entrada.Slice(posNome, tamanhoNome));
+            if (nomeLido is not ("." or ".."))
             {
                 var escrita = Data(MemoryMarshal.Read<long>(entrada[PosEscrita..]));
                 var atributos = MemoryMarshal.Read<uint>(entrada[PosAtributos..]);
@@ -140,10 +142,11 @@ internal static partial class LeitorPasta
                 var ehLink = etiqueta is EtiquetaJuncao or EtiquetaLinkSimbolico;
                 if ((atributos & AtributoPasta) != 0)
                 {
-                    subpastas.Add(new EntradaPasta(nome, escrita, ehLink));
+                    subpastas.Add(new EntradaPasta(new string(nomeLido), escrita, ehLink));
                 }
                 else
                 {
+                    var nome = nomes?.Guardar(nomeLido) ?? new string(nomeLido);
                     var marcas = MarcaArquivo.Nenhuma;
                     if (ehLink)
                     {
