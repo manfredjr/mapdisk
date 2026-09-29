@@ -143,7 +143,7 @@ Inclusive quando a mudança é só em documentação, a partir do momento em que
 
 1. `dotnet build mapdisk.sln -c Release` sem aviso (os avisos viram erro).
 2. `dotnet test mapdisk.sln -c Release` com todos os testes verdes, inclusive o de caracteres proibidos e o de nome de arquivo.
-3. Busca por menção a ferramenta de IA no repositório, com `git grep -i` pelos nomes das ferramentas usadas.
+3. Busca por menção a ferramenta de IA no repositório, com `git grep -i` pelos nomes das ferramentas usadas. Os nomes vão só no comando digitado na hora, nunca em arquivo do repositório, nem em plano ou roteiro.
 4. Conferência de que só os arquivos previstos entram no commit e, com o GitHub ligado, de que o commit chegou lá.
 
 ## Publicação

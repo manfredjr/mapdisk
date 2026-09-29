@@ -4263,9 +4263,10 @@ Acrescentar a `docs/superpowers/pendencias.md`:
 ```bash
 dotnet build mapdisk.sln -c Release
 dotnet test mapdisk.sln -c Release
-git grep -i -E "claude|anthropic|chatgpt|openai|copilot|gemini" || echo "sem mencao a ferramenta"
 git status --short
 ```
+
+Fazer também a busca por menção a ferramenta de IA do portão 3 do `AGENTS.md`. Os nomes buscados ficam no comando digitado na hora, nunca escritos em arquivo do repositório.
 
 Commit com a mensagem `Traz a publicacao, o CI e a documentacao da fatia 1`.
 
