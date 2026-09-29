@@ -240,4 +240,22 @@ public class PainelPrincipalTestes
         Assert.Same(a, motor.Relida);
         Assert.Equal(EstadoPainel.Varrendo, p.Estado);
     }
+
+    [Fact]
+    public void Abrir_aqui_mostra_os_totais_da_pasta_aberta()
+    {
+        var p = Demonstracao.Painel();
+        p.Varrer();
+        p.Tique();
+        var total = p.TextoTotais;
+        var users = p.Arvore.Raiz!.Subpastas.Single(s => s.Nome == "Users");
+
+        p.AbrirAqui(users);
+
+        Assert.NotEqual(total, p.TextoTotais);
+        Assert.True(p.PodeVoltar);
+        p.Voltar();
+        Assert.Equal(total, p.TextoTotais);
+        Assert.True(p.PodeAvancar);
+    }
 }

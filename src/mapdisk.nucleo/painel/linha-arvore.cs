@@ -36,11 +36,10 @@ public sealed class LinhaArvore : INotifyPropertyChanged
 {
     private const double LarguraMaximaBarra = 60;
 
-    internal LinhaArvore(TipoLinha tipo, NoPasta pasta, int nivel, ArquivoInfo arquivo = default)
+    internal LinhaArvore(TipoLinha tipo, NoPasta pasta, ArquivoInfo arquivo = default)
     {
         Tipo = tipo;
         Pasta = pasta;
-        Nivel = nivel;
         Arquivo = arquivo;
     }
 
@@ -53,7 +52,8 @@ public sealed class LinhaArvore : INotifyPropertyChanged
 
     public ArquivoInfo Arquivo { get; }
 
-    public int Nivel { get; }
+    /// <summary>Nível abaixo da raiz mostrada. Muda quando outra pasta vira a raiz.</summary>
+    public int Nivel { get; internal set; }
 
     public bool Expandida { get; internal set; }
 
@@ -71,10 +71,15 @@ public sealed class LinhaArvore : INotifyPropertyChanged
 
     public string Nome => Tipo switch
     {
-        TipoLinha.Pasta => Pasta.Nome,
+        TipoLinha.Pasta => Nivel == 0 ? Pasta.CaminhoCompleto() : Pasta.Nome,
         TipoLinha.GrupoArquivos => $"[{Formatador.Plural(Pasta.Arquivos.Count, "arquivo", "arquivos")}]",
         _ => Arquivo.Nome,
     };
+
+    /// <summary>Caminho completo, para mostrar no Explorer e copiar.</summary>
+    public string Caminho => Tipo == TipoLinha.Arquivo
+        ? Alvo.Juntar(Pasta.CaminhoCompleto(), Arquivo.Nome)
+        : Pasta.CaminhoCompleto();
 
     /// <summary>
     /// Pasta sem número de verdade: ainda não lida, sem acesso, com erro ou link. Nunca mostra 0.

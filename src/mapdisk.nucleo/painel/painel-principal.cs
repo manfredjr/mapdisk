@@ -132,6 +132,29 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
 
     public void LimparErro() => Erro = null;
 
+    public bool PodeVoltar => Arvore.PodeVoltar;
+
+    public bool PodeAvancar => Arvore.PodeAvancar;
+
+    public bool PodeSubir => Arvore.PodeSubir;
+
+    public void AbrirAqui(NoPasta pasta) => Navegar(() => Arvore.AbrirAqui(pasta));
+
+    public void Voltar() => Navegar(Arvore.Voltar);
+
+    public void Avancar() => Navegar(Arvore.Avancar);
+
+    public void Subir() => Navegar(Arvore.Subir);
+
+    public void AbrirNiveis(int niveis) => Navegar(() => Arvore.AbrirNiveis(niveis));
+
+    // Navegar muda a raiz mostrada: os totais da barra passam a ser os dessa raiz.
+    private void Navegar(Action acao)
+    {
+        acao();
+        AtualizarTextos();
+    }
+
     public void Tique()
     {
         if (_varredura is null)

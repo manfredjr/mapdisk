@@ -209,4 +209,61 @@ public class ArvoreVisivelTestes
         Assert.Contains(a.Linhas, l => l.Nome == "Carla");
         Assert.DoesNotContain(a.Linhas, l => l.Nome == "Ana");
     }
+
+    [Fact]
+    public void Abrir_aqui_usa_a_pasta_como_raiz_sem_varrer_de_novo()
+    {
+        var a = Carregada(out var raiz);
+        var users = raiz.Subpastas.Single(s => s.Nome == "Users");
+
+        a.AbrirAqui(users);
+
+        Assert.Equal([@"C:\Users", "Ana", "Bruno"], a.Linhas.Select(l => l.Nome));
+        Assert.Equal([0, 1, 1], a.Linhas.Select(l => l.Nivel));
+        Assert.Equal("100,0 %", a.Linhas[0].TextoPorcentagem);
+        Assert.True(a.PodeVoltar);
+        Assert.True(a.PodeSubir);
+    }
+
+    [Fact]
+    public void Voltar_avancar_e_subir()
+    {
+        var a = Carregada(out var raiz);
+        var users = raiz.Subpastas.Single(s => s.Nome == "Users");
+        a.AbrirAqui(users);
+
+        a.Voltar();
+        Assert.Equal(@"C:\", a.Linhas[0].Nome);
+        Assert.True(a.PodeAvancar);
+
+        a.Avancar();
+        Assert.Equal(@"C:\Users", a.Linhas[0].Nome);
+
+        a.Subir();
+        Assert.Equal(@"C:\", a.Linhas[0].Nome);
+        Assert.False(a.PodeSubir);
+    }
+
+    [Fact]
+    public void Abrir_niveis_abre_ate_a_profundidade_pedida()
+    {
+        var a = Carregada(out _);
+
+        a.AbrirNiveis(2);
+        Assert.Contains(a.Linhas, l => l.Nome == "Ana");
+
+        a.AbrirNiveis(1);
+        Assert.DoesNotContain(a.Linhas, l => l.Nome == "Ana");
+    }
+
+    [Fact]
+    public void Caminho_da_linha()
+    {
+        var a = Carregada(out _);
+        a.Expandir(Linha(a, "Users"));
+        a.Expandir(Linha(a, "[2 arquivos]"));
+
+        Assert.Equal(@"C:\Users\Ana", Linha(a, "Ana").Caminho);
+        Assert.Equal(@"C:\pagefile.sys", Linha(a, "pagefile.sys").Caminho);
+    }
 }
