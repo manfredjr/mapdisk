@@ -48,6 +48,8 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         Motor = new MotorVarredura(),
         ListarUnidades = Volumes.ListarUnidades,
         Historico = HistoricoAlvosArquivo.Padrao(),
+        Administrador = Privilegios.EhAdministrador(),
+        Elevar = Elevacao.Reabrir,
     });
 
     /// <summary>O processo já roda como administrador.</summary>
@@ -154,6 +156,39 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     }
 
     public void LimparErro() => Erro = null;
+
+    public bool MostrarElevar => !Administrador;
+
+    public bool PodeElevar => !Administrador && Estado == EstadoPainel.Parado;
+
+    /// <summary>Reabre o programa como administrador, varrendo o alvo. A recusa no aviso do Windows não é erro de programa.</summary>
+    public void Elevar()
+    {
+        if (!PodeElevar)
+        {
+            return;
+        }
+
+        string? erro = null;
+        var alvo = _ultimoAlvo ?? Alvo.Normalizar(TextoAlvo, out erro);
+        if (alvo is null)
+        {
+            Erro = erro;
+            Avisar();
+            return;
+        }
+
+        if (_elevar(alvo) == ResultadoElevacao.Aberta)
+        {
+            TextoEstado = "A varredura como administrador abriu em outra janela.";
+        }
+        else
+        {
+            Erro = "O Windows não confirmou a elevação. A varredura segue sem administrador.";
+        }
+
+        Avisar();
+    }
 
     public bool PodeVoltar => Arvore.PodeVoltar;
 

@@ -277,4 +277,57 @@ public class PainelPrincipalTestes
         Assert.Equal([@"C:\Dados\Clientes"], historico.Ler());
         Assert.Equal([@"C:\", @"C:\Dados\Clientes"], p.Opcoes.Select(o => o.Caminho));
     }
+
+    [Fact]
+    public void Elevar_reabre_como_administrador_com_o_alvo()
+    {
+        string? pedido = null;
+        var p = new PainelPrincipal(new DependenciasPainel
+        {
+            Motor = new MotorFalso(),
+            ListarUnidades = () => [_c],
+            Elevar = alvo =>
+            {
+                pedido = alvo;
+                return ResultadoElevacao.Aberta;
+            },
+        });
+        p.TextoAlvo = "d:";
+
+        p.Elevar();
+
+        Assert.Equal(@"D:\", pedido);
+        Assert.Contains("outra janela", p.TextoEstado);
+        Assert.True(p.MostrarElevar);
+    }
+
+    [Fact]
+    public void Elevacao_recusada_avisa_e_segue_sem_administrador()
+    {
+        var p = new PainelPrincipal(new DependenciasPainel
+        {
+            Motor = new MotorFalso(),
+            ListarUnidades = () => [_c],
+            Elevar = _ => ResultadoElevacao.Recusada,
+        });
+
+        p.Elevar();
+
+        Assert.Contains("não confirmou", p.Erro);
+        Assert.Equal(EstadoPainel.Parado, p.Estado);
+    }
+
+    [Fact]
+    public void Ja_administrador_nao_mostra_o_botao()
+    {
+        var p = new PainelPrincipal(new DependenciasPainel
+        {
+            Motor = new MotorFalso(),
+            ListarUnidades = () => [_c],
+            Administrador = true,
+        });
+
+        Assert.False(p.MostrarElevar);
+        Assert.False(p.PodeElevar);
+    }
 }
