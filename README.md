@@ -12,6 +12,15 @@ Baixe o `mapdisk.exe` e abra. Não precisa instalar nem ser administrador. Escol
 
 Pastas que o Windows não deixa ler aparecem como **sem acesso**, e a barra de baixo diz quantas são. O total não inclui o que está nelas.
 
+Para ler também essas pastas, clique em **Varrer como administrador**. O Windows pede confirmação e abre outra janela, que já começa varrendo e lê todas as pastas locais. Só leitura: nada é apagado nem movido.
+
+Na árvore:
+
+- **Abrir aqui** (botão direito) mostra uma pasta como raiz, sem varrer de novo. **Voltar**, **Avançar** e **Subir** navegam entre as raízes, e **Abrir até** abre a árvore até 5 níveis.
+- **Atualizar esta pasta** (botão direito ou Shift+F5) lê de novo só a pasta escolhida.
+- O botão direito também tem **Mostrar no Explorer**, **Copiar caminho** e **Propriedades**.
+- A lista de alvos mostra as unidades e os últimos 10 alvos usados. A lista fica só neste computador.
+
 Linha de comando (só lê, nunca apaga nem move). O alvo é um caminho completo:
 
     mapdisk varrer C:
@@ -24,3 +33,4 @@ No Prompt de Comando, use `start /wait mapdisk varrer C:` para o prompt esperar 
 | Fatia | Conteúdo | Ramo | Pull Request | Situação |
 |---|---|---|---|---|
 | 1 | Varredura, árvore com colunas, modos e unidades, barra de status, linha de comando com CSV | `varredura` | [#2](https://github.com/manfredjr/mapdisk/pull/2) | Concluída em 29/09/2026 |
+| 2 | Navegação, últimos alvos, atualizar uma pasta, menu de contexto, varredura como administrador com o privilégio de backup, acertos da fatia 1 | `navegacao` | [PREENCHER] | Aguardando o teste do Manfred |
