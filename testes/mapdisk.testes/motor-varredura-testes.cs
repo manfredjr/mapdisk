@@ -139,4 +139,13 @@ public class MotorVarreduraTestes
             Assert.Equal((12 * 12 * 6 * 3) + (12 * 12 * 5), r.Raiz.Tamanho);
         }
     }
+
+    [Fact]
+    public void Varredura_completa_nao_deixa_pasta_sem_leitura()
+    {
+        using var t = new PastaTeste();
+        t.Arquivo(@"a\b\c\x.bin", 1);
+
+        Assert.Equal(0, Varrer(t.Raiz).PastasNaoLidas);
+    }
 }

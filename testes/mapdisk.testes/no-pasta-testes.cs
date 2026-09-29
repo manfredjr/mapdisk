@@ -116,4 +116,18 @@ public class NoPastaTestes
         Assert.Equal(4000, raiz.ArquivosTotal);
         Assert.Equal(2000, raiz.PastasTotal);
     }
+
+    [Fact]
+    public void Conta_as_pastas_que_ficaram_sem_leitura()
+    {
+        var raiz = new NoPasta(@"C:\", null);
+        var a = new NoPasta("a", raiz);
+        var b = new NoPasta("b", raiz);
+        var c = new NoPasta("c", a);
+        raiz.Preencher([], [a, b]);
+        a.Preencher([], [c]);
+
+        Assert.Equal(2, raiz.ContarNaoLidas());
+        Assert.Equal(1, a.ContarNaoLidas());
+    }
 }

@@ -130,6 +130,30 @@ public sealed class NoPasta
         return caminho;
     }
 
+    /// <summary>Pastas desta subárvore que ficaram sem leitura, contando esta.</summary>
+    public int ContarNaoLidas()
+    {
+        var quantas = 0;
+        var pilha = new Stack<NoPasta>();
+        pilha.Push(this);
+        while (pilha.Count > 0)
+        {
+            var no = pilha.Pop();
+            if (no.Estado == EstadoPasta.Pendente)
+            {
+                quantas++;
+                continue;
+            }
+
+            foreach (var sub in no.Subpastas)
+            {
+                pilha.Push(sub);
+            }
+        }
+
+        return quantas;
+    }
+
     /// <summary>Grava o que foi lido e soma aqui e acima. Chamado uma vez, pela tarefa que leu a pasta.</summary>
     public void Preencher(ArquivoInfo[] arquivos, NoPasta[] subpastas)
     {

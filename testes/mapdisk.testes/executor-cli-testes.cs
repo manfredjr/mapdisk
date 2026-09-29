@@ -103,4 +103,29 @@ public class ExecutorCliTestes
         Assert.Contains("não lida", linha);
         Assert.DoesNotContain("0 Bytes", linha);
     }
+
+    private sealed class MotorComPastasNaoLidas : IMotorVarredura
+    {
+        public Varredura Iniciar(string alvo, CancellationToken cancelar)
+        {
+            var raiz = new NoPasta(alvo, null);
+            raiz.Preencher([], []);
+            return new Varredura(raiz).Comecar(_ => Task.FromResult(new ResultadoVarredura
+            {
+                Raiz = raiz,
+                Volume = null,
+                Duracao = TimeSpan.FromSeconds(1),
+                Cancelada = false,
+                PastasNaoLidas = 2,
+            }));
+        }
+    }
+
+    [Fact]
+    public void Fim_com_pastas_nao_lidas_avisa_na_linha_de_comando()
+    {
+        Rodar(new MotorComPastasNaoLidas(), out var saida, out _, "varrer", "D:");
+
+        Assert.Contains("Atenção: 2 pastas não foram lidas", saida);
+    }
 }

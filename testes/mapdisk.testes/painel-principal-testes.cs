@@ -191,4 +191,26 @@ public class PainelPrincipalTestes
         Assert.True(p.Arvore.Linhas.Count > 3);
         Assert.Contains("NTFS", p.TextoVolume);
     }
+
+    [Fact]
+    public void Fim_com_pastas_nao_lidas_avisa()
+    {
+        var motor = new MotorFalso();
+        var p = Painel(motor);
+        p.Varrer();
+        motor.Fim.SetResult(new ResultadoVarredura
+        {
+            Raiz = motor.Raiz!,
+            Volume = null,
+            Duracao = TimeSpan.FromSeconds(1),
+            Cancelada = false,
+            PastasNaoLidas = 3,
+        });
+
+        p.Tique();
+
+        Assert.Equal(EstadoPainel.Parado, p.Estado);
+        Assert.Contains("3 pastas não foram lidas", p.Erro);
+        Assert.Contains("Atualizar", p.Erro);
+    }
 }

@@ -162,6 +162,10 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
             {
                 Erro = $"Não foi possível ler {r.Raiz.Nome}: {r.Raiz.Motivo}.";
             }
+            else if (!r.Cancelada && r.PastasNaoLidas > 0)
+            {
+                Erro = $"A varredura terminou, mas {Formatador.Plural(r.PastasNaoLidas, "pasta não foi lida", "pastas não foram lidas")}. Clique em Atualizar para varrer de novo.";
+            }
         }
 
         _cancelar?.Dispose();

@@ -13,6 +13,9 @@ public sealed class ResultadoVarredura
 
     /// <summary>Interrompida antes do fim. Os números mostram só o que foi lido até ali.</summary>
     public required bool Cancelada { get; init; }
+
+    /// <summary>Pastas que ficaram sem leitura numa varredura que não foi interrompida. Deve ser 0.</summary>
+    public int PastasNaoLidas { get; init; }
 }
 
 /// <summary>Uma varredura em andamento. A raiz existe desde o início e vai sendo preenchida.</summary>
@@ -112,12 +115,14 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
         }
 
         Task.WaitAll(trabalhadores);
+        var cancelada = Volatile.Read(ref pendentes) > 0;
         return new ResultadoVarredura
         {
             Raiz = raiz,
             Volume = volume,
             Duracao = relogio.Elapsed,
-            Cancelada = Volatile.Read(ref pendentes) > 0,
+            Cancelada = cancelada,
+            PastasNaoLidas = cancelada ? 0 : raiz.ContarNaoLidas(),
         };
     }
 
