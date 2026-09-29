@@ -12,6 +12,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>recursos\mapdisk.ico</ApplicationIcon>
 
+    <!-- Coletor de lixo em modo de economia: menos memoria reservada numa varredura grande -->
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+
     <!-- Entrega: um .exe unico, autocontido, para Windows 64 bits -->
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
@@ -26,6 +29,10 @@
     <Resource Include="recursos\mt-logo.png" />
     <Resource Include="recursos\fontes\*.ttf" />
     <Resource Include="recursos\fontes\ofl.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="System.GC.ConserveMemory" Value="7" />
   </ItemGroup>
 
   <ItemGroup>

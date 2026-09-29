@@ -73,8 +73,8 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
 
         // Hard link: o mesmo identificador de arquivo no volume soma uma vez só. Em caminho de
         // rede o identificador vem do servidor e pode repetir entre discos dele, então não conta.
-        var vistos = new ConcurrentDictionary<long, byte>();
-        Func<long, bool> primeiraVez = Alvo.EhRede(raiz.Nome) ? _ => true : id => vistos.TryAdd(id, 0);
+        var vistos = new ConjuntoIds();
+        Func<long, bool> primeiraVez = Alvo.EhRede(raiz.Nome) ? _ => true : vistos.Acrescentar;
         var alvoERaizDoVolume = string.Equals(raiz.Nome, Volumes.RaizDe(raiz.Nome), StringComparison.OrdinalIgnoreCase);
 
         using var fila = new BlockingCollection<(NoPasta No, string Caminho)>(new ConcurrentStack<(NoPasta, string)>());
@@ -87,11 +87,14 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
             trabalhadores[i] = Task.Run(
                 () =>
                 {
+                    // As listas vivem uma por tarefa e sao limpas a cada pasta: menos lixo para o coletor.
+                    var arquivos = new List<ArquivoInfo>();
+                    var entradas = new List<EntradaPasta>();
                     try
                     {
                         foreach (var (no, caminho) in fila.GetConsumingEnumerable(cancelar))
                         {
-                            LerPasta(varredura, no, caminho, alvoERaizDoVolume && no == raiz, primeiraVez);
+                            LerPasta(varredura, no, caminho, alvoERaizDoVolume && no == raiz, primeiraVez, arquivos, entradas);
                             foreach (var sub in no.Subpastas)
                             {
                                 if (sub.Estado == EstadoPasta.Pendente)
@@ -126,11 +129,18 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
         };
     }
 
-    private static void LerPasta(Varredura varredura, NoPasta no, string caminho, bool raizDoVolume, Func<long, bool> primeiraVez)
+    private static void LerPasta(
+        Varredura varredura,
+        NoPasta no,
+        string caminho,
+        bool raizDoVolume,
+        Func<long, bool> primeiraVez,
+        List<ArquivoInfo> arquivos,
+        List<EntradaPasta> entradas)
     {
         varredura.PastaAtual = caminho;
-        var arquivos = new List<ArquivoInfo>();
-        var entradas = new List<EntradaPasta>();
+        arquivos.Clear();
+        entradas.Clear();
         try
         {
             switch (LeitorPasta.Ler(caminho, raizDoVolume, primeiraVez, arquivos, entradas, out var motivo))
