@@ -108,6 +108,29 @@ public sealed class ArvoreVisivel
         Atualizar();
     }
 
+    /// <summary>Troca a pasta relida pela nova, mantendo aberta se estava aberta.</summary>
+    public void Substituir(NoPasta antiga, NoPasta nova)
+    {
+        if (_pastasAbertas.Remove(antiga))
+        {
+            _pastasAbertas.Add(nova);
+        }
+
+        if (_gruposAbertos.Remove(antiga))
+        {
+            _gruposAbertos.Add(nova);
+        }
+
+        _linhasPasta.Remove(antiga);
+        _linhasGrupo.Remove(antiga);
+        if (Raiz == antiga)
+        {
+            Raiz = nova;
+        }
+
+        Atualizar();
+    }
+
     /// <summary>Remonta a lista com os números de agora. A tela chama a cada 250 ms durante a varredura.</summary>
     public void Atualizar()
     {

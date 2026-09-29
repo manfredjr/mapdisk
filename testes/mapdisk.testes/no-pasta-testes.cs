@@ -130,4 +130,28 @@ public class NoPastaTestes
         Assert.Equal(2, raiz.ContarNaoLidas());
         Assert.Equal(1, a.ContarNaoLidas());
     }
+
+    [Fact]
+    public void Descontar_e_trocar_deixam_os_totais_certos()
+    {
+        var raiz = new NoPasta(@"C:\", null);
+        var a = new NoPasta("a", raiz);
+        var b = new NoPasta("b", raiz);
+        raiz.Preencher([], [a, b]);
+        var fechada = new NoPasta("fechada", a);
+        a.Preencher([Arq("1.bin", 100, 4096)], [fechada]);
+        fechada.MarcarSemAcesso("acesso negado");
+        b.Preencher([Arq("2.bin", 10, 4096)], []);
+
+        a.DescontarAcima();
+        var nova = new NoPasta("a", raiz);
+        raiz.TrocarSubpasta(a, nova);
+        nova.Preencher([Arq("1.bin", 300, 4096)], []);
+
+        Assert.Equal(310, raiz.Tamanho);
+        Assert.Equal(2, raiz.ArquivosTotal);
+        Assert.Equal(2, raiz.PastasTotal);
+        Assert.Equal(0, raiz.PastasSemAcesso);
+        Assert.Same(nova, raiz.Subpastas[0]);
+    }
 }

@@ -94,6 +94,29 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         }
     }
 
+    /// <summary>Lê de novo só esta pasta (Shift+F5). A raiz é varrida inteira. Link não é relido.</summary>
+    public bool AtualizarPasta(NoPasta pasta)
+    {
+        if (!PodeVarrer || pasta.Estado == EstadoPasta.Link)
+        {
+            return false;
+        }
+
+        if (pasta.Pai is null)
+        {
+            Atualizar();
+            return true;
+        }
+
+        Erro = null;
+        _cancelar = new CancellationTokenSource();
+        _varredura = _motor.Reler(pasta, _cancelar.Token);
+        Arvore.Substituir(pasta, _varredura.Raiz);
+        Estado = EstadoPainel.Varrendo;
+        AtualizarTextos();
+        return true;
+    }
+
     public void Parar()
     {
         if (Estado != EstadoPainel.Varrendo)

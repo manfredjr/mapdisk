@@ -130,6 +130,36 @@ public sealed class NoPasta
         return caminho;
     }
 
+    /// <summary>
+    /// Tira das pastas acima o que está abaixo desta, para ela ser lida de novo. A própria pasta
+    /// continua contada uma vez no total de pastas da pasta-pai. A última modificação não volta.
+    /// </summary>
+    internal void DescontarAcima()
+    {
+        var tamanho = Tamanho;
+        var alocado = Alocado;
+        var arquivos = ArquivosTotal;
+        var pastas = PastasTotal;
+        var semAcesso = PastasSemAcesso;
+        var comErro = PastasComErro;
+        for (var no = Pai; no != null; no = no.Pai)
+        {
+            Interlocked.Add(ref no._tamanho, -tamanho);
+            Interlocked.Add(ref no._alocado, -alocado);
+            Interlocked.Add(ref no._arquivosTotal, -arquivos);
+            Interlocked.Add(ref no._pastasTotal, -pastas);
+            Interlocked.Add(ref no._semAcesso, -semAcesso);
+            Interlocked.Add(ref no._comErro, -comErro);
+        }
+    }
+
+    internal void TrocarSubpasta(NoPasta antiga, NoPasta nova)
+    {
+        var copia = (NoPasta[])Volatile.Read(ref _subpastas).Clone();
+        copia[Array.IndexOf(copia, antiga)] = nova;
+        Volatile.Write(ref _subpastas, copia);
+    }
+
     /// <summary>Pastas desta subárvore que ficaram sem leitura, contando esta.</summary>
     public int ContarNaoLidas()
     {

@@ -50,6 +50,16 @@ public interface IMotorVarredura
 {
     /// <summary>Começa a varrer o alvo, já normalizado, e devolve na hora, com a raiz para a tela.</summary>
     Varredura Iniciar(string alvo, CancellationToken cancelar);
+
+    /// <summary>Lê de novo só esta pasta. O padrão não relê nada e devolve a mesma pasta.</summary>
+    Varredura Reler(NoPasta pasta, CancellationToken cancelar) =>
+        new Varredura(pasta).Comecar(_ => Task.FromResult(new ResultadoVarredura
+        {
+            Raiz = pasta,
+            Volume = null,
+            Duracao = TimeSpan.Zero,
+            Cancelada = false,
+        }));
 }
 
 /// <summary>
@@ -58,28 +68,52 @@ public interface IMotorVarredura
 /// </summary>
 public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
 {
-    public Varredura Iniciar(string alvo, CancellationToken cancelar)
+    public Varredura Iniciar(string alvo, CancellationToken cancelar) => Comecar(new NoPasta(alvo, null), alvo, cancelar);
+
+    /// <summary>
+    /// Lê de novo só esta pasta: tira da árvore o que ela somava, troca pela pasta nova e varre
+    /// só ela. A raiz é varrida inteira. Link não é relido.
+    /// </summary>
+    public Varredura Reler(NoPasta pasta, CancellationToken cancelar)
     {
-        var quantas = tarefas ?? (Alvo.EhRede(alvo) ? 4 : Math.Clamp(Environment.ProcessorCount, 4, 16));
-        return new Varredura(new NoPasta(alvo, null))
-            .Comecar(v => Task.Run(() => Executar(v, quantas, cancelar), CancellationToken.None));
+        if (pasta.Estado == EstadoPasta.Link)
+        {
+            return ((IMotorVarredura)new MotorDeNada()).Reler(pasta, cancelar);
+        }
+
+        if (pasta.Pai is null)
+        {
+            return Iniciar(pasta.Nome, cancelar);
+        }
+
+        var caminho = pasta.CaminhoCompleto();
+        var nova = new NoPasta(pasta.Nome, pasta.Pai, pasta.ModificacaoPropria);
+        pasta.DescontarAcima();
+        pasta.Pai.TrocarSubpasta(pasta, nova);
+        return Comecar(nova, caminho, cancelar);
     }
 
-    private static ResultadoVarredura Executar(Varredura varredura, int tarefas, CancellationToken cancelar)
+    private Varredura Comecar(NoPasta raiz, string caminho, CancellationToken cancelar)
+    {
+        var quantas = tarefas ?? (Alvo.EhRede(caminho) ? 4 : Math.Clamp(Environment.ProcessorCount, 4, 16));
+        return new Varredura(raiz).Comecar(v => Task.Run(() => Executar(v, caminho, quantas, cancelar), CancellationToken.None));
+    }
+
+    private static ResultadoVarredura Executar(Varredura varredura, string caminhoDaRaiz, int tarefas, CancellationToken cancelar)
     {
         var relogio = Stopwatch.StartNew();
         var raiz = varredura.Raiz;
-        var volume = Volumes.Ler(raiz.Nome);
+        var volume = Volumes.Ler(caminhoDaRaiz);
 
         // Hard link: o mesmo identificador de arquivo no volume soma uma vez só. Em caminho de
         // rede o identificador vem do servidor e pode repetir entre discos dele, então não conta.
         var vistos = new ConjuntoIds();
-        Func<long, bool> primeiraVez = Alvo.EhRede(raiz.Nome) ? _ => true : vistos.Acrescentar;
-        var alvoERaizDoVolume = string.Equals(raiz.Nome, Volumes.RaizDe(raiz.Nome), StringComparison.OrdinalIgnoreCase);
+        Func<long, bool> primeiraVez = Alvo.EhRede(caminhoDaRaiz) ? _ => true : vistos.Acrescentar;
+        var alvoERaizDoVolume = string.Equals(caminhoDaRaiz, Volumes.RaizDe(caminhoDaRaiz), StringComparison.OrdinalIgnoreCase);
 
         using var fila = new BlockingCollection<(NoPasta No, string Caminho)>(new ConcurrentStack<(NoPasta, string)>());
         var pendentes = 1;
-        fila.Add((raiz, raiz.Nome));
+        fila.Add((raiz, caminhoDaRaiz));
 
         var trabalhadores = new Task[tarefas];
         for (var i = 0; i < tarefas; i++)
@@ -189,5 +223,10 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
         {
             return null;
         }
+    }
+
+    private sealed class MotorDeNada : IMotorVarredura
+    {
+        public Varredura Iniciar(string alvo, CancellationToken cancelar) => throw new NotSupportedException();
     }
 }

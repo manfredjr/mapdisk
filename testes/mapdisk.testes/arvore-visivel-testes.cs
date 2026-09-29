@@ -190,4 +190,23 @@ public class ArvoreVisivelTestes
 
         Assert.Same(users, Linha(a, "Users"));
     }
+
+    [Fact]
+    public void Substituir_mantem_a_pasta_aberta()
+    {
+        var a = Carregada(out var raiz);
+        var users = raiz.Subpastas.Single(s => s.Nome == "Users");
+        a.Expandir(Linha(a, "Users"));
+
+        users.DescontarAcima();
+        var nova = new NoPasta("Users", raiz);
+        raiz.TrocarSubpasta(users, nova);
+        var carla = new NoPasta("Carla", nova);
+        nova.Preencher([], [carla]);
+        carla.Preencher([new("x.bin", 50, 50, _d, MarcaArquivo.Nenhuma)], []);
+        a.Substituir(users, nova);
+
+        Assert.Contains(a.Linhas, l => l.Nome == "Carla");
+        Assert.DoesNotContain(a.Linhas, l => l.Nome == "Ana");
+    }
 }

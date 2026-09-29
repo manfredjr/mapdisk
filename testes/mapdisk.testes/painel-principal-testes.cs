@@ -19,6 +19,15 @@ public class PainelPrincipalTestes
             Raiz = new NoPasta(alvo, null);
             return new Varredura(Raiz).Comecar(_ => Fim.Task);
         }
+
+        public NoPasta? Relida { get; private set; }
+
+        public Varredura Reler(NoPasta pasta, CancellationToken cancelar)
+        {
+            Relida = pasta;
+            Token = cancelar;
+            return new Varredura(pasta).Comecar(_ => Fim.Task);
+        }
     }
 
     private static readonly InfoVolume _c = new(@"C:\", "Sistema", "NTFS", 1L << 30, 2L << 30, 4096);
@@ -212,5 +221,23 @@ public class PainelPrincipalTestes
         Assert.Equal(EstadoPainel.Parado, p.Estado);
         Assert.Contains("3 pastas não foram lidas", p.Erro);
         Assert.Contains("Atualizar", p.Erro);
+    }
+
+    [Fact]
+    public void Atualizar_pasta_rele_so_ela()
+    {
+        var motor = new MotorFalso();
+        var p = Painel(motor);
+        p.Varrer();
+        var a = new NoPasta("a", motor.Raiz);
+        motor.Raiz!.Preencher([], [a]);
+        a.Preencher([], []);
+        motor.Fim.SetResult(Resultado(motor.Raiz));
+        p.Tique();
+
+        Assert.True(p.AtualizarPasta(a));
+
+        Assert.Same(a, motor.Relida);
+        Assert.Equal(EstadoPainel.Varrendo, p.Estado);
     }
 }
