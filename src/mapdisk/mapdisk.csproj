@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <AssemblyName>mapdisk</AssemblyName>
+    <RootNamespace>MapDisk</RootNamespace>
+    <Description>MapDisk - MT: onde esta o espaco ocupado no disco.</Description>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>recursos\mapdisk.ico</ApplicationIcon>
+
+    <!-- Entrega: um .exe unico, autocontido, para Windows 64 bits -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+  </PropertyGroup>
+
+  <!-- Fonte e logo da MT embutidos no .exe e lidos pela tela com pack:// -->
+  <ItemGroup>
+    <Resource Include="recursos\mapdisk.ico" />
+    <Resource Include="recursos\mt-logo.png" />
+    <Resource Include="recursos\fontes\*.ttf" />
+    <Resource Include="recursos\fontes\ofl.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\mapdisk.nucleo\mapdisk.nucleo.csproj" />
+  </ItemGroup>
+
+</Project>

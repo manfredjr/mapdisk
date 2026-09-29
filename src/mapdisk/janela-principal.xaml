@@ -1,0 +1,212 @@
+<Window x:Class="MapDisk.JanelaPrincipal"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Style="{StaticResource JanelaMT}"
+        Title="MapDisk - MT" Width="1180" Height="760" MinWidth="860" MinHeight="480"
+        Icon="pack://application:,,,/mapdisk;component/recursos/mapdisk.ico"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <!-- Botao de abrir e fechar a linha: so o sinal, sem fundo -->
+        <Style x:Key="BotaoAbrir" TargetType="{x:Type Button}">
+            <Setter Property="Width" Value="18" />
+            <Setter Property="Height" Value="18" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="FontWeight" Value="ExtraBold" />
+            <Setter Property="Foreground" Value="{StaticResource PincelVerdeEscuro}" />
+        </Style>
+
+        <Style x:Key="Numero" TargetType="{x:Type TextBlock}">
+            <Setter Property="TextAlignment" Value="Right" />
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <!-- Faixa do topo: alvo e comandos -->
+        <Border DockPanel.Dock="Top" Background="{StaticResource GradienteFaixa}" Padding="14,10">
+            <DockPanel>
+                <!-- Simbolo do MapDisk (docs/marca/mapdisk-mt-simbolo.svg) num quadro branco, para os verdes aparecerem sobre a faixa -->
+                <Border DockPanel.Dock="Left" Background="White" CornerRadius="6" Padding="4"
+                        VerticalAlignment="Center" Margin="0,0,10,0">
+                    <Viewbox Width="26" Height="26">
+                        <Canvas Width="64" Height="64">
+                            <Rectangle Canvas.Left="3" Canvas.Top="3" Width="24" Height="58" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerdeEscuro}" />
+                            <Rectangle Canvas.Left="31" Canvas.Top="3" Width="30" Height="28" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerde}" />
+                            <Rectangle Canvas.Left="31" Canvas.Top="35" Width="13" Height="26" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerdeMedio}" />
+                            <Rectangle Canvas.Left="48" Canvas.Top="35" Width="13" Height="26" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerdeClaro}" />
+                        </Canvas>
+                    </Viewbox>
+                </Border>
+                <TextBlock DockPanel.Dock="Left" Text="MapDisk - MT" Foreground="White" FontSize="20"
+                           FontWeight="ExtraBold" VerticalAlignment="Center" Margin="0,0,18,0" />
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <ComboBox x:Name="CampoAlvo" Width="340" IsEditable="True"
+                              ItemsSource="{Binding Unidades}" TextSearch.TextPath="Raiz"
+                              Text="{Binding TextoAlvo, UpdateSourceTrigger=PropertyChanged}"
+                              ToolTip="Unidade, pasta ou caminho de rede, como C:, D:\Dados ou \\servidor\pasta"
+                              KeyDown="AoTeclarNoAlvo" DropDownOpened="AoAbrirUnidades">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Descricao}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Button Content="Procurar..." Style="{StaticResource BotaoFaixaContorno}" Click="AoProcurar"
+                            IsEnabled="{Binding PodeVarrer}" />
+                    <Button Content="Varrer" Style="{StaticResource BotaoFaixa}" Click="AoVarrer"
+                            IsEnabled="{Binding PodeVarrer}" />
+                    <Button Content="Parar" Style="{StaticResource BotaoFaixaContorno}" Click="AoParar"
+                            IsEnabled="{Binding PodeParar}" />
+                    <Button Content="Atualizar" Style="{StaticResource BotaoFaixaContorno}" Click="AoAtualizar"
+                            IsEnabled="{Binding PodeAtualizar}" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Exibicao: modo e unidade -->
+        <Border DockPanel.Dock="Top" Background="White" BorderBrush="{StaticResource PincelBorda}"
+                BorderThickness="0,0,0,1" Padding="14,6">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Mostrar:" Style="{StaticResource TituloGrupo}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <RadioButton GroupName="Modo" Content="Tamanho" Tag="Tamanho" IsChecked="True" Checked="AoMudarModo" Margin="0,0,12,0" />
+                <RadioButton GroupName="Modo" Content="Espaço alocado" Tag="Alocado" Checked="AoMudarModo" Margin="0,0,12,0" />
+                <RadioButton GroupName="Modo" Content="Contagem de arquivos" Tag="Contagem" Checked="AoMudarModo" Margin="0,0,12,0" />
+                <RadioButton GroupName="Modo" Content="Porcentagem" Tag="Porcentagem" Checked="AoMudarModo" Margin="0,0,28,0" />
+                <TextBlock Text="Unidade:" Style="{StaticResource TituloGrupo}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <RadioButton GroupName="Unidade" Content="Automática" Tag="Automatica" IsChecked="True" Checked="AoMudarUnidade" Margin="0,0,12,0" />
+                <RadioButton GroupName="Unidade" Content="GB" Tag="GB" Checked="AoMudarUnidade" Margin="0,0,12,0" />
+                <RadioButton GroupName="Unidade" Content="MB" Tag="MB" Checked="AoMudarUnidade" Margin="0,0,12,0" />
+                <RadioButton GroupName="Unidade" Content="KB" Tag="KB" Checked="AoMudarUnidade" />
+            </StackPanel>
+        </Border>
+
+        <!-- Barra de status -->
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource PincelGrafite}" Padding="12,6">
+            <DockPanel>
+                <ProgressBar DockPanel.Dock="Left" Style="{StaticResource ProgressoMT}" Width="120" Margin="0,0,12,0"
+                             IsIndeterminate="True" VerticalAlignment="Center"
+                             Visibility="{Binding Varrendo, Converter={StaticResource VisivelSe}}" />
+                <TextBlock DockPanel.Dock="Right" Text="{Binding TextoVolume}" Style="{StaticResource TextoEstado}" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding TextoEstado}" Style="{StaticResource TextoEstado}"
+                               MaxWidth="520" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding TextoTotais}" Style="{StaticResource TextoEstado}" Margin="18,0,0,0" />
+                    <TextBlock Text="{Binding TextoSemLeitura}" Style="{StaticResource TextoEstado}" Margin="18,0,0,0"
+                               Foreground="{StaticResource PincelVerdeClaro}" FontWeight="SemiBold" />
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Arvore com colunas. So as linhas visiveis sao desenhadas -->
+        <ListView x:Name="Tabela" ItemsSource="{Binding Arvore.Linhas}" BorderThickness="0"
+                  VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                  ScrollViewer.CanContentScroll="True" SelectionMode="Single"
+                  MouseDoubleClick="AoClicarDuasVezes" KeyDown="AoTeclarNaTabela">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding SemValor}" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource PincelTextoSuave}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="540">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="Nome" Tag="Nome" Click="AoClicarCabecalho" />
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="{Binding Recuo}" />
+                                    <Button Style="{StaticResource BotaoAbrir}" Content="{Binding Sinal}" Click="AoAlternar" />
+                                    <Grid Width="60" Height="10" Margin="4,0,6,0" VerticalAlignment="Center">
+                                        <Border Background="{StaticResource PincelCinzaClaro}" CornerRadius="2" />
+                                        <Border Background="{StaticResource PincelVerdeMedio}" CornerRadius="2"
+                                                HorizontalAlignment="Left" Width="{Binding LarguraBarra}" />
+                                    </Grid>
+                                    <TextBlock Text="{Binding TextoValor}" Width="78" Style="{StaticResource Numero}" Margin="0,0,10,0" />
+                                    <TextBlock Text="{Binding Nome}" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding Rotulo}" Foreground="{StaticResource PincelTextoSuave}" Margin="10,0,0,0" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="95">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="Tamanho" Tag="Tamanho" Click="AoClicarCabecalho" />
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TextoTamanho}" Style="{StaticResource Numero}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="95">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="Alocado" Tag="Alocado" Click="AoClicarCabecalho" />
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TextoAlocado}" Style="{StaticResource Numero}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="85">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="Arquivos" Tag="Arquivos" Click="AoClicarCabecalho" />
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TextoArquivos}" Style="{StaticResource Numero}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="75">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="Pastas" Tag="Pastas" Click="AoClicarCabecalho" />
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TextoPastas}" Style="{StaticResource Numero}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="80">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="% da pasta" Tag="Valor" Click="AoClicarCabecalho" />
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TextoPorcentagem}" Style="{StaticResource Numero}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="120">
+                        <GridViewColumn.Header>
+                            <GridViewColumnHeader Content="Última modificação" Tag="Modificacao" Click="AoClicarCabecalho" />
+                        </GridViewColumn.Header>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TextoModificacao}" Style="{StaticResource Numero}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </DockPanel>
+</Window>
