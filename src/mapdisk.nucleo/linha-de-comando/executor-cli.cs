@@ -62,6 +62,11 @@ public static class ExecutorCli
             saida.WriteLine($"Atenção: {Formatador.Plural(raiz.PastasComErro, "pasta com erro de leitura", "pastas com erro de leitura")}. O total não inclui o que está nelas.");
         }
 
+        if (!r.Cancelada && r.PastasNaoLidas > 0)
+        {
+            saida.WriteLine($"Atenção: {Formatador.Plural(r.PastasNaoLidas, "pasta não foi lida", "pastas não foram lidas")}. Rode de novo para conferir.");
+        }
+
         saida.WriteLine();
         saida.WriteLine($"Maiores itens em {raiz.Nome}:");
         foreach (var linha in MaioresItens(raiz, argumentos.Top))

@@ -19,6 +19,15 @@ public class PainelPrincipalTestes
             Raiz = new NoPasta(alvo, null);
             return new Varredura(Raiz).Comecar(_ => Fim.Task);
         }
+
+        public NoPasta? Relida { get; private set; }
+
+        public Varredura Reler(NoPasta pasta, CancellationToken cancelar)
+        {
+            Relida = pasta;
+            Token = cancelar;
+            return new Varredura(pasta).Comecar(_ => Fim.Task);
+        }
     }
 
     private static readonly InfoVolume _c = new(@"C:\", "Sistema", "NTFS", 1L << 30, 2L << 30, 4096);
@@ -190,5 +199,135 @@ public class PainelPrincipalTestes
         Assert.Equal(@"C:\", p.Arvore.Linhas[0].Nome);
         Assert.True(p.Arvore.Linhas.Count > 3);
         Assert.Contains("NTFS", p.TextoVolume);
+    }
+
+    [Fact]
+    public void Fim_com_pastas_nao_lidas_avisa()
+    {
+        var motor = new MotorFalso();
+        var p = Painel(motor);
+        p.Varrer();
+        motor.Fim.SetResult(new ResultadoVarredura
+        {
+            Raiz = motor.Raiz!,
+            Volume = null,
+            Duracao = TimeSpan.FromSeconds(1),
+            Cancelada = false,
+            PastasNaoLidas = 3,
+        });
+
+        p.Tique();
+
+        Assert.Equal(EstadoPainel.Parado, p.Estado);
+        Assert.Contains("3 pastas não foram lidas", p.Erro);
+        Assert.Contains("Atualizar", p.Erro);
+    }
+
+    [Fact]
+    public void Atualizar_pasta_rele_so_ela()
+    {
+        var motor = new MotorFalso();
+        var p = Painel(motor);
+        p.Varrer();
+        var a = new NoPasta("a", motor.Raiz);
+        motor.Raiz!.Preencher([], [a]);
+        a.Preencher([], []);
+        motor.Fim.SetResult(Resultado(motor.Raiz));
+        p.Tique();
+
+        Assert.True(p.AtualizarPasta(a));
+
+        Assert.Same(a, motor.Relida);
+        Assert.Equal(EstadoPainel.Varrendo, p.Estado);
+    }
+
+    [Fact]
+    public void Abrir_aqui_mostra_os_totais_da_pasta_aberta()
+    {
+        var p = Demonstracao.Painel();
+        p.Varrer();
+        p.Tique();
+        var total = p.TextoTotais;
+        var users = p.Arvore.Raiz!.Subpastas.Single(s => s.Nome == "Users");
+
+        p.AbrirAqui(users);
+
+        Assert.NotEqual(total, p.TextoTotais);
+        Assert.True(p.PodeVoltar);
+        p.Voltar();
+        Assert.Equal(total, p.TextoTotais);
+        Assert.True(p.PodeAvancar);
+    }
+
+    [Fact]
+    public void Varrer_guarda_o_alvo_nos_ultimos_e_mostra_nas_opcoes()
+    {
+        var historico = new HistoricoEmMemoria();
+        var motor = new MotorFalso();
+        var p = new PainelPrincipal(new DependenciasPainel
+        {
+            Motor = motor,
+            ListarUnidades = () => [_c],
+            Historico = historico,
+        });
+        p.TextoAlvo = @"C:\Dados\Clientes";
+
+        p.Varrer();
+
+        Assert.Equal([@"C:\Dados\Clientes"], historico.Ler());
+        Assert.Equal([@"C:\", @"C:\Dados\Clientes"], p.Opcoes.Select(o => o.Caminho));
+    }
+
+    [Fact]
+    public void Elevar_reabre_como_administrador_com_o_alvo()
+    {
+        string? pedido = null;
+        var p = new PainelPrincipal(new DependenciasPainel
+        {
+            Motor = new MotorFalso(),
+            ListarUnidades = () => [_c],
+            Elevar = alvo =>
+            {
+                pedido = alvo;
+                return ResultadoElevacao.Aberta;
+            },
+        });
+        p.TextoAlvo = "d:";
+
+        p.Elevar();
+
+        Assert.Equal(@"D:\", pedido);
+        Assert.Contains("outra janela", p.TextoEstado);
+        Assert.True(p.MostrarElevar);
+    }
+
+    [Fact]
+    public void Elevacao_recusada_avisa_e_segue_sem_administrador()
+    {
+        var p = new PainelPrincipal(new DependenciasPainel
+        {
+            Motor = new MotorFalso(),
+            ListarUnidades = () => [_c],
+            Elevar = _ => ResultadoElevacao.Recusada,
+        });
+
+        p.Elevar();
+
+        Assert.Contains("não confirmou", p.Erro);
+        Assert.Equal(EstadoPainel.Parado, p.Estado);
+    }
+
+    [Fact]
+    public void Ja_administrador_nao_mostra_o_botao()
+    {
+        var p = new PainelPrincipal(new DependenciasPainel
+        {
+            Motor = new MotorFalso(),
+            ListarUnidades = () => [_c],
+            Administrador = true,
+        });
+
+        Assert.False(p.MostrarElevar);
+        Assert.False(p.PodeElevar);
     }
 }

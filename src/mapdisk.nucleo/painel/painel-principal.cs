@@ -17,22 +17,46 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
 {
     private readonly IMotorVarredura _motor;
     private readonly Func<IReadOnlyList<InfoVolume>> _listarUnidades;
+    private readonly IHistoricoAlvos _historico;
+    private readonly Func<string, ResultadoElevacao> _elevar;
     private CancellationTokenSource? _cancelar;
     private Varredura? _varredura;
     private InfoVolume? _volume;
     private string? _ultimoAlvo;
 
-    public PainelPrincipal(IMotorVarredura motor, Func<IReadOnlyList<InfoVolume>> listarUnidades)
+    public PainelPrincipal(DependenciasPainel dependencias)
     {
-        _motor = motor;
-        _listarUnidades = listarUnidades;
-        Unidades = listarUnidades();
+        _motor = dependencias.Motor;
+        _listarUnidades = dependencias.ListarUnidades;
+        _historico = dependencias.Historico;
+        _elevar = dependencias.Elevar;
+        Administrador = dependencias.Administrador;
+        Unidades = _listarUnidades();
         TextoAlvo = Unidades.FirstOrDefault()?.Raiz ?? string.Empty;
+        MontarOpcoes();
+    }
+
+    public PainelPrincipal(IMotorVarredura motor, Func<IReadOnlyList<InfoVolume>> listarUnidades)
+        : this(new DependenciasPainel { Motor = motor, ListarUnidades = listarUnidades })
+    {
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public static PainelPrincipal Padrao() => new(new MotorVarredura(), Volumes.ListarUnidades);
+    public static PainelPrincipal Padrao() => new(new DependenciasPainel
+    {
+        Motor = new MotorVarredura(),
+        ListarUnidades = Volumes.ListarUnidades,
+        Historico = HistoricoAlvosArquivo.Padrao(),
+        Administrador = Privilegios.EhAdministrador(),
+        Elevar = Elevacao.Reabrir,
+    });
+
+    /// <summary>O processo já roda como administrador.</summary>
+    public bool Administrador { get; }
+
+    /// <summary>Unidades e, depois delas, os últimos alvos usados.</summary>
+    public IReadOnlyList<ItemAlvo> Opcoes { get; private set; } = [];
 
     public ArvoreVisivel Arvore { get; } = new();
 
@@ -64,6 +88,7 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     public void AtualizarUnidades()
     {
         Unidades = _listarUnidades();
+        MontarOpcoes();
         Avisar();
     }
 
@@ -94,6 +119,29 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         }
     }
 
+    /// <summary>Lê de novo só esta pasta (Shift+F5). A raiz é varrida inteira. Link não é relido.</summary>
+    public bool AtualizarPasta(NoPasta pasta)
+    {
+        if (!PodeVarrer || pasta.Estado == EstadoPasta.Link)
+        {
+            return false;
+        }
+
+        if (pasta.Pai is null)
+        {
+            Atualizar();
+            return true;
+        }
+
+        Erro = null;
+        _cancelar = new CancellationTokenSource();
+        _varredura = _motor.Reler(pasta, _cancelar.Token);
+        Arvore.Substituir(pasta, _varredura.Raiz);
+        Estado = EstadoPainel.Varrendo;
+        AtualizarTextos();
+        return true;
+    }
+
     public void Parar()
     {
         if (Estado != EstadoPainel.Varrendo)
@@ -108,6 +156,62 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     }
 
     public void LimparErro() => Erro = null;
+
+    public bool MostrarElevar => !Administrador;
+
+    public bool PodeElevar => !Administrador && Estado == EstadoPainel.Parado;
+
+    /// <summary>Reabre o programa como administrador, varrendo o alvo. A recusa no aviso do Windows não é erro de programa.</summary>
+    public void Elevar()
+    {
+        if (!PodeElevar)
+        {
+            return;
+        }
+
+        string? erro = null;
+        var alvo = _ultimoAlvo ?? Alvo.Normalizar(TextoAlvo, out erro);
+        if (alvo is null)
+        {
+            Erro = erro;
+            Avisar();
+            return;
+        }
+
+        if (_elevar(alvo) == ResultadoElevacao.Aberta)
+        {
+            TextoEstado = "A varredura como administrador abriu em outra janela.";
+        }
+        else
+        {
+            Erro = "O Windows não confirmou a elevação. A varredura segue sem administrador.";
+        }
+
+        Avisar();
+    }
+
+    public bool PodeVoltar => Arvore.PodeVoltar;
+
+    public bool PodeAvancar => Arvore.PodeAvancar;
+
+    public bool PodeSubir => Arvore.PodeSubir;
+
+    public void AbrirAqui(NoPasta pasta) => Navegar(() => Arvore.AbrirAqui(pasta));
+
+    public void Voltar() => Navegar(Arvore.Voltar);
+
+    public void Avancar() => Navegar(Arvore.Avancar);
+
+    public void Subir() => Navegar(Arvore.Subir);
+
+    public void AbrirNiveis(int niveis) => Navegar(() => Arvore.AbrirNiveis(niveis));
+
+    // Navegar muda a raiz mostrada: os totais da barra passam a ser os dessa raiz.
+    private void Navegar(Action acao)
+    {
+        acao();
+        AtualizarTextos();
+    }
 
     public void Tique()
     {
@@ -129,6 +233,8 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     private void Iniciar(string alvo)
     {
         _ultimoAlvo = alvo;
+        _historico.Gravar(UltimosAlvos.Acrescentar(_historico.Ler(), alvo));
+        MontarOpcoes();
         TextoAlvo = alvo;
         Erro = null;
         _volume = null;
@@ -161,6 +267,10 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
             if (r.Raiz.Estado is EstadoPasta.SemAcesso or EstadoPasta.ErroLeitura)
             {
                 Erro = $"Não foi possível ler {r.Raiz.Nome}: {r.Raiz.Motivo}.";
+            }
+            else if (!r.Cancelada && r.PastasNaoLidas > 0)
+            {
+                Erro = $"A varredura terminou, mas {Formatador.Plural(r.PastasNaoLidas, "pasta não foi lida", "pastas não foram lidas")}. Clique em Atualizar para varrer de novo.";
             }
         }
 
@@ -198,6 +308,15 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
             ? $"Livre: {Formatador.Tamanho(v.Livre)} de {Formatador.Tamanho(v.Total)} | Cluster {Formatador.Tamanho(v.Cluster)} ({v.SistemaArquivos})"
             : string.Empty;
         Avisar();
+    }
+
+    private void MontarOpcoes()
+    {
+        var unidades = Unidades.Select(u => new ItemAlvo(u.Raiz, u.Descricao)).ToList();
+        var recentes = _historico.Ler()
+            .Where(a => !unidades.Any(u => string.Equals(u.Caminho, a, StringComparison.OrdinalIgnoreCase)))
+            .Select(a => new ItemAlvo(a, $"{a}  (usado antes)"));
+        Opcoes = unidades.Concat(recentes).ToList();
     }
 
     private void Avisar() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));

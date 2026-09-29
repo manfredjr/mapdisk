@@ -19,6 +19,11 @@ internal static partial class ModoLinhaDeComando
     public static int Executar(ArgumentosCli argumentos)
     {
         LigarConsole();
+        if (Privilegios.EhAdministrador())
+        {
+            Privilegios.LigarBackup();
+        }
+
         using var cancelar = new CancellationTokenSource();
         Console.CancelKeyPress += (_, e) =>
         {

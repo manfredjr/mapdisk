@@ -25,11 +25,20 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 
 | Item | Motivo | O que fecha |
 |---|---|---|
-| Lista dos últimos alvos (R1) | Fica para a fatia 2, junto com a navegação | Fatia 2 |
-| Atualizar só uma ramificação (R2) | Fica para a fatia 2, com o menu de contexto | Fatia 2 |
-| Botão "Varrer como administrador" (R7) | Fica para a fatia 2. Sem administrador, um disco de sistema costuma ter centenas de pastas sem acesso | Fatia 2 |
+| Lista dos últimos alvos (R1) | Fica para a fatia 2, junto com a navegação | Fechado em 29/09/2026 na fatia 2 |
+| Atualizar só uma ramificação (R2) | Fica para a fatia 2, com o menu de contexto | Fechado em 29/09/2026 na fatia 2 (Shift+F5 e menu de contexto) |
+| Botão "Varrer como administrador" (R7) | Fica para a fatia 2. Sem administrador, um disco de sistema costuma ter centenas de pastas sem acesso | Fechado em 29/09/2026 na fatia 2, com o privilégio de backup |
 | Hard link em caminho de rede | O identificador vem do servidor e pode repetir entre discos dele. Em rede, o hard link soma mais de uma vez | Aceito. Reavaliar se aparecer caso real |
 | Unidade de rede mapeada e desligada pode atrasar a lista de unidades | O `DriveInfo.IsReady` espera a rede responder | Aceito na fatia 1. Reavaliar se atrapalhar |
-| Rótulo "sem acesso" repetido na linha da pasta | A coluna do valor e o rótulo dizem a mesma coisa | Revisar o texto da linha junto com o menu de contexto da fatia 2 |
-| Memória acima da meta | A spec pede menos de 300 MB para 1 milhão de arquivos. No teste manual de 29/09/2026, num disco com pouco mais de 1 milhão de arquivos, o pico passou de 300 MB. O tempo ficou dentro da meta de 60 s. Suspeitos: o dicionário de identificadores de hard link, com uma entrada por arquivo, e os nomes guardados em cada arquivo | Fatia 2: medir cada parte e reduzir, por exemplo guardando só os identificadores de arquivos com mais de um link |
-| Uma varredura do C: com menos arquivos | No teste manual de 29/09/2026, uma de seis varreduras do mesmo disco veio com cerca de 4% a menos de arquivos e de pastas. As outras cinco, pela janela e pela linha de comando, bateram entre si. Não se repetiu. O teste `Muitas_varreduras_seguidas_dao_sempre_o_mesmo_total` varre 30 vezes uma árvore de mais de mil pastas com 16 tarefas, e passou em 90 varreduras. Pode ter sido o disco mudando naquele minuto ou uma corrida rara no motor | Fatia 2: registrar, ao fim de cada varredura, quantas pastas foram lidas e quantas entraram na fila, e mostrar aviso se não baterem |
+| Rótulo "sem acesso" repetido na linha da pasta | A coluna do valor e o rótulo dizem a mesma coisa | Fechado em 29/09/2026 na fatia 2: a pasta sem acesso e a não lida ficam sem rótulo |
+| Memória acima da meta | A spec pede menos de 300 MB para 1 milhão de arquivos. No teste manual de 29/09/2026, num disco com pouco mais de 1 milhão de arquivos, o pico passou de 300 MB. O tempo ficou dentro da meta de 60 s. Suspeitos: o dicionário de identificadores de hard link, com uma entrada por arquivo, e os nomes guardados em cada arquivo | Reduzido na fatia 2 (buffer e listas reaproveitados, conjunto de identificadores em faixas, coletor em modo de economia): o pico caiu cerca de um terço, mas segue acima de 300 MB. Fatia 3: guardar só uma vez os nomes de arquivo repetidos, como os milhares de `index.js`, e medir de novo com `ferramentas/medir-memoria.ps1` |
+| Uma varredura do C: com menos arquivos | No teste manual de 29/09/2026, uma de seis varreduras do mesmo disco veio com cerca de 4% a menos de arquivos e de pastas. As outras cinco, pela janela e pela linha de comando, bateram entre si. Não se repetiu. O teste `Muitas_varreduras_seguidas_dao_sempre_o_mesmo_total` varre 30 vezes uma árvore de mais de mil pastas com 16 tarefas, e passou em 90 varreduras. Pode ter sido o disco mudando naquele minuto ou uma corrida rara no motor | Fechado em 29/09/2026 na fatia 2: ao terminar, a varredura conta as pastas sem leitura e avisa se houver alguma. Um teste de nome de arquivo que falhava às vezes foi achado e corrigido no caminho |
+
+## Fatia 2: navegação, elevação e acertos da fatia 1
+
+| Item | Motivo | O que fecha |
+|---|---|---|
+| Esquecer um alvo da lista de últimos alvos | Fora do escopo da fatia 2. A lista guarda até 10 caminhos só nesta máquina, em `%LOCALAPPDATA%\MapDisk\alvos.txt` | Opções da fatia 7, junto com "limpar a lista" |
+| Hard link depois de "Atualizar esta pasta" | A releitura confere hard link só dentro da pasta relida. Um arquivo com outro nome fora dela passa a somar duas vezes | Aceito. Reavaliar se aparecer caso real |
+| Leitura como administrador em caminho de rede | O privilégio de backup vale só para disco local. Em `\\servidor\pasta`, quem manda são as permissões do servidor | Aceito, é como o Windows funciona |
+| Conferência da janela elevada | O aviso de elevação do Windows é confirmado pelo Manfred, não pelo agente | Teste do Manfred no PR da fatia 2 |

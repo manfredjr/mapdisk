@@ -14,6 +14,8 @@ public sealed class ArvoreVisivel
     private readonly Dictionary<NoPasta, LinhaArvore> _linhasPasta = [];
     private readonly Dictionary<NoPasta, LinhaArvore> _linhasGrupo = [];
     private readonly Dictionary<(NoPasta, int), LinhaArvore> _linhasArquivo = [];
+    private readonly Stack<NoPasta> _voltar = new();
+    private readonly Stack<NoPasta> _avancar = new();
 
     public ObservableCollection<LinhaArvore> Linhas { get; } = [];
 
@@ -26,6 +28,12 @@ public sealed class ArvoreVisivel
     public ColunaOrdem Ordem { get; private set; } = ColunaOrdem.Valor;
 
     public bool Decrescente { get; private set; } = true;
+
+    public bool PodeVoltar => _voltar.Count > 0;
+
+    public bool PodeAvancar => _avancar.Count > 0;
+
+    public bool PodeSubir => Raiz?.Pai is not null;
 
     public void Carregar(NoPasta raiz)
     {
@@ -43,6 +51,8 @@ public sealed class ArvoreVisivel
         _linhasPasta.Clear();
         _linhasGrupo.Clear();
         _linhasArquivo.Clear();
+        _voltar.Clear();
+        _avancar.Clear();
         Linhas.Clear();
     }
 
@@ -108,6 +118,32 @@ public sealed class ArvoreVisivel
         Atualizar();
     }
 
+    /// <summary>Troca a pasta relida pela nova, mantendo aberta se estava aberta.</summary>
+    public void Substituir(NoPasta antiga, NoPasta nova)
+    {
+        if (_pastasAbertas.Remove(antiga))
+        {
+            _pastasAbertas.Add(nova);
+        }
+
+        if (_gruposAbertos.Remove(antiga))
+        {
+            _gruposAbertos.Add(nova);
+        }
+
+        _linhasPasta.Remove(antiga);
+        _linhasGrupo.Remove(antiga);
+        if (Raiz == antiga)
+        {
+            Raiz = nova;
+        }
+
+        Trocar(_voltar, antiga, nova);
+        Trocar(_avancar, antiga, nova);
+
+        Atualizar();
+    }
+
     /// <summary>Remonta a lista com os números de agora. A tela chama a cada 250 ms durante a varredura.</summary>
     public void Atualizar()
     {
@@ -117,13 +153,89 @@ public sealed class ArvoreVisivel
         }
 
         var alvo = new List<LinhaArvore>();
-        var raiz = LinhaDaPasta(Raiz, 0);
-        Acrescentar(raiz, raiz.Valor(Modo), alvo);
+        var raiz = LinhaDaPasta(Raiz);
+        Acrescentar(raiz, 0, raiz.Valor(Modo), alvo);
         Sincronizar(alvo);
     }
 
-    private void Acrescentar(LinhaArvore linha, long valorDoPai, List<LinhaArvore> alvo)
+    /// <summary>Mostra a pasta como raiz, com a árvore já lida. Não varre de novo.</summary>
+    public void AbrirAqui(NoPasta pasta)
     {
+        if (Raiz is null || pasta == Raiz || pasta.Estado != EstadoPasta.Lida)
+        {
+            return;
+        }
+
+        _voltar.Push(Raiz);
+        _avancar.Clear();
+        Focar(pasta);
+    }
+
+    public void Voltar()
+    {
+        if (Raiz is not null && _voltar.TryPop(out var anterior))
+        {
+            _avancar.Push(Raiz);
+            Focar(anterior);
+        }
+    }
+
+    public void Avancar()
+    {
+        if (Raiz is not null && _avancar.TryPop(out var proxima))
+        {
+            _voltar.Push(Raiz);
+            Focar(proxima);
+        }
+    }
+
+    public void Subir()
+    {
+        if (Raiz?.Pai is { } pai)
+        {
+            AbrirAqui(pai);
+        }
+    }
+
+    /// <summary>Abre as pastas até o nível pedido abaixo da raiz. 1 deixa só a raiz aberta.</summary>
+    public void AbrirNiveis(int niveis)
+    {
+        if (Raiz is null)
+        {
+            return;
+        }
+
+        _pastasAbertas.Clear();
+        _gruposAbertos.Clear();
+        var fila = new Queue<(NoPasta No, int Nivel)>();
+        fila.Enqueue((Raiz, 0));
+        while (fila.TryDequeue(out var item))
+        {
+            if (item.Nivel >= niveis)
+            {
+                continue;
+            }
+
+            _pastasAbertas.Add(item.No);
+            foreach (var sub in item.No.Subpastas)
+            {
+                fila.Enqueue((sub, item.Nivel + 1));
+            }
+        }
+
+        Atualizar();
+    }
+
+    private void Focar(NoPasta pasta)
+    {
+        Raiz = pasta;
+        _pastasAbertas.Add(pasta);
+        Atualizar();
+    }
+
+    private void Acrescentar(LinhaArvore linha, int nivel, long valorDoPai, List<LinhaArvore> alvo)
+    {
+        linha.Nivel = nivel;
         linha.Expandida = linha.PodeExpandir && linha.Tipo switch
         {
             TipoLinha.Pasta => _pastasAbertas.Contains(linha.Pasta),
@@ -141,19 +253,18 @@ public sealed class ArvoreVisivel
         var valorDosFilhos = linha.Tipo == TipoLinha.GrupoArquivos ? valorDoPai : linha.Valor(Modo);
         foreach (var filho in Ordenados(Filhos(linha)))
         {
-            Acrescentar(filho, valorDosFilhos, alvo);
+            Acrescentar(filho, nivel + 1, valorDosFilhos, alvo);
         }
     }
 
     private IEnumerable<LinhaArvore> Filhos(LinhaArvore linha)
     {
-        var nivel = linha.Nivel + 1;
         if (linha.Tipo == TipoLinha.GrupoArquivos)
         {
             var arquivos = linha.Pasta.Arquivos;
             for (var i = 0; i < arquivos.Count; i++)
             {
-                yield return LinhaDoArquivo(linha.Pasta, i, nivel);
+                yield return LinhaDoArquivo(linha.Pasta, i);
             }
 
             yield break;
@@ -161,12 +272,12 @@ public sealed class ArvoreVisivel
 
         foreach (var sub in linha.Pasta.Subpastas)
         {
-            yield return LinhaDaPasta(sub, nivel);
+            yield return LinhaDaPasta(sub);
         }
 
         if (linha.Pasta.Arquivos.Count > 0)
         {
-            yield return LinhaDoGrupo(linha.Pasta, nivel);
+            yield return LinhaDoGrupo(linha.Pasta);
         }
     }
 
@@ -192,16 +303,16 @@ public sealed class ArvoreVisivel
         _ => linha.SemValor ? -1 : linha.Valor(Modo),
     };
 
-    private LinhaArvore LinhaDaPasta(NoPasta no, int nivel) =>
-        _linhasPasta.TryGetValue(no, out var linha) ? linha : _linhasPasta[no] = new LinhaArvore(TipoLinha.Pasta, no, nivel);
+    private LinhaArvore LinhaDaPasta(NoPasta no) =>
+        _linhasPasta.TryGetValue(no, out var linha) ? linha : _linhasPasta[no] = new LinhaArvore(TipoLinha.Pasta, no);
 
-    private LinhaArvore LinhaDoGrupo(NoPasta no, int nivel) =>
-        _linhasGrupo.TryGetValue(no, out var linha) ? linha : _linhasGrupo[no] = new LinhaArvore(TipoLinha.GrupoArquivos, no, nivel);
+    private LinhaArvore LinhaDoGrupo(NoPasta no) =>
+        _linhasGrupo.TryGetValue(no, out var linha) ? linha : _linhasGrupo[no] = new LinhaArvore(TipoLinha.GrupoArquivos, no);
 
-    private LinhaArvore LinhaDoArquivo(NoPasta no, int indice, int nivel) =>
+    private LinhaArvore LinhaDoArquivo(NoPasta no, int indice) =>
         _linhasArquivo.TryGetValue((no, indice), out var linha)
             ? linha
-            : _linhasArquivo[(no, indice)] = new LinhaArvore(TipoLinha.Arquivo, no, nivel, no.Arquivos[indice]);
+            : _linhasArquivo[(no, indice)] = new LinhaArvore(TipoLinha.Arquivo, no, no.Arquivos[indice]);
 
     // Leva a lista da tela à lista nova com o mínimo de mudanças, para a rolagem não pular.
     private void Sincronizar(List<LinhaArvore> alvo)
@@ -227,6 +338,16 @@ public sealed class ArvoreVisivel
         while (Linhas.Count > alvo.Count)
         {
             Linhas.RemoveAt(Linhas.Count - 1);
+        }
+    }
+
+    private static void Trocar(Stack<NoPasta> pilha, NoPasta antiga, NoPasta nova)
+    {
+        var itens = pilha.Select(n => n == antiga ? nova : n).Reverse().ToList();
+        pilha.Clear();
+        foreach (var item in itens)
+        {
+            pilha.Push(item);
         }
     }
 }

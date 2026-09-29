@@ -139,4 +139,49 @@ public class MotorVarreduraTestes
             Assert.Equal((12 * 12 * 6 * 3) + (12 * 12 * 5), r.Raiz.Tamanho);
         }
     }
+
+    [Fact]
+    public void Varredura_completa_nao_deixa_pasta_sem_leitura()
+    {
+        using var t = new PastaTeste();
+        t.Arquivo(@"a\b\c\x.bin", 1);
+
+        Assert.Equal(0, Varrer(t.Raiz).PastasNaoLidas);
+    }
+
+    [Fact]
+    public async Task Reler_uma_pasta_soma_so_o_que_mudou()
+    {
+        using var t = new PastaTeste();
+        t.Arquivo(@"a\1.bin", 100);
+        t.Arquivo(@"b\2.bin", 10);
+        var motor = new MotorVarredura();
+        var r = await motor.Iniciar(Alvo.Normalizar(t.Raiz, out _)!, CancellationToken.None).Conclusao;
+        var a = r.Raiz.Subpastas.Single(s => s.Nome == "a");
+        t.Arquivo(@"a\3.bin", 1000);
+
+        var relida = await motor.Reler(a, CancellationToken.None).Conclusao;
+
+        Assert.Equal(1110, r.Raiz.Tamanho);
+        Assert.Equal(3, r.Raiz.ArquivosTotal);
+        Assert.Equal(2, r.Raiz.PastasTotal);
+        Assert.Same(relida.Raiz, r.Raiz.Subpastas.Single(s => s.Nome == "a"));
+        Assert.Equal(EstadoPasta.Lida, relida.Raiz.Estado);
+    }
+
+    [Fact]
+    public async Task Link_nao_e_relido()
+    {
+        using var t = new PastaTeste();
+        t.Arquivo(@"dados\x.bin", 500);
+        t.Juncao("atalho", "dados");
+        var motor = new MotorVarredura();
+        var r = await motor.Iniciar(Alvo.Normalizar(t.Raiz, out _)!, CancellationToken.None).Conclusao;
+        var atalho = r.Raiz.Subpastas.Single(s => s.Nome == "atalho");
+
+        await motor.Reler(atalho, CancellationToken.None).Conclusao;
+
+        Assert.Equal(500, r.Raiz.Tamanho);
+        Assert.Same(atalho, r.Raiz.Subpastas.Single(s => s.Nome == "atalho"));
+    }
 }

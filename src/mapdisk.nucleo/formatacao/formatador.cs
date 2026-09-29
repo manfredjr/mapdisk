@@ -26,15 +26,7 @@ public static class Formatador
         UnidadeExibicao.GB => Com(bytes / Gb, "GB"),
         UnidadeExibicao.MB => Com(bytes / Mb, "MB"),
         UnidadeExibicao.KB => Com(bytes / Kb, "KB"),
-        _ => bytes switch
-        {
-            1 => "1 Byte",
-            < 1024 => $"{Numero(bytes)} Bytes",
-            < 1024L * 1024 => Com(bytes / Kb, "KB"),
-            < 1024L * 1024 * 1024 => Com(bytes / Mb, "MB"),
-            < 1024L * 1024 * 1024 * 1024 => Com(bytes / Gb, "GB"),
-            _ => Com(bytes / Tb, "TB"),
-        },
+        _ => Automatico(bytes),
     };
 
     public static string Porcentagem(double fracao) => Com(fracao * 100, "%");
@@ -48,6 +40,31 @@ public static class Formatador
         : $"{(int)t.TotalMinutes} min {t.Seconds} s";
 
     public static string Plural(long n, string um, string varios) => n == 1 ? $"1 {um}" : $"{Numero(n)} {varios}";
+
+    // Sobe de unidade quando o número arredondado chegaria a 1.024: "1,0 GB", e não "1.024,0 MB".
+    private static string Automatico(long bytes)
+    {
+        if (bytes == 1)
+        {
+            return "1 Byte";
+        }
+
+        if (bytes < 1024)
+        {
+            return $"{Numero(bytes)} Bytes";
+        }
+
+        string[] sufixos = ["KB", "MB", "GB", "TB"];
+        var valor = bytes / Kb;
+        var i = 0;
+        while (i < sufixos.Length - 1 && Math.Round(valor, 1) >= 1024)
+        {
+            valor /= 1024;
+            i++;
+        }
+
+        return Com(valor, sufixos[i]);
+    }
 
     private static string Com(double valor, string sufixo) => $"{valor.ToString("#,##0.0", PtBr)} {sufixo}";
 }

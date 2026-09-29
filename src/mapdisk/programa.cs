@@ -15,8 +15,16 @@ internal static class Programa
     [STAThread]
     private static int Main(string[] args)
     {
+        // Processo elevado, pelo botao ou aberto como administrador por fora: le todas as pastas locais.
+        var administrador = Privilegios.EhAdministrador();
+        if (administrador)
+        {
+            Privilegios.LigarBackup();
+        }
+
         var demonstracao = args is [Demonstracao.Argumento];
-        if (args.Length > 0 && !demonstracao)
+        var elevado = Elevacao.EhPedido(args, out var alvoElevado);
+        if (args.Length > 0 && !demonstracao && !elevado)
         {
             return ModoLinhaDeComando.Executar(ArgumentosCli.Interpretar(args));
         }
@@ -27,9 +35,18 @@ internal static class Programa
             Source = new Uri("pack://application:,,,/mapdisk;component/tema/tema-mt.xaml", UriKind.Absolute),
         });
         aplicativo.DispatcherUnhandledException += AoErroNaoTratado;
-        return aplicativo.Run(demonstracao
-            ? new JanelaPrincipal(Demonstracao.Painel(), " (demonstração)")
-            : new JanelaPrincipal(PainelPrincipal.Padrao(), string.Empty));
+        if (demonstracao)
+        {
+            return aplicativo.Run(new JanelaPrincipal(Demonstracao.Painel(), " (demonstração)", varrerAoAbrir: false));
+        }
+
+        var painel = PainelPrincipal.Padrao();
+        if (elevado)
+        {
+            painel.TextoAlvo = alvoElevado!;
+        }
+
+        return aplicativo.Run(new JanelaPrincipal(painel, administrador ? " (administrador)" : string.Empty, varrerAoAbrir: elevado));
     }
 
     /// <summary>

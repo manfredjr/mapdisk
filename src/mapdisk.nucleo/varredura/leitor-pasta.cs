@@ -62,6 +62,10 @@ internal static partial class LeitorPasta
 
     private static readonly string[] _arquivosDoSistema = ["pagefile.sys", "hiberfil.sys", "swapfile.sys"];
 
+    // Um buffer por tarefa, reaproveitado a cada pasta: sem isso, cada pasta lida criava 64 KB de lixo.
+    [ThreadStatic]
+    private static byte[]? _buffer;
+
     public static unsafe ResultadoLeitura Ler(
         string caminho,
         bool raizDoVolume,
@@ -77,7 +81,7 @@ internal static partial class LeitorPasta
             return Falha(Marshal.GetLastPInvokeError(), out motivo);
         }
 
-        var buffer = new byte[64 * 1024];
+        var buffer = _buffer ??= new byte[64 * 1024];
         var comId = true;
         var primeira = true;
         fixed (byte* p = buffer)

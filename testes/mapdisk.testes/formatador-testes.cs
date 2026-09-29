@@ -37,4 +37,14 @@ public class FormatadorTestes
         Assert.Equal("1.200 pastas", Formatador.Plural(1200, "pasta", "pastas"));
         Assert.Equal("0 pastas", Formatador.Plural(0, "pasta", "pastas"));
     }
+
+    [Theory]
+    [InlineData(1_073_741_800L, "1,0 GB")]
+    [InlineData(1_048_570L, "1,0 MB")]
+    [InlineData(1_048_575L, "1,0 MB")]
+    [InlineData(1_048_000L, "1.023,4 KB")]
+    public void Valor_que_arredonda_para_1024_sobe_de_unidade(long bytes, string esperado)
+    {
+        Assert.Equal(esperado, Formatador.Tamanho(bytes));
+    }
 }
