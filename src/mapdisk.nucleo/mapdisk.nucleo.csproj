@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <AssemblyName>mapdisk.nucleo</AssemblyName>
+    <RootNamespace>MapDisk.Nucleo</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>Nucleo do MapDisk - MT: varredura, arvore, formatacao e relatorios.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="mapdisk.testes" />
+  </ItemGroup>
+
+</Project>
