@@ -34,6 +34,7 @@ O fluxo de trabalho que o programa atende:
 | Ações | Enviar para a Lixeira e mover, com confirmação e registro. Excluir definitivamente só em caminho de rede, onde não há Lixeira | Decisão do Manfred em 26/09/2026. O uso real termina em apagar ou mover |
 | Linha de comando | Só varre e gera relatório. Nunca apaga nem move | Evitar que um roteiro apague arquivo sem ninguém olhar |
 | Permissão | Roda como usuário comum. Um botão reabre o programa como administrador | Sem administrador, pastas protegidas ficam sem leitura. O programa mostra isso em vez de esconder |
+| Leitura como administrador | A janela elevada liga o privilégio de backup do Windows (`SeBackupPrivilege`) e lê todas as pastas locais, só para leitura | Decisão do Manfred em 29/09/2026. Só a elevação deixa pastas como `System Volume Information` e perfis fechados sem leitura |
 
 ## 4. Requisitos
 
