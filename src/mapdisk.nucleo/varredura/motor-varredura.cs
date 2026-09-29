@@ -1,0 +1,178 @@
+using System.Collections.Concurrent;
+using System.Diagnostics;
+
+namespace MapDisk.Nucleo;
+
+public sealed class ResultadoVarredura
+{
+    public required NoPasta Raiz { get; init; }
+
+    public required InfoVolume? Volume { get; init; }
+
+    public required TimeSpan Duracao { get; init; }
+
+    /// <summary>Interrompida antes do fim. Os números mostram só o que foi lido até ali.</summary>
+    public required bool Cancelada { get; init; }
+}
+
+/// <summary>Uma varredura em andamento. A raiz existe desde o início e vai sendo preenchida.</summary>
+public sealed class Varredura
+{
+    private string _pastaAtual;
+
+    public Varredura(NoPasta raiz)
+    {
+        Raiz = raiz;
+        _pastaAtual = raiz.Nome;
+    }
+
+    public NoPasta Raiz { get; }
+
+    public string PastaAtual
+    {
+        get => Volatile.Read(ref _pastaAtual);
+        internal set => Volatile.Write(ref _pastaAtual, value);
+    }
+
+    public Task<ResultadoVarredura> Conclusao { get; private set; } = Task.FromResult<ResultadoVarredura>(null!);
+
+    public Varredura Comecar(Func<Varredura, Task<ResultadoVarredura>> executar)
+    {
+        Conclusao = executar(this);
+        return this;
+    }
+}
+
+public interface IMotorVarredura
+{
+    /// <summary>Começa a varrer o alvo, já normalizado, e devolve na hora, com a raiz para a tela.</summary>
+    Varredura Iniciar(string alvo, CancellationToken cancelar);
+}
+
+/// <summary>
+/// Varredura com várias tarefas lendo pastas ao mesmo tempo, com teto: até 16 em disco local e
+/// 4 em caminho de rede, para não pesar no servidor. Só lê.
+/// </summary>
+public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
+{
+    public Varredura Iniciar(string alvo, CancellationToken cancelar)
+    {
+        var quantas = tarefas ?? (Alvo.EhRede(alvo) ? 4 : Math.Clamp(Environment.ProcessorCount, 4, 16));
+        return new Varredura(new NoPasta(alvo, null))
+            .Comecar(v => Task.Run(() => Executar(v, quantas, cancelar), CancellationToken.None));
+    }
+
+    private static ResultadoVarredura Executar(Varredura varredura, int tarefas, CancellationToken cancelar)
+    {
+        var relogio = Stopwatch.StartNew();
+        var raiz = varredura.Raiz;
+        var volume = Volumes.Ler(raiz.Nome);
+
+        // Hard link: o mesmo identificador de arquivo no volume soma uma vez só. Em caminho de
+        // rede o identificador vem do servidor e pode repetir entre discos dele, então não conta.
+        var vistos = new ConcurrentDictionary<long, byte>();
+        Func<long, bool> primeiraVez = Alvo.EhRede(raiz.Nome) ? _ => true : id => vistos.TryAdd(id, 0);
+        var alvoERaizDoVolume = string.Equals(raiz.Nome, Volumes.RaizDe(raiz.Nome), StringComparison.OrdinalIgnoreCase);
+
+        using var fila = new BlockingCollection<(NoPasta No, string Caminho)>(new ConcurrentStack<(NoPasta, string)>());
+        var pendentes = 1;
+        fila.Add((raiz, raiz.Nome));
+
+        var trabalhadores = new Task[tarefas];
+        for (var i = 0; i < tarefas; i++)
+        {
+            trabalhadores[i] = Task.Run(
+                () =>
+                {
+                    try
+                    {
+                        foreach (var (no, caminho) in fila.GetConsumingEnumerable(cancelar))
+                        {
+                            LerPasta(varredura, no, caminho, alvoERaizDoVolume && no == raiz, primeiraVez);
+                            foreach (var sub in no.Subpastas)
+                            {
+                                if (sub.Estado == EstadoPasta.Pendente)
+                                {
+                                    Interlocked.Increment(ref pendentes);
+                                    fila.Add((sub, Alvo.Juntar(caminho, sub.Nome)));
+                                }
+                            }
+
+                            if (Interlocked.Decrement(ref pendentes) == 0)
+                            {
+                                fila.CompleteAdding();
+                            }
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                    }
+                },
+                CancellationToken.None);
+        }
+
+        Task.WaitAll(trabalhadores);
+        return new ResultadoVarredura
+        {
+            Raiz = raiz,
+            Volume = volume,
+            Duracao = relogio.Elapsed,
+            Cancelada = Volatile.Read(ref pendentes) > 0,
+        };
+    }
+
+    private static void LerPasta(Varredura varredura, NoPasta no, string caminho, bool raizDoVolume, Func<long, bool> primeiraVez)
+    {
+        varredura.PastaAtual = caminho;
+        var arquivos = new List<ArquivoInfo>();
+        var entradas = new List<EntradaPasta>();
+        try
+        {
+            switch (LeitorPasta.Ler(caminho, raizDoVolume, primeiraVez, arquivos, entradas, out var motivo))
+            {
+                case ResultadoLeitura.SemAcesso:
+                    no.MarcarSemAcesso(motivo!);
+                    return;
+                case ResultadoLeitura.Erro:
+                    no.MarcarErro(motivo!);
+                    return;
+            }
+        }
+        catch (Exception e) when (e is not OutOfMemoryException)
+        {
+            no.MarcarErro(e.Message);
+            return;
+        }
+
+        var subpastas = new NoPasta[entradas.Count];
+        for (var i = 0; i < entradas.Count; i++)
+        {
+            var entrada = entradas[i];
+            var sub = new NoPasta(entrada.Nome, no, entrada.Modificacao);
+            if (entrada.EhLink)
+            {
+                sub.MarcarLink(DestinoDoLink(Alvo.Juntar(caminho, entrada.Nome)));
+            }
+
+            subpastas[i] = sub;
+        }
+
+        no.Preencher(arquivos.ToArray(), subpastas);
+    }
+
+    private static string? DestinoDoLink(string caminho)
+    {
+        try
+        {
+            return new DirectoryInfo(Alvo.Longo(caminho)).LinkTarget;
+        }
+        catch (IOException)
+        {
+            return null;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+}
