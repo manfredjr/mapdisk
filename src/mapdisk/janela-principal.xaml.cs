@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Threading;
 using MapDisk.Nucleo;
 using Microsoft.Win32;
@@ -13,11 +14,16 @@ public partial class JanelaPrincipal : Window
     private readonly PainelPrincipal _painel;
     private readonly DispatcherTimer _relogio = new() { Interval = TimeSpan.FromMilliseconds(250) };
 
-    public JanelaPrincipal(PainelPrincipal painel, string sufixoTitulo)
+    public JanelaPrincipal(PainelPrincipal painel, string sufixoTitulo, bool varrerAoAbrir)
     {
         _painel = painel;
         DataContext = painel;
         InitializeComponent();
+        if (varrerAoAbrir)
+        {
+            Loaded += (_, _) => AoVarrer(this, new RoutedEventArgs());
+        }
+
         Title = $"MapDisk - MT {ExecutorCli.Versao}{sufixoTitulo}";
         _relogio.Tick += (_, _) =>
         {
@@ -34,6 +40,66 @@ public partial class JanelaPrincipal : Window
     }
 
     private void AoParar(object sender, RoutedEventArgs e) => _painel.Parar();
+
+    private void AoElevar(object sender, RoutedEventArgs e)
+    {
+        _painel.Elevar();
+        MostrarErro();
+    }
+
+    private void AoVoltar(object sender, RoutedEventArgs e) => _painel.Voltar();
+
+    private void AoAvancar(object sender, RoutedEventArgs e) => _painel.Avancar();
+
+    private void AoSubir(object sender, RoutedEventArgs e) => _painel.Subir();
+
+    private void AoMudarNiveis(object sender, SelectionChangedEventArgs e)
+    {
+        if (CampoNiveis?.SelectedItem is ComboBoxItem { Tag: string tag } && int.TryParse(tag, out var niveis))
+        {
+            _painel.AbrirNiveis(niveis);
+        }
+    }
+
+    private void AoMostrarNoExplorer(object sender, RoutedEventArgs e)
+    {
+        if (Tabela.SelectedItem is LinhaArvore linha)
+        {
+            Shell.MostrarNoExplorer(linha.Caminho, linha.Tipo == TipoLinha.Arquivo);
+        }
+    }
+
+    private void AoCopiarCaminho(object sender, RoutedEventArgs e)
+    {
+        if (Tabela.SelectedItem is LinhaArvore linha)
+        {
+            Shell.CopiarCaminho(linha.Caminho);
+        }
+    }
+
+    private void AoAbrirAqui(object sender, RoutedEventArgs e)
+    {
+        if (Tabela.SelectedItem is LinhaArvore { Tipo: TipoLinha.Pasta } linha)
+        {
+            _painel.AbrirAqui(linha.Pasta);
+        }
+    }
+
+    private void AoAtualizarPasta(object sender, RoutedEventArgs e)
+    {
+        if (Tabela.SelectedItem is LinhaArvore { Tipo: TipoLinha.Pasta } linha)
+        {
+            _painel.AtualizarPasta(linha.Pasta);
+        }
+    }
+
+    private void AoPropriedades(object sender, RoutedEventArgs e)
+    {
+        if (Tabela.SelectedItem is LinhaArvore linha)
+        {
+            Shell.Propriedades(new WindowInteropHelper(this).Handle, linha.Caminho);
+        }
+    }
 
     private void AoAtualizar(object sender, RoutedEventArgs e) => _painel.Atualizar();
 
@@ -104,8 +170,19 @@ public partial class JanelaPrincipal : Window
             return;
         }
 
+        if (e.Key == Key.F5 && Keyboard.Modifiers == ModifierKeys.Shift)
+        {
+            AoAtualizarPasta(sender, e);
+            e.Handled = true;
+            return;
+        }
+
         switch (e.Key)
         {
+            case Key.Back:
+                _painel.Voltar();
+                e.Handled = true;
+                break;
             case Key.Right:
                 _painel.Arvore.Expandir(linha);
                 e.Handled = true;

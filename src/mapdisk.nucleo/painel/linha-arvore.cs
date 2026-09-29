@@ -90,14 +90,14 @@ public sealed class LinhaArvore : INotifyPropertyChanged
 
     public string Rotulo => Tipo switch
     {
+        // Sem acesso e não lida ficam sem rótulo: a coluna do valor já diz isso.
         TipoLinha.Pasta => Pasta.Estado switch
         {
-            EstadoPasta.SemAcesso => "sem acesso",
             EstadoPasta.ErroLeitura => $"erro de leitura: {Pasta.Motivo}",
             EstadoPasta.Link => Pasta.DestinoLink is { } destino ? $"link para {destino}" : "link",
-            _ => Pasta.PastasSemAcesso + Pasta.PastasComErro is var n and > 0
-                ? $"{Formatador.Plural(n, "pasta", "pastas")} sem leitura dentro"
-                : string.Empty,
+            EstadoPasta.Lida when Pasta.PastasSemAcesso + Pasta.PastasComErro is var n and > 0
+                => $"{Formatador.Plural(n, "pasta", "pastas")} sem leitura dentro",
+            _ => string.Empty,
         },
         TipoLinha.Arquivo => RotuloDoArquivo(Arquivo.Marcas),
         _ => string.Empty,

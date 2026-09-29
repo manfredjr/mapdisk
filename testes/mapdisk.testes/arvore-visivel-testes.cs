@@ -54,7 +54,7 @@ public class ArvoreVisivelTestes
         Assert.True(windows.SemValor);
         Assert.Equal("sem acesso", windows.TextoTamanho);
         Assert.Equal("sem acesso", windows.TextoValor);
-        Assert.Equal("sem acesso", windows.Rotulo);
+        Assert.Equal("", windows.Rotulo);
         Assert.Equal("", windows.TextoPorcentagem);
         Assert.Equal("1 pasta sem leitura dentro", Linha(a, @"C:\").Rotulo);
     }

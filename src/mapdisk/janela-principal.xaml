@@ -51,7 +51,7 @@
                            FontWeight="ExtraBold" VerticalAlignment="Center" Margin="0,0,18,0" />
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <ComboBox x:Name="CampoAlvo" Width="340" IsEditable="True"
-                              ItemsSource="{Binding Unidades}" TextSearch.TextPath="Raiz"
+                              ItemsSource="{Binding Opcoes}" TextSearch.TextPath="Caminho"
                               Text="{Binding TextoAlvo, UpdateSourceTrigger=PropertyChanged}"
                               ToolTip="Unidade, pasta ou caminho de rede, como C:, D:\Dados ou \\servidor\pasta"
                               KeyDown="AoTeclarNoAlvo" DropDownOpened="AoAbrirUnidades">
@@ -69,6 +69,10 @@
                             IsEnabled="{Binding PodeParar}" />
                     <Button Content="Atualizar" Style="{StaticResource BotaoFaixaContorno}" Click="AoAtualizar"
                             IsEnabled="{Binding PodeAtualizar}" />
+                    <Button Content="Varrer como administrador" Style="{StaticResource BotaoFaixaContorno}" Click="AoElevar"
+                            IsEnabled="{Binding PodeElevar}"
+                            Visibility="{Binding MostrarElevar, Converter={StaticResource VisivelSe}}"
+                            ToolTip="Abre outra janela como administrador e lê também as pastas protegidas. Só leitura." />
                 </StackPanel>
             </DockPanel>
         </Border>
@@ -77,6 +81,17 @@
         <Border DockPanel.Dock="Top" Background="White" BorderBrush="{StaticResource PincelBorda}"
                 BorderThickness="0,0,0,1" Padding="14,6">
             <StackPanel Orientation="Horizontal">
+                <Button Content="Voltar" Style="{StaticResource BotaoContorno}" Click="AoVoltar" IsEnabled="{Binding PodeVoltar}" Margin="0,0,6,0" />
+                <Button Content="Avançar" Style="{StaticResource BotaoContorno}" Click="AoAvancar" IsEnabled="{Binding PodeAvancar}" Margin="0,0,6,0" />
+                <Button Content="Subir" Style="{StaticResource BotaoContorno}" Click="AoSubir" IsEnabled="{Binding PodeSubir}" Margin="0,0,12,0" />
+                <TextBlock Text="Abrir até:" Style="{StaticResource TituloGrupo}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <ComboBox x:Name="CampoNiveis" Width="90" SelectedIndex="0" SelectionChanged="AoMudarNiveis" Margin="0,0,20,0">
+                    <ComboBoxItem Content="1 nível" Tag="1" />
+                    <ComboBoxItem Content="2 níveis" Tag="2" />
+                    <ComboBoxItem Content="3 níveis" Tag="3" />
+                    <ComboBoxItem Content="4 níveis" Tag="4" />
+                    <ComboBoxItem Content="5 níveis" Tag="5" />
+                </ComboBox>
                 <TextBlock Text="Mostrar:" Style="{StaticResource TituloGrupo}" VerticalAlignment="Center" Margin="0,0,8,0" />
                 <RadioButton GroupName="Modo" Content="Tamanho" Tag="Tamanho" IsChecked="True" Checked="AoMudarModo" Margin="0,0,12,0" />
                 <RadioButton GroupName="Modo" Content="Espaço alocado" Tag="Alocado" Checked="AoMudarModo" Margin="0,0,12,0" />
@@ -112,6 +127,17 @@
                   VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                   ScrollViewer.CanContentScroll="True" SelectionMode="Single"
                   MouseDoubleClick="AoClicarDuasVezes" KeyDown="AoTeclarNaTabela">
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Mostrar no Explorer" Click="AoMostrarNoExplorer" />
+                    <MenuItem Header="Copiar caminho" Click="AoCopiarCaminho" />
+                    <Separator />
+                    <MenuItem Header="Abrir aqui" Click="AoAbrirAqui" />
+                    <MenuItem Header="Atualizar esta pasta" InputGestureText="Shift+F5" Click="AoAtualizarPasta" />
+                    <Separator />
+                    <MenuItem Header="Propriedades" Click="AoPropriedades" />
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
