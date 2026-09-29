@@ -32,6 +32,10 @@ public class CaracteresProibidosTestes
     // advogado seguem o nome do método.
     private static readonly string[] _nomesFixos = ["AGENTS.md", "README.md", "CONTRIBUTING.md", "LICENSE", "Directory.Build.props"];
 
+    // Os testes de varredura criam em bin uma pasta com leitura negada. A busca pula o que não
+    // consegue ler, para este teste não depender da ordem em que os outros rodam.
+    private static readonly EnumerationOptions _todasAsPastas = new() { RecurseSubdirectories = true, IgnoreInaccessible = true };
+
     private static readonly string[] _extensoes = [".cs", ".md", ".csproj", ".props", ".json", ".manifest", ".ps1", ".cmd", ".txt", ".html", ".yml", ".xaml"];
 
     [Fact]
@@ -39,7 +43,7 @@ public class CaracteresProibidosTestes
     {
         var raiz = RaizDoRepositorio();
         var problemas = new List<string>();
-        foreach (var arquivo in Directory.EnumerateFiles(raiz, "*", SearchOption.AllDirectories))
+        foreach (var arquivo in Directory.EnumerateFiles(raiz, "*", _todasAsPastas))
         {
             var relativo = Path.GetRelativePath(raiz, arquivo).Replace('\\', '/');
             if (relativo.Split('/').Any(p => p is "bin" or "obj" or ".git" or ".vs" or "publicar" or ".superpowers")
@@ -62,7 +66,7 @@ public class CaracteresProibidosTestes
     public void Nome_de_arquivo_e_minusculo()
     {
         var raiz = RaizDoRepositorio();
-        var fora = Directory.EnumerateFileSystemEntries(raiz, "*", SearchOption.AllDirectories)
+        var fora = Directory.EnumerateFileSystemEntries(raiz, "*", _todasAsPastas)
             .Select(c => Path.GetRelativePath(raiz, c).Replace('\\', '/'))
             .Where(c => !c.Split('/').Any(p => p is "bin" or "obj" or ".git" or ".vs" or "publicar" or ".superpowers" or "TestResults"))
             .Where(c => !_nomesFixos.Contains(Path.GetFileName(c)) && !Path.GetFileName(c).StartsWith("CONSULTA-ADVOGADO-", StringComparison.Ordinal))
