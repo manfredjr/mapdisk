@@ -10,7 +10,7 @@ Desenho em `docs/superpowers/specs/2026-09-28-mapdisk-design.md`.
 
 O repositório `manfredjr/mapdisk` será **público**, sob licença GPL-3.0, no mesmo modelo do MapNet e do CronoAula, por decisão do Manfred em 26/09/2026. Tudo que entra no repositório, inclusive o histórico, fica visível para qualquer pessoa.
 
-"TreeSize" é marca da JAM Software. O MapDisk não usa esse nome em tela, código, página ou arquivo publicado. A comparação com o TreeSize, se um dia entrar na página, passa antes pela `legal-br`.
+"TreeSize" é marca da JAM Software. O MapDisk não usa esse nome na tela, no código do programa, no relatório, na página nem no README. Nos documentos de desenho e nas análises jurídicas, o nome aparece só como referência factual do ponto de partida. A comparação com o TreeSize, se um dia entrar na página, passa antes pela `legal-br`.
 
 ## Método
 
