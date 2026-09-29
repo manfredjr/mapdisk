@@ -10,6 +10,7 @@
     <Description>MapDisk - MT: onde esta o espaco ocupado no disco.</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>recursos\mapdisk.ico</ApplicationIcon>
 
     <!-- Entrega: um .exe unico, autocontido, para Windows 64 bits -->
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
@@ -21,6 +22,7 @@
 
   <!-- Fonte e logo da MT embutidos no .exe e lidos pela tela com pack:// -->
   <ItemGroup>
+    <Resource Include="recursos\mapdisk.ico" />
     <Resource Include="recursos\mt-logo.png" />
     <Resource Include="recursos\fontes\*.ttf" />
     <Resource Include="recursos\fontes\ofl.txt" />

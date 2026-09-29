@@ -7,7 +7,7 @@ O que ficou de fora, com o motivo e o que fecha o item.
 | Item | Motivo | O que fecha |
 |---|---|---|
 | Autorização do cliente para exclusões no atendimento da MT | No atendimento, a MT é operadora dos dados do cliente e apaga ou move arquivos por instrução dele (LGPD, arts. 37 e 39). Verificação de 28/09/2026 | Decidido pelo Manfred em 29/09/2026: campo fixo na ordem de serviço da MT, com o registro de ações anexado. Mensagem escrita do cliente (e-mail ou WhatsApp) só em emergência, guardada junto com o registro. Texto do campo abaixo. Falta incluir o campo no modelo de OS da MT, fora deste repositório |
-| Ícone e logo do MapDisk | Não há arte do MapDisk. O MapNet usa ícone próprio em DIB | O Manfred enviar a arte (PNG com fundo transparente, símbolo que funcione em 16x16). Até lá, a fatia 1 usa ícone provisório |
+| Ícone e logo do MapDisk | Não havia arte do MapDisk | Fechado em 29/09/2026: arte recebida, ícone em DIB no `.exe` e na janela, símbolo na faixa do topo. Detalhes em `docs/marca/leia-me.md` |
 | Pasta antiga `C:\COWORK\CODE\TREEZISE-MT` | Ficou vazia depois da troca de nome. O Windows negou a exclusão pela sessão | O Manfred apagar pelo Explorer |
 | Repositório público no GitHub | Criar repositório pede autorização | Fechado em 29/09/2026: `manfredjr/mapdisk`, público, com os ganchos de backup ligados |
 
@@ -28,7 +28,6 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 | Lista dos últimos alvos (R1) | Fica para a fatia 2, junto com a navegação | Fatia 2 |
 | Atualizar só uma ramificação (R2) | Fica para a fatia 2, com o menu de contexto | Fatia 2 |
 | Botão "Varrer como administrador" (R7) | Fica para a fatia 2. Na conferência de 29/09/2026, o C: do Manfred sem administrador teve 446 pastas sem acesso | Fatia 2 |
-| Ícone do `.exe` | Sem arte do MapDisk | Pendência "Ícone e logo do MapDisk" |
 | Hard link em caminho de rede | O identificador vem do servidor e pode repetir entre discos dele. Em rede, o hard link soma mais de uma vez | Aceito. Reavaliar se aparecer caso real |
 | Unidade de rede mapeada e desligada pode atrasar a lista de unidades | O `DriveInfo.IsReady` espera a rede responder | Aceito na fatia 1. Reavaliar se atrapalhar |
 | Rótulo "sem acesso" repetido na linha da pasta | A coluna do valor e o rótulo dizem a mesma coisa | Revisar o texto da linha junto com o menu de contexto da fatia 2 |

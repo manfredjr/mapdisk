@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Style="{StaticResource JanelaMT}"
         Title="MapDisk - MT" Width="1180" Height="760" MinWidth="860" MinHeight="480"
+        Icon="pack://application:,,,/mapdisk;component/recursos/mapdisk.ico"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
@@ -34,7 +35,19 @@
         <!-- Faixa do topo: alvo e comandos -->
         <Border DockPanel.Dock="Top" Background="{StaticResource GradienteFaixa}" Padding="14,10">
             <DockPanel>
-                <TextBlock DockPanel.Dock="Left" Text="MapDisk" Foreground="White" FontSize="20"
+                <!-- Simbolo do MapDisk (docs/marca/mapdisk-mt-simbolo.svg) num quadro branco, para os verdes aparecerem sobre a faixa -->
+                <Border DockPanel.Dock="Left" Background="White" CornerRadius="6" Padding="4"
+                        VerticalAlignment="Center" Margin="0,0,10,0">
+                    <Viewbox Width="26" Height="26">
+                        <Canvas Width="64" Height="64">
+                            <Rectangle Canvas.Left="3" Canvas.Top="3" Width="24" Height="58" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerdeEscuro}" />
+                            <Rectangle Canvas.Left="31" Canvas.Top="3" Width="30" Height="28" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerde}" />
+                            <Rectangle Canvas.Left="31" Canvas.Top="35" Width="13" Height="26" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerdeMedio}" />
+                            <Rectangle Canvas.Left="48" Canvas.Top="35" Width="13" Height="26" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerdeClaro}" />
+                        </Canvas>
+                    </Viewbox>
+                </Border>
+                <TextBlock DockPanel.Dock="Left" Text="MapDisk - MT" Foreground="White" FontSize="20"
                            FontWeight="ExtraBold" VerticalAlignment="Center" Margin="0,0,18,0" />
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <ComboBox x:Name="CampoAlvo" Width="340" IsEditable="True"
