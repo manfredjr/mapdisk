@@ -23,4 +23,4 @@ No Prompt de Comando, use `start /wait mapdisk varrer C:` para o prompt esperar 
 
 | Fatia | Conteúdo | Ramo | Pull Request | Situação |
 |---|---|---|---|---|
-| 1 | Varredura, árvore com colunas, modos e unidades, barra de status, linha de comando com CSV | `varredura` | [PREENCHER] | Em andamento |
+| 1 | Varredura, árvore com colunas, modos e unidades, barra de status, linha de comando com CSV | `varredura` | [#2](https://github.com/manfredjr/mapdisk/pull/2) | Aguardando o teste do Manfred |
