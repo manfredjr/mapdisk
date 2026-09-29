@@ -137,6 +137,7 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         _cancelar = new CancellationTokenSource();
         _varredura = _motor.Reler(pasta, _cancelar.Token);
         Arvore.Substituir(pasta, _varredura.Raiz);
+        Analises.Aguardar();
         Estado = EstadoPainel.Varrendo;
         AtualizarTextos();
         return true;
@@ -156,6 +157,12 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     }
 
     public void LimparErro() => Erro = null;
+
+    public PainelAnalises Analises { get; } = new();
+
+    /// <summary>A pasta que as análises mostram: a selecionada, ou a raiz mostrada.</summary>
+    public NoPasta? PastaDasAnalises(LinhaArvore? selecionada) =>
+        selecionada is { Tipo: TipoLinha.Pasta, Pasta.Estado: EstadoPasta.Lida } linha ? linha.Pasta : Arvore.Raiz;
 
     public bool MostrarElevar => !Administrador;
 
@@ -241,6 +248,7 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         _cancelar = new CancellationTokenSource();
         _varredura = _motor.Iniciar(alvo, _cancelar.Token);
         Arvore.Carregar(_varredura.Raiz);
+        Analises.Aguardar();
         Estado = EstadoPainel.Varrendo;
         AtualizarTextos();
     }
