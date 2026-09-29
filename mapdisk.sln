@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "testes", "testes", "{3F6A55
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mapdisk.testes", "testes\mapdisk.testes\mapdisk.testes.csproj", "{3A178BB5-E2C6-47C5-9961-BEDD9BD75FCE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mapdisk", "src\mapdisk\mapdisk.csproj", "{C3ECA4DC-44FE-41B3-9D65-092D30D78BC9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,9 +30,14 @@ Global
 		{3A178BB5-E2C6-47C5-9961-BEDD9BD75FCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A178BB5-E2C6-47C5-9961-BEDD9BD75FCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A178BB5-E2C6-47C5-9961-BEDD9BD75FCE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3ECA4DC-44FE-41B3-9D65-092D30D78BC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3ECA4DC-44FE-41B3-9D65-092D30D78BC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3ECA4DC-44FE-41B3-9D65-092D30D78BC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3ECA4DC-44FE-41B3-9D65-092D30D78BC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E4634F24-5A35-4284-A2F6-2FE3586D5F4E} = {C1A82703-A62F-450E-9CC9-657A8E0A998F}
 		{3A178BB5-E2C6-47C5-9961-BEDD9BD75FCE} = {3F6A558A-155D-4E83-B1C3-09B09F05D0F1}
+		{C3ECA4DC-44FE-41B3-9D65-092D30D78BC9} = {C1A82703-A62F-450E-9CC9-657A8E0A998F}
 	EndGlobalSection
 EndGlobal
