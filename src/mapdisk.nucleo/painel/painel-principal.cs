@@ -17,22 +17,44 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
 {
     private readonly IMotorVarredura _motor;
     private readonly Func<IReadOnlyList<InfoVolume>> _listarUnidades;
+    private readonly IHistoricoAlvos _historico;
+    private readonly Func<string, ResultadoElevacao> _elevar;
     private CancellationTokenSource? _cancelar;
     private Varredura? _varredura;
     private InfoVolume? _volume;
     private string? _ultimoAlvo;
 
-    public PainelPrincipal(IMotorVarredura motor, Func<IReadOnlyList<InfoVolume>> listarUnidades)
+    public PainelPrincipal(DependenciasPainel dependencias)
     {
-        _motor = motor;
-        _listarUnidades = listarUnidades;
-        Unidades = listarUnidades();
+        _motor = dependencias.Motor;
+        _listarUnidades = dependencias.ListarUnidades;
+        _historico = dependencias.Historico;
+        _elevar = dependencias.Elevar;
+        Administrador = dependencias.Administrador;
+        Unidades = _listarUnidades();
         TextoAlvo = Unidades.FirstOrDefault()?.Raiz ?? string.Empty;
+        MontarOpcoes();
+    }
+
+    public PainelPrincipal(IMotorVarredura motor, Func<IReadOnlyList<InfoVolume>> listarUnidades)
+        : this(new DependenciasPainel { Motor = motor, ListarUnidades = listarUnidades })
+    {
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public static PainelPrincipal Padrao() => new(new MotorVarredura(), Volumes.ListarUnidades);
+    public static PainelPrincipal Padrao() => new(new DependenciasPainel
+    {
+        Motor = new MotorVarredura(),
+        ListarUnidades = Volumes.ListarUnidades,
+        Historico = HistoricoAlvosArquivo.Padrao(),
+    });
+
+    /// <summary>O processo já roda como administrador.</summary>
+    public bool Administrador { get; }
+
+    /// <summary>Unidades e, depois delas, os últimos alvos usados.</summary>
+    public IReadOnlyList<ItemAlvo> Opcoes { get; private set; } = [];
 
     public ArvoreVisivel Arvore { get; } = new();
 
@@ -64,6 +86,7 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     public void AtualizarUnidades()
     {
         Unidades = _listarUnidades();
+        MontarOpcoes();
         Avisar();
     }
 
@@ -175,6 +198,8 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     private void Iniciar(string alvo)
     {
         _ultimoAlvo = alvo;
+        _historico.Gravar(UltimosAlvos.Acrescentar(_historico.Ler(), alvo));
+        MontarOpcoes();
         TextoAlvo = alvo;
         Erro = null;
         _volume = null;
@@ -248,6 +273,15 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
             ? $"Livre: {Formatador.Tamanho(v.Livre)} de {Formatador.Tamanho(v.Total)} | Cluster {Formatador.Tamanho(v.Cluster)} ({v.SistemaArquivos})"
             : string.Empty;
         Avisar();
+    }
+
+    private void MontarOpcoes()
+    {
+        var unidades = Unidades.Select(u => new ItemAlvo(u.Raiz, u.Descricao)).ToList();
+        var recentes = _historico.Ler()
+            .Where(a => !unidades.Any(u => string.Equals(u.Caminho, a, StringComparison.OrdinalIgnoreCase)))
+            .Select(a => new ItemAlvo(a, $"{a}  (usado antes)"));
+        Opcoes = unidades.Concat(recentes).ToList();
     }
 
     private void Avisar() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));

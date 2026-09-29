@@ -258,4 +258,23 @@ public class PainelPrincipalTestes
         Assert.Equal(total, p.TextoTotais);
         Assert.True(p.PodeAvancar);
     }
+
+    [Fact]
+    public void Varrer_guarda_o_alvo_nos_ultimos_e_mostra_nas_opcoes()
+    {
+        var historico = new HistoricoEmMemoria();
+        var motor = new MotorFalso();
+        var p = new PainelPrincipal(new DependenciasPainel
+        {
+            Motor = motor,
+            ListarUnidades = () => [_c],
+            Historico = historico,
+        });
+        p.TextoAlvo = @"C:\Dados\Clientes";
+
+        p.Varrer();
+
+        Assert.Equal([@"C:\Dados\Clientes"], historico.Ler());
+        Assert.Equal([@"C:\", @"C:\Dados\Clientes"], p.Opcoes.Select(o => o.Caminho));
+    }
 }
