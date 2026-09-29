@@ -107,7 +107,13 @@ Na dúvida sobre se algo é reversível, tratar como irreversível e perguntar.
 
 ## Onde ler e gravar
 
-Só dentro de `C:\COWORK\CODE\MAPDISK-MT`. Rascunhos em `.superpowers/rascunho`, ignorada pelo git. Fora da pasta, só com autorização ou quando o Manfred aponta o caminho. Leitura do MapNet (`C:\COWORK\CODE\MAPNET-MT`) e dos roteiros (`C:\COWORK\CODE\ROTEIROS_PADRÕES`) está autorizada, para reaproveitar código e regras. O SDK do .NET e o NuGet podem guardar cache fora da pasta.
+O agente fica limitado à pasta do projeto, `C:\COWORK\CODE\MAPDISK-MT`, para ler e para gravar. Regra reforçada pelo Manfred em 29/09/2026.
+
+- **Fora da pasta, o agente pede antes e explica por quê.** O pedido diz qual caminho, se é leitura ou gravação, e para quê. Exemplo: "Preciso ler `C:\COWORK\CODE\MAPNET-MT\src\mapnet\tema\tema-mt.xaml` para copiar o tema da MT para o MapDisk". Só segue com o sim do Manfred, e o sim vale para aquele pedido.
+- **Vale também para outros projetos da MT** (MapNet, Helpdesk, roteiros): ler ou copiar de lá é pedido, não hábito.
+- **Arquivos temporários do agente** (download de norma, mensagem de commit, saída de roteiro) ficam em `.superpowers/rascunho`, nunca na pasta temporária do sistema.
+- **Exceções, sem pedido:** a memória do agente, os arquivos das skills em uso (por exemplo, a biblioteca de normas da `legal-br`) e o cache que o SDK do .NET e o NuGet guardam fora da pasta.
+- Rascunhos em `.superpowers/rascunho`, ignorada pelo git.
 
 Os testes de integração montam árvores de teste dentro da pasta de saída dos testes (`testes/mapdisk.testes/bin/...`) e as apagam no fim. Nenhum teste lê, move ou apaga fora dessa pasta.
 
