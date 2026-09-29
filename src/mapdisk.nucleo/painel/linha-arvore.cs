@@ -76,9 +76,12 @@ public sealed class LinhaArvore : INotifyPropertyChanged
         _ => Arquivo.Nome,
     };
 
-    /// <summary>Pasta sem número de verdade: sem acesso, com erro ou link. Nunca mostra 0.</summary>
+    /// <summary>
+    /// Pasta sem número de verdade: ainda não lida, sem acesso, com erro ou link. Nunca mostra 0.
+    /// A pasta ainda não lida aparece durante a varredura e depois de uma varredura interrompida.
+    /// </summary>
     public bool SemValor => Tipo == TipoLinha.Pasta
-        && Pasta.Estado is EstadoPasta.SemAcesso or EstadoPasta.ErroLeitura or EstadoPasta.Link;
+        && Pasta.Estado is EstadoPasta.Pendente or EstadoPasta.SemAcesso or EstadoPasta.ErroLeitura or EstadoPasta.Link;
 
     public string Rotulo => Tipo switch
     {
@@ -158,6 +161,7 @@ public sealed class LinhaArvore : INotifyPropertyChanged
         {
             var texto = Pasta.Estado switch
             {
+                EstadoPasta.Pendente => "não lida",
                 EstadoPasta.SemAcesso => "sem acesso",
                 EstadoPasta.Link => "link",
                 _ => "erro",

@@ -93,6 +93,7 @@ public static class ExecutorCli
         var itens = raiz.Subpastas
             .Select(p => (p.Nome, p.Tamanho, Texto: p.Estado switch
             {
+                EstadoPasta.Pendente => "não lida",
                 EstadoPasta.SemAcesso => "sem acesso",
                 EstadoPasta.ErroLeitura => "erro",
                 EstadoPasta.Link => "link",

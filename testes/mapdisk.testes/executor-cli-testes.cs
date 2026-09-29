@@ -73,4 +73,34 @@ public class ExecutorCliTestes
         Assert.Equal(0, Rodar(Demonstracao.Motor(), out var versao, out _, "--versao"));
         Assert.StartsWith("MapDisk - MT 0.1.0", versao);
     }
+
+    private sealed class MotorInterrompido : IMotorVarredura
+    {
+        public Varredura Iniciar(string alvo, CancellationToken cancelar)
+        {
+            var raiz = new NoPasta(alvo, null);
+            var lida = new NoPasta("Lida", raiz);
+            var pendente = new NoPasta("Pendente", raiz);
+            raiz.Preencher([], [lida, pendente]);
+            lida.Preencher([new("a.bin", 100, 4096, DateTime.MinValue, MarcaArquivo.Nenhuma)], []);
+            return new Varredura(raiz).Comecar(_ => Task.FromResult(new ResultadoVarredura
+            {
+                Raiz = raiz,
+                Volume = null,
+                Duracao = TimeSpan.FromSeconds(1),
+                Cancelada = true,
+            }));
+        }
+    }
+
+    [Fact]
+    public void Varredura_interrompida_mostra_pasta_nao_lida_sem_zero()
+    {
+        var codigo = Rodar(new MotorInterrompido(), out var saida, out _, "varrer", "D:");
+
+        Assert.Equal(ExecutorCli.CodigoCancelado, codigo);
+        var linha = saida.Split(Environment.NewLine).Single(l => l.EndsWith("Pendente"));
+        Assert.Contains("não lida", linha);
+        Assert.DoesNotContain("0 Bytes", linha);
+    }
 }

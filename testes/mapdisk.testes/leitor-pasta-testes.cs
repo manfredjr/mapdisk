@@ -112,4 +112,15 @@ public class LeitorPastaTestes
         Assert.False(Assert.Single(naPasta).Marcas.HasFlag(MarcaArquivo.Sistema));
         Assert.True(Assert.Single(naRaiz).Marcas.HasFlag(MarcaArquivo.Sistema));
     }
+
+    [Theory]
+    [InlineData(53)]
+    [InlineData(67)]
+    [InlineData(1231)]
+    public void Motivo_do_windows_sai_sem_ponto_final(int erro)
+    {
+        var motivo = LeitorPasta.Motivo(erro);
+        Assert.False(string.IsNullOrWhiteSpace(motivo));
+        Assert.False(motivo.EndsWith('.'), motivo);
+    }
 }

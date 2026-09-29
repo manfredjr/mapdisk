@@ -192,11 +192,17 @@ internal static partial class LeitorPasta
             return ResultadoLeitura.SemAcesso;
         }
 
-        motivo = erro is ErroArquivoNaoEncontrado or ErroCaminhoNaoEncontrado
-            ? "pasta não encontrada"
-            : new Win32Exception(erro).Message;
+        motivo = Motivo(erro);
         return ResultadoLeitura.Erro;
     }
+
+    /// <summary>
+    /// Motivo em português, sem ponto final: quem mostra a mensagem é que fecha a frase. O
+    /// Windows já manda o texto com ponto, e a tela ficava com "encontrado..".
+    /// </summary>
+    internal static string Motivo(int erro) => erro is ErroArquivoNaoEncontrado or ErroCaminhoNaoEncontrado
+        ? "pasta não encontrada"
+        : new Win32Exception(erro).Message.Trim().TrimEnd('.');
 
     [LibraryImport("kernel32.dll", EntryPoint = "CreateFileW", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
     private static partial SafeFileHandle CreateFile(string nome, uint acesso, uint compartilhamento, nint seguranca, uint criacao, uint atributos, nint modelo);

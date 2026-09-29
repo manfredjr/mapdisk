@@ -111,4 +111,32 @@ public class MotorVarreduraTestes
         Assert.Equal(alvo, varredura.Raiz.Nome);
         Assert.Same(varredura.Raiz, (await varredura.Conclusao).Raiz);
     }
+
+    [Fact]
+    public async Task Muitas_varreduras_seguidas_dao_sempre_o_mesmo_total()
+    {
+        using var t = new PastaTeste();
+        for (var a = 0; a < 12; a++)
+        {
+            for (var b = 0; b < 12; b++)
+            {
+                for (var c = 0; c < 6; c++)
+                {
+                    t.Arquivo(Path.Combine($"a{a}", $"b{b}", $"c{c}", "x.bin"), 3);
+                }
+
+                t.Arquivo(Path.Combine($"a{a}", $"b{b}", "y.bin"), 5);
+            }
+        }
+
+        var alvo = Alvo.Normalizar(t.Raiz, out _)!;
+        for (var i = 0; i < 30; i++)
+        {
+            var r = await new MotorVarredura(16).Iniciar(alvo, CancellationToken.None).Conclusao;
+            Assert.False(r.Cancelada);
+            Assert.Equal(12 * 12 * 7, r.Raiz.ArquivosTotal);
+            Assert.Equal(12 + (12 * 12) + (12 * 12 * 6), r.Raiz.PastasTotal);
+            Assert.Equal((12 * 12 * 6 * 3) + (12 * 12 * 5), r.Raiz.Tamanho);
+        }
+    }
 }

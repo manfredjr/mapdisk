@@ -161,6 +161,25 @@ public class ArvoreVisivelTestes
     }
 
     [Fact]
+    public void Pasta_ainda_nao_lida_mostra_nao_lida_e_nunca_zero()
+    {
+        var raiz = new NoPasta(@"C:\", null);
+        var lida = new NoPasta("Lida", raiz);
+        var pendente = new NoPasta("Pendente", raiz);
+        raiz.Preencher([], [lida, pendente]);
+        lida.Preencher([new("a.bin", 100, 4096, _d, MarcaArquivo.Nenhuma)], []);
+        var a = new ArvoreVisivel();
+        a.Carregar(raiz);
+
+        var linha = Linha(a, "Pendente");
+        Assert.True(linha.SemValor);
+        Assert.Equal("não lida", linha.TextoTamanho);
+        Assert.Equal("não lida", linha.TextoValor);
+        Assert.Equal("", linha.TextoArquivos);
+        Assert.Equal("Pendente", a.Linhas[^1].Nome);
+    }
+
+    [Fact]
     public void A_mesma_linha_continua_depois_de_atualizar()
     {
         var a = Carregada(out _);
