@@ -66,4 +66,44 @@ public class AcoesTestes
     {
         Assert.Equal(temLixeira, Lixeiras.Existe(caminho, _ => tipo));
     }
+
+    [Fact]
+    public void Registro_grava_cabecalho_e_uma_linha_por_chamada()
+    {
+        using var pasta = new PastaTeste();
+        var arquivo = pasta.Caminho(@"registro\acoes.log");
+        var registro = new RegistroAcoes(arquivo, () => new DateTime(2026, 9, 30, 14, 5, 9), @"EMPRESA\tecnico");
+
+        registro.Gravar(TipoAcao.Mover, @"D:\Dados\a.iso", @"E:\Arquivo", 4096, "iniciado");
+        registro.Gravar(TipoAcao.Mover, @"D:\Dados\a.iso", @"E:\Arquivo", 4096, "ok");
+
+        var linhas = File.ReadAllLines(arquivo);
+        Assert.Equal(RegistroAcoes.Cabecalho, linhas[0]);
+        Assert.Equal("2026-09-30 14:05:09\tEMPRESA\\tecnico\tmover\tD:\\Dados\\a.iso\tE:\\Arquivo\t4096\tiniciado", linhas[1]);
+        Assert.EndsWith("\tok", linhas[2]);
+        Assert.Equal(arquivo, registro.Local);
+    }
+
+    [Fact]
+    public void Registro_tira_quebra_de_linha_e_tabulacao_do_motivo()
+    {
+        using var pasta = new PastaTeste();
+        var arquivo = pasta.Caminho("acoes.log");
+        var registro = new RegistroAcoes(arquivo, () => DateTime.Now, "tecnico");
+
+        registro.Gravar(TipoAcao.Lixeira, @"C:\x", null, 1, "falhou: em uso\r\npor outro\tprograma");
+
+        Assert.EndsWith("\t\t1\tfalhou: em uso  por outro programa", File.ReadAllLines(arquivo)[1]);
+    }
+
+    [Fact]
+    public void Registro_sem_gravacao_possivel_lanca_erro()
+    {
+        using var pasta = new PastaTeste();
+        var bloqueio = pasta.Arquivo("acoes.log", 0);
+        using var aberto = new FileStream(bloqueio, FileMode.Open, FileAccess.Read, FileShare.None);
+        var registro = new RegistroAcoes(bloqueio, () => DateTime.Now, "tecnico");
+
+        Assert.Throws<IOException>(() => registro.Gravar(TipoAcao.Excluir, @"\\srv\d\x", null, 1, "iniciado"));
+    }
 }
