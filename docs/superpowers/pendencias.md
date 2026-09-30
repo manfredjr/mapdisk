@@ -57,5 +57,5 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 |---|---|---|
 | Imagem do gráfico no relatório | O R10 pede o gráfico na tela. Levar a imagem para o relatório é decisão do relatório | Relatório HTML da fatia 7 |
 | Gráfico com mais de um nível | O gráfico mostra um nível abaixo da pasta, que se lê de relance. Para descer, clique duplo | Aceito. Reavaliar se o uso pedir |
-| Clique duplo no gráfico conferido pelo agente | O Windows não deixou o roteiro de teste trazer a janela para a frente e clicar | Teste do Manfred no PR da fatia 4 |
+| Clique duplo no gráfico conferido pelo agente | O Windows não deixou o roteiro de teste trazer a janela para a frente e clicar | Fechado: o Manfred testou no PR #8 em 30/09/2026 |
 
