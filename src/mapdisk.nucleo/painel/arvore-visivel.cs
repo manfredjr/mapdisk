@@ -144,6 +144,58 @@ public sealed class ArvoreVisivel
         Atualizar();
     }
 
+    /// <summary>Tira da árvore o item que saiu do disco. Se a raiz mostrada estava dentro dele, sobe.</summary>
+    public void Remover(ItemAcao item)
+    {
+        if (item.EhPasta)
+        {
+            var pasta = item.Pasta;
+            if (pasta.Pai is not { } pai)
+            {
+                return;
+            }
+
+            pai.RemoverSubpasta(pasta);
+            Tirar(_voltar, pasta);
+            Tirar(_avancar, pasta);
+            if (Raiz is not null && Dentro(Raiz, pasta))
+            {
+                Raiz = pai;
+                _pastasAbertas.Add(pai);
+            }
+        }
+        else
+        {
+            item.Pasta.RemoverArquivo(item.Arquivo!.Value);
+        }
+
+        Atualizar();
+    }
+
+    private static bool Dentro(NoPasta no, NoPasta pasta)
+    {
+        for (var n = no; n is not null; n = n.Pai)
+        {
+            if (n == pasta)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Tira do histórico de Voltar e Avançar as pastas que saíram.
+    private static void Tirar(Stack<NoPasta> pilha, NoPasta pasta)
+    {
+        var ficam = pilha.Reverse().Where(n => !Dentro(n, pasta)).ToList();
+        pilha.Clear();
+        foreach (var n in ficam)
+        {
+            pilha.Push(n);
+        }
+    }
+
     /// <summary>Remonta a lista com os números de agora. A tela chama a cada 250 ms durante a varredura.</summary>
     public void Atualizar()
     {

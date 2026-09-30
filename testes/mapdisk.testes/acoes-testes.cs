@@ -345,4 +345,61 @@ public class AcoesTestes
 
         Assert.Equal(2, r.Ok);
     }
+
+    [Fact]
+    public void Remover_subpasta_desconta_das_somas_acima()
+    {
+        var raiz = AnalisesTestes.Exemplo();
+        var users = raiz.Subpastas[0];
+        var bruno = users.Subpastas[1];
+        var pastasAntes = raiz.PastasTotal;
+
+        users.RemoverSubpasta(bruno);
+
+        Assert.Equal(["ana"], users.Subpastas.Select(s => s.Nome));
+        Assert.Equal(300, users.Tamanho);
+        Assert.Equal(5300, raiz.Tamanho);
+        Assert.Equal(pastasAntes - 1, raiz.PastasTotal);
+        Assert.Equal(3, raiz.ArquivosTotal);
+    }
+
+    [Fact]
+    public void Remover_arquivo_desconta_das_somas_acima()
+    {
+        var raiz = AnalisesTestes.Exemplo();
+        var bruno = raiz.Subpastas[0].Subpastas[1];
+
+        bruno.RemoverArquivo(bruno.Arquivos[0]);
+
+        Assert.Equal(["setup.exe"], bruno.Arquivos.Select(a => a.Nome));
+        Assert.Equal(100, bruno.Tamanho);
+        Assert.Equal(100, bruno.TamanhoProprio);
+        Assert.Equal(5400, raiz.Tamanho);
+    }
+
+    [Fact]
+    public void Encontrar_pasta_pelo_caminho()
+    {
+        var raiz = AnalisesTestes.Exemplo();
+
+        Assert.Equal("bruno", raiz.Encontrar(@"c:\users\BRUNO")!.Nome);
+        Assert.Same(raiz, raiz.Encontrar(@"C:\"));
+        Assert.Null(raiz.Encontrar(@"C:\Users\carla"));
+        Assert.Null(raiz.Encontrar(@"D:\Users"));
+    }
+
+    [Fact]
+    public void Arvore_visivel_sobe_quando_a_raiz_mostrada_sai()
+    {
+        var raiz = AnalisesTestes.Exemplo();
+        var arvore = new ArvoreVisivel();
+        arvore.Carregar(raiz);
+        var users = raiz.Subpastas[0];
+        arvore.AbrirAqui(users.Subpastas[1]);
+
+        arvore.Remover(ItemAcao.DaPasta(users.Subpastas[1]));
+
+        Assert.Same(users, arvore.Raiz);
+        Assert.DoesNotContain(arvore.Linhas, l => l.Nome == "bruno");
+    }
 }
