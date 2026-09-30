@@ -13,6 +13,9 @@ public partial class JanelaPrincipal : Window
 {
     private readonly PainelPrincipal _painel;
     private readonly DispatcherTimer _relogio = new() { Interval = TimeSpan.FromMilliseconds(250) };
+    private int _concluidasVistas;
+    private NoPasta? _pastaAnalisada;
+    private bool _mostrarAnalises = true;
 
     public JanelaPrincipal(PainelPrincipal painel, string sufixoTitulo, bool varrerAoAbrir)
     {
@@ -29,6 +32,12 @@ public partial class JanelaPrincipal : Window
         {
             _painel.Tique();
             MostrarErro();
+            if (_painel.VarredurasConcluidas != _concluidasVistas)
+            {
+                _concluidasVistas = _painel.VarredurasConcluidas;
+                _pastaAnalisada = null;
+                _ = AtualizarAnalises();
+            }
         };
         _relogio.Start();
     }
@@ -40,6 +49,91 @@ public partial class JanelaPrincipal : Window
     }
 
     private void AoParar(object sender, RoutedEventArgs e) => _painel.Parar();
+
+    private void AoSelecionarNaArvore(object sender, SelectionChangedEventArgs e) => _ = AtualizarAnalises();
+
+    // Calcula as análises da pasta selecionada, ou da raiz mostrada, com a varredura parada.
+    private async Task AtualizarAnalises()
+    {
+        if (!_mostrarAnalises || _painel.Estado != EstadoPainel.Parado)
+        {
+            return;
+        }
+
+        var pasta = _painel.PastaDasAnalises(Tabela.SelectedItem as LinhaArvore);
+        if (pasta is null || pasta == _pastaAnalisada)
+        {
+            return;
+        }
+
+        _pastaAnalisada = pasta;
+        await _painel.Analises.CalcularAsync(pasta, DateTime.Now);
+    }
+
+    private async void AoMudarIdade(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton { Tag: string tag } && Enum.TryParse<Idade>(tag, out var idade))
+        {
+            await _painel.Analises.DefinirIdadeAsync(idade, DateTime.Now);
+        }
+    }
+
+    private void AoMostrarAnalises(object sender, RoutedEventArgs e)
+    {
+        _mostrarAnalises = sender is CheckBox { IsChecked: true };
+        if (ColunaPainel is null)
+        {
+            return;
+        }
+
+        ColunaPainel.Width = _mostrarAnalises ? new GridLength(520) : new GridLength(0);
+        ColunaDivisoria.Width = _mostrarAnalises ? new GridLength(12) : new GridLength(0);
+        if (_mostrarAnalises)
+        {
+            _pastaAnalisada = null;
+            _ = AtualizarAnalises();
+        }
+    }
+
+    // A linha da lista de análise em que o menu foi aberto: o menu é preso à própria linha.
+    private static object? ItemDoMenu(object sender) =>
+        ((sender as MenuItem)?.Parent as ContextMenu)?.PlacementTarget is FrameworkElement { DataContext: var linha } ? linha : null;
+
+    private void AoMostrarArquivoNoExplorer(object sender, RoutedEventArgs e)
+    {
+        if (ItemDoMenu(sender) is LinhaArquivo linha)
+        {
+            Shell.MostrarNoExplorer(linha.Caminho, ehArquivo: true);
+        }
+    }
+
+    private void AoCopiarCaminhoDoArquivo(object sender, RoutedEventArgs e)
+    {
+        if (ItemDoMenu(sender) is LinhaArquivo linha)
+        {
+            Shell.CopiarCaminho(linha.Caminho);
+        }
+    }
+
+    private void AoAbrirPastaDoArquivo(object sender, RoutedEventArgs e)
+    {
+        if (ItemDoMenu(sender) is LinhaArquivo linha)
+        {
+            _painel.AbrirAqui(linha.Encontrado.Pasta);
+        }
+    }
+
+    private void AoAbrirPerfil(object sender, RoutedEventArgs e)
+    {
+        if (ItemDoMenu(sender) is LinhaResumo { Pasta: { } pasta })
+        {
+            _painel.AbrirAqui(pasta);
+        }
+    }
+
+    private void AoClicarLogo(object sender, RoutedEventArgs e) => Shell.AbrirNoNavegador(Sobre.SiteMt);
+
+    private void AoAbrirSobre(object sender, RoutedEventArgs e) => new JanelaSobre { Owner = this }.ShowDialog();
 
     private void AoElevar(object sender, RoutedEventArgs e)
     {

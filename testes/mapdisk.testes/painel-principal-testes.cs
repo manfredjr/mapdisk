@@ -330,4 +330,18 @@ public class PainelPrincipalTestes
         Assert.False(p.MostrarElevar);
         Assert.False(p.PodeElevar);
     }
+
+    [Fact]
+    public void Conta_as_varreduras_concluidas()
+    {
+        var p = Demonstracao.Painel();
+        Assert.Equal(0, p.VarredurasConcluidas);
+
+        p.Varrer();
+        p.Tique();
+        p.Atualizar();
+        p.Tique();
+
+        Assert.Equal(2, p.VarredurasConcluidas);
+    }
 }

@@ -121,3 +121,12 @@ Os textos seguem o modelo do parecer do MapNet, adaptados ao risco do MapDisk. P
 ## 7. Pendências de validação
 
 Nenhuma. Os pontos que dependiam de parecer (relação de consumo na distribuição gratuita e alcance das seções 15 e 16 da GPL-3.0) foram respondidos pelo parecer do MapNet, com fatos de distribuição iguais.
+
+## 8. Janela Sobre (acréscimo de 30/09/2026)
+
+**FATO LEGAL.** GPL-3.0, seção 0: "An interactive user interface displays "Appropriate Legal Notices" to the extent that it includes a convenient and prominently visible feature that (1) displays an appropriate copyright notice, and (2) tells the user that there is no warranty for the work (except to the extent that warranties are provided), that licensees may convey the work under this License, and how to view a copy of this License." Seção 5, d: "If the work has interactive user interfaces, each must display Appropriate Legal Notices". Verificado no arquivo `LICENSE` do repositório, que é o texto oficial da GPL-3.0, em 30/09/2026.
+
+**Incidência.** A seção 5 regula quem distribui versão modificada. A MANFRED TECNOLOGIA LTDA, titular do código, não está obrigada pela própria licença. O aviso é **RECOMENDAÇÃO**: o próprio texto da GPL, em "How to Apply These Terms", sugere uma caixa "Sobre" para programa com janela. Com o aviso na janela, quem distribuir versão modificada já recebe a tela pronta.
+
+**RECOMENDAÇÃO aplicada.** A janela Sobre mostra o aviso de copyright, o aviso de software livre (tradução do aviso sugerido pela GPL, só com "versão 3", sem a cláusula "ou posterior", que não foi decidida) e o texto "Licença e garantias" da seção 5 sem mudança. O texto integral da licença vai embutido no programa e abre pelo botão "Ver a licença", sem internet. O texto "Licença e garantias" já cita apagar e mover, que chegam na fatia 5. Fica sem mudança porque nenhuma versão é publicada antes da fatia 7, e a versão publicada terá essas ações.
+

@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Style="{StaticResource JanelaMT}"
-        Title="MapDisk - MT" Width="1180" Height="760" MinWidth="860" MinHeight="480"
+        Title="MapDisk - MT" Width="1440" Height="800" MinWidth="860" MinHeight="480"
         Icon="pack://application:,,,/mapdisk;component/recursos/mapdisk.ico"
         WindowStartupLocation="CenterScreen">
 
@@ -26,6 +26,16 @@
             <Setter Property="Foreground" Value="{StaticResource PincelVerdeEscuro}" />
         </Style>
 
+        <!-- Menus das linhas das análises: presos a cada linha, que é a linha clicada -->
+        <ContextMenu x:Key="MenuArquivo" x:Shared="False">
+            <MenuItem Header="Mostrar no Explorer" Click="AoMostrarArquivoNoExplorer" />
+            <MenuItem Header="Copiar caminho" Click="AoCopiarCaminhoDoArquivo" />
+            <MenuItem Header="Abrir a pasta na árvore" Click="AoAbrirPastaDoArquivo" />
+        </ContextMenu>
+        <ContextMenu x:Key="MenuPerfil" x:Shared="False">
+            <MenuItem Header="Abrir aqui" Click="AoAbrirPerfil" />
+        </ContextMenu>
+
         <Style x:Key="Numero" TargetType="{x:Type TextBlock}">
             <Setter Property="TextAlignment" Value="Right" />
         </Style>
@@ -35,10 +45,11 @@
         <!-- Faixa do topo: alvo e comandos -->
         <Border DockPanel.Dock="Top" Background="{StaticResource GradienteFaixa}" Padding="14,10">
             <DockPanel>
-                <!-- Simbolo do MapDisk (docs/marca/mapdisk-mt-simbolo.svg) num quadro branco, para os verdes aparecerem sobre a faixa -->
-                <Border DockPanel.Dock="Left" Background="White" CornerRadius="6" Padding="4"
-                        VerticalAlignment="Center" Margin="0,0,10,0">
-                    <Viewbox Width="26" Height="26">
+                <!-- Selo do MapDisk: simbolo (docs/marca/mapdisk-mt-simbolo.svg) e nome em verde sobre o branco, no padrao do MapNet -->
+                <Border DockPanel.Dock="Left" Background="White" CornerRadius="8" Padding="8,5,12,5"
+                        VerticalAlignment="Center" Margin="0,0,18,0">
+                    <StackPanel Orientation="Horizontal">
+                    <Viewbox Width="26" Height="26" Margin="0,0,8,0">
                         <Canvas Width="64" Height="64">
                             <Rectangle Canvas.Left="3" Canvas.Top="3" Width="24" Height="58" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerdeEscuro}" />
                             <Rectangle Canvas.Left="31" Canvas.Top="3" Width="30" Height="28" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerde}" />
@@ -46,9 +57,13 @@
                             <Rectangle Canvas.Left="48" Canvas.Top="35" Width="13" Height="26" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerdeClaro}" />
                         </Canvas>
                     </Viewbox>
+                    <TextBlock Text="MapDisk" Foreground="{StaticResource PincelVerdeEscuro}" FontSize="20"
+                               FontWeight="ExtraBold" VerticalAlignment="Center" />
+                    </StackPanel>
                 </Border>
-                <TextBlock DockPanel.Dock="Left" Text="MapDisk - MT" Foreground="White" FontSize="20"
-                           FontWeight="ExtraBold" VerticalAlignment="Center" Margin="0,0,18,0" />
+                <!-- Sobre: autoria, avisos da licenca GPL-3.0 e onde baixar -->
+                <Button DockPanel.Dock="Right" Content="Sobre" Style="{StaticResource BotaoFaixaContorno}" Click="AoAbrirSobre"
+                        VerticalAlignment="Center" ToolTip="Versão, autoria, licença e onde baixar" />
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <ComboBox x:Name="CampoAlvo" Width="340" IsEditable="True"
                               ItemsSource="{Binding Opcoes}" TextSearch.TextPath="Caminho"
@@ -101,11 +116,13 @@
                 <RadioButton GroupName="Unidade" Content="Automática" Tag="Automatica" IsChecked="True" Checked="AoMudarUnidade" Margin="0,0,12,0" />
                 <RadioButton GroupName="Unidade" Content="GB" Tag="GB" Checked="AoMudarUnidade" Margin="0,0,12,0" />
                 <RadioButton GroupName="Unidade" Content="MB" Tag="MB" Checked="AoMudarUnidade" Margin="0,0,12,0" />
-                <RadioButton GroupName="Unidade" Content="KB" Tag="KB" Checked="AoMudarUnidade" />
+                <RadioButton GroupName="Unidade" Content="KB" Tag="KB" Checked="AoMudarUnidade" Margin="0,0,28,0" />
+                <CheckBox Content="Análises" IsChecked="True" Checked="AoMostrarAnalises" Unchecked="AoMostrarAnalises"
+                          VerticalAlignment="Center" ToolTip="Mostra ou esconde o painel de análises à direita" />
             </StackPanel>
         </Border>
 
-        <!-- Barra de status -->
+        <!-- Barra de status, com a linha da marca por cima -->
         <Border DockPanel.Dock="Bottom" Background="{StaticResource PincelGrafite}" Padding="12,6">
             <DockPanel>
                 <ProgressBar DockPanel.Dock="Left" Style="{StaticResource ProgressoMT}" Width="120" Margin="0,0,12,0"
@@ -121,9 +138,23 @@
                 </StackPanel>
             </DockPanel>
         </Border>
+        <Border DockPanel.Dock="Bottom" Height="3" Background="{StaticResource GradienteLinha}" />
 
-        <!-- Arvore com colunas. So as linhas visiveis sao desenhadas -->
-        <ListView x:Name="Tabela" ItemsSource="{Binding Arvore.Linhas}" BorderThickness="0"
+        <Grid Margin="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MinWidth="400" />
+                <ColumnDefinition x:Name="ColunaDivisoria" Width="12" />
+                <ColumnDefinition x:Name="ColunaPainel" Width="520" MinWidth="0" />
+            </Grid.ColumnDefinitions>
+
+        <!-- Cartao das pastas: arvore com colunas. So as linhas visiveis sao desenhadas -->
+        <Border Grid.Column="0" Style="{StaticResource Cartao}">
+        <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Style="{StaticResource BarraTitulo}" />
+            <TextBlock Text="Pastas" Style="{StaticResource TituloCartao}" />
+        </StackPanel>
+        <ListView x:Name="Tabela" SelectionChanged="AoSelecionarNaArvore" ItemsSource="{Binding Arvore.Linhas}" BorderThickness="0"
                   VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                   ScrollViewer.CanContentScroll="True" SelectionMode="Single"
                   MouseDoubleClick="AoClicarDuasVezes" KeyDown="AoTeclarNaTabela">
@@ -234,5 +265,240 @@
                 </GridView>
             </ListView.View>
         </ListView>
+        </DockPanel>
+        </Border>
+
+            <GridSplitter x:Name="Divisoria" Grid.Column="1" Width="12" HorizontalAlignment="Stretch"
+                          Background="Transparent" />
+
+            <!-- Painel de analises: sobre a pasta selecionada, com a arvore ja lida -->
+            <Border x:Name="PainelLateral" Grid.Column="2" Style="{StaticResource Cartao}" DataContext="{Binding Analises}">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
+                        <Border Style="{StaticResource BarraTitulo}" />
+                        <TextBlock Text="Análises" Style="{StaticResource TituloCartao}" />
+                    </StackPanel>
+                    <!-- Logo da MT no pe do cartao, no mesmo lugar da coluna do MapNet -->
+                    <Button DockPanel.Dock="Bottom" Style="{StaticResource BotaoMarca}" Click="AoClicarLogo"
+                            HorizontalAlignment="Center" Margin="0,10,0,0" AutomationProperties.Name="MT - Manfred Tecnologia"
+                            ToolTip="MT - Manfred Tecnologia: abre o site www.manfred.com.br no navegador">
+                        <Image Source="pack://application:,,,/mapdisk;component/recursos/mt-logo.png"
+                               Height="64" RenderOptions.BitmapScalingMode="HighQuality" />
+                    </Button>
+                    <TextBlock DockPanel.Dock="Top" Text="{Binding Titulo}" TextTrimming="CharacterEllipsis">
+                        <TextBlock.Style>
+                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TituloGrupo}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Titulo}" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock DockPanel.Dock="Top" Text="{Binding Aviso}" Foreground="{StaticResource PincelTextoSuave}"
+                               TextWrapping="Wrap" Margin="0,2,0,6" />
+                    <TabControl>
+                        <TabItem Header="Maiores arquivos">
+                            <ListView x:Name="ListaMaiores" ItemsSource="{Binding Maiores}" BorderThickness="0" SelectionMode="Single"
+                                      VirtualizingPanel.IsVirtualizing="True">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="ToolTip" Value="{Binding Caminho}" />
+                                        <Setter Property="ContextMenu" Value="{StaticResource MenuArquivo}" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Tamanho" Width="80">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding TextoTamanho}" TextAlignment="Right" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Nome" Width="150" DisplayMemberBinding="{Binding Nome}" />
+                                        <GridViewColumn Header="Pasta" Width="220" DisplayMemberBinding="{Binding Pasta}" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </TabItem>
+                        <TabItem Header="Arquivos antigos">
+                            <DockPanel>
+                                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,6,0,4">
+                                    <TextBlock Text="Sem alteração há mais de:" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <RadioButton GroupName="Idade" Content="6 meses" Tag="SeisMeses" Checked="AoMudarIdade" Margin="0,0,10,0" />
+                                    <RadioButton GroupName="Idade" Content="1 ano" Tag="UmAno" IsChecked="True" Checked="AoMudarIdade" Margin="0,0,10,0" />
+                                    <RadioButton GroupName="Idade" Content="2 anos" Tag="DoisAnos" Checked="AoMudarIdade" Margin="0,0,10,0" />
+                                    <RadioButton GroupName="Idade" Content="5 anos" Tag="CincoAnos" Checked="AoMudarIdade" />
+                                </StackPanel>
+                                <TextBlock DockPanel.Dock="Top" Text="{Binding TextoAntigos}" FontWeight="SemiBold"
+                                           TextWrapping="Wrap" Margin="0,0,0,6" />
+                            <ListView x:Name="ListaAntigos" ItemsSource="{Binding Antigos}" BorderThickness="0" SelectionMode="Single"
+                                      VirtualizingPanel.IsVirtualizing="True">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="ToolTip" Value="{Binding Caminho}" />
+                                        <Setter Property="ContextMenu" Value="{StaticResource MenuArquivo}" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Tamanho" Width="80">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding TextoTamanho}" TextAlignment="Right" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Data" Width="80">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding TextoData}" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Nome" Width="150" DisplayMemberBinding="{Binding Nome}" />
+                                        <GridViewColumn Header="Pasta" Width="220" DisplayMemberBinding="{Binding Pasta}" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            </DockPanel>
+                        </TabItem>
+                        <TabItem Header="Por tipo">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="Por categoria" Style="{StaticResource TituloGrupo}" Margin="0,6,0,4" />
+                                <Grid Grid.Row="1">
+                            <ListView x:Name="ListaCategorias" ItemsSource="{Binding Categorias}" BorderThickness="0" SelectionMode="Single">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Nome" Width="200">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Grid Width="80" Height="10" Margin="0,0,6,0" VerticalAlignment="Center">
+                                                            <Border Background="{StaticResource PincelCinzaClaro}" CornerRadius="2" />
+                                                            <Border Background="{StaticResource PincelVerdeMedio}" CornerRadius="2"
+                                                                    HorizontalAlignment="Left" Width="{Binding LarguraBarra}" />
+                                                        </Grid>
+                                                        <TextBlock Text="{Binding Nome}" FontWeight="SemiBold" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Tamanho" Width="80">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding TextoTamanho}" TextAlignment="Right" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="%" Width="60">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding TextoPorcentagem}" TextAlignment="Right" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Arquivos" Width="110" DisplayMemberBinding="{Binding TextoQuantidade}" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                                </Grid>
+                                <TextBlock Grid.Row="2" Text="Por extensão" Style="{StaticResource TituloGrupo}" Margin="0,8,0,4" />
+                                <Grid Grid.Row="3">
+                            <ListView x:Name="ListaExtensoes" ItemsSource="{Binding Extensoes}" BorderThickness="0" SelectionMode="Single">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Nome" Width="200">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Grid Width="80" Height="10" Margin="0,0,6,0" VerticalAlignment="Center">
+                                                            <Border Background="{StaticResource PincelCinzaClaro}" CornerRadius="2" />
+                                                            <Border Background="{StaticResource PincelVerdeMedio}" CornerRadius="2"
+                                                                    HorizontalAlignment="Left" Width="{Binding LarguraBarra}" />
+                                                        </Grid>
+                                                        <TextBlock Text="{Binding Nome}" FontWeight="SemiBold" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Tamanho" Width="80">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding TextoTamanho}" TextAlignment="Right" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="%" Width="60">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding TextoPorcentagem}" TextAlignment="Right" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Arquivos" Width="110" DisplayMemberBinding="{Binding TextoQuantidade}" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                                </Grid>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Por usuário">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Text="{Binding TextoUsuarios}" TextWrapping="Wrap" Margin="0,6,0,6" />
+                            <ListView x:Name="ListaUsuarios" ItemsSource="{Binding Usuarios}" BorderThickness="0" SelectionMode="Single">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="{x:Type ListViewItem}">
+                                        <Setter Property="ContextMenu" Value="{StaticResource MenuPerfil}" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Nome" Width="200">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Grid Width="80" Height="10" Margin="0,0,6,0" VerticalAlignment="Center">
+                                                            <Border Background="{StaticResource PincelCinzaClaro}" CornerRadius="2" />
+                                                            <Border Background="{StaticResource PincelVerdeMedio}" CornerRadius="2"
+                                                                    HorizontalAlignment="Left" Width="{Binding LarguraBarra}" />
+                                                        </Grid>
+                                                        <TextBlock Text="{Binding Nome}" FontWeight="SemiBold" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Tamanho" Width="80">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding TextoTamanho}" TextAlignment="Right" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="%" Width="60">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding TextoPorcentagem}" TextAlignment="Right" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Arquivos" Width="110" DisplayMemberBinding="{Binding TextoQuantidade}" />
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            </DockPanel>
+                        </TabItem>
+                    </TabControl>
+                </DockPanel>
+            </Border>
+        </Grid>
     </DockPanel>
 </Window>

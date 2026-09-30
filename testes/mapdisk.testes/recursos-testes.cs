@@ -27,6 +27,26 @@ public class RecursosTestes
     }
 
     [Fact]
+    public void Janela_mostra_o_logo_da_mt()
+    {
+        Assert.True(File.Exists(App(Path.Combine("recursos", "mt-logo.png"))));
+        var janela = File.ReadAllText(App("janela-principal.xaml"));
+        Assert.Contains("component/recursos/mt-logo.png", janela);
+        Assert.Contains("Click=\"AoClicarLogo\"", janela);
+    }
+
+    [Fact]
+    public void Janela_tem_o_botao_sobre_com_os_avisos_da_licenca()
+    {
+        Assert.Contains("Click=\"AoAbrirSobre\"", File.ReadAllText(App("janela-principal.xaml")));
+        var sobre = File.ReadAllText(App("janela-sobre.xaml"));
+        foreach (var campo in new[] { "Sobre.Copyright", "Sobre.SoftwareLivre", "Sobre.LicencaEGarantias", "Sobre.Versoes", "Sobre.Repositorio", "CampoLicenca" })
+        {
+            Assert.Contains(campo, sobre);
+        }
+    }
+
+    [Fact]
     public void Manifesto_roda_sem_administrador()
     {
         var manifesto = File.ReadAllText(App("app.manifest"));

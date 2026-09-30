@@ -21,6 +21,17 @@ Na árvore:
 - O botão direito também tem **Mostrar no Explorer**, **Copiar caminho** e **Propriedades**.
 - A lista de alvos mostra as unidades e os últimos 10 alvos usados. A lista fica só neste computador.
 
+À direita da árvore, o painel **Análises** responde "o que eu trato?" sobre a pasta selecionada:
+
+- **Maiores arquivos:** os 100 maiores.
+- **Arquivos antigos:** sem alteração há mais de 6 meses, 1, 2 ou 5 anos, com a quantidade e o total.
+- **Por tipo:** vídeo, imagem, áudio, e-mail (.pst, .ost), imagem de disco, compactado e backup, instalador, documento e outros, mais o ranking por extensão.
+- **Por usuário:** o ranking das pastas de perfil em `Users`.
+
+O botão direito numa linha tem **Mostrar no Explorer**, **Copiar caminho** e **Abrir a pasta na árvore**. As análises usam o que já foi lido, sem varrer de novo, e avisam quando há pastas sem leitura fora da conta.
+
+O botão **Sobre** mostra a versão, a autoria, a licença GPL-3.0 com o texto completo e onde baixar. O logo da MT abre o site www.manfred.com.br.
+
 Linha de comando (só lê, nunca apaga nem move). O alvo é um caminho completo:
 
     mapdisk varrer C:
@@ -34,3 +45,4 @@ No Prompt de Comando, use `start /wait mapdisk varrer C:` para o prompt esperar 
 |---|---|---|---|---|
 | 1 | Varredura, árvore com colunas, modos e unidades, barra de status, linha de comando com CSV | `varredura` | [#2](https://github.com/manfredjr/mapdisk/pull/2) | Concluída em 29/09/2026 |
 | 2 | Navegação, últimos alvos, atualizar uma pasta, menu de contexto, varredura como administrador com o privilégio de backup, acertos da fatia 1 | `navegacao` | [#4](https://github.com/manfredjr/mapdisk/pull/4) | Concluída em 29/09/2026 |
+| 3 | Painel de análises: maiores arquivos, arquivos antigos, por tipo, por usuário; memória; padrão visual do MapNet com o logo da MT; janela Sobre | `analises` | Plano em [#5](https://github.com/manfredjr/mapdisk/pull/5), código em [#6](https://github.com/manfredjr/mapdisk/pull/6) | Concluída em 30/09/2026 |

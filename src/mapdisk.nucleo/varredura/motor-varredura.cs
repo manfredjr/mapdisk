@@ -108,6 +108,7 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
         // Hard link: o mesmo identificador de arquivo no volume soma uma vez só. Em caminho de
         // rede o identificador vem do servidor e pode repetir entre discos dele, então não conta.
         var vistos = new ConjuntoIds();
+        var nomes = new ConjuntoNomes();
         Func<long, bool> primeiraVez = Alvo.EhRede(caminhoDaRaiz) ? _ => true : vistos.Acrescentar;
         var alvoERaizDoVolume = string.Equals(caminhoDaRaiz, Volumes.RaizDe(caminhoDaRaiz), StringComparison.OrdinalIgnoreCase);
 
@@ -128,7 +129,7 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
                     {
                         foreach (var (no, caminho) in fila.GetConsumingEnumerable(cancelar))
                         {
-                            LerPasta(varredura, no, caminho, alvoERaizDoVolume && no == raiz, primeiraVez, arquivos, entradas);
+                            LerPasta(varredura, no, caminho, alvoERaizDoVolume && no == raiz, primeiraVez, nomes, arquivos, entradas);
                             foreach (var sub in no.Subpastas)
                             {
                                 if (sub.Estado == EstadoPasta.Pendente)
@@ -169,6 +170,7 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
         string caminho,
         bool raizDoVolume,
         Func<long, bool> primeiraVez,
+        ConjuntoNomes nomes,
         List<ArquivoInfo> arquivos,
         List<EntradaPasta> entradas)
     {
@@ -177,7 +179,7 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
         entradas.Clear();
         try
         {
-            switch (LeitorPasta.Ler(caminho, raizDoVolume, primeiraVez, arquivos, entradas, out var motivo))
+            switch (LeitorPasta.Ler(caminho, raizDoVolume, primeiraVez, arquivos, entradas, out var motivo, nomes))
             {
                 case ResultadoLeitura.SemAcesso:
                     no.MarcarSemAcesso(motivo!);
