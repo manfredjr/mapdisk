@@ -106,4 +106,141 @@ public class AcoesTestes
 
         Assert.Throws<IOException>(() => registro.Gravar(TipoAcao.Excluir, @"\\srv\d\x", null, 1, "iniciado"));
     }
+
+    private static ItemAcao ItemDoDisco(string caminho)
+    {
+        var raiz = new NoPasta(Path.GetDirectoryName(caminho)!, null);
+        if (Directory.Exists(caminho))
+        {
+            var no = new NoPasta(Path.GetFileName(caminho), raiz, Directory.GetLastWriteTime(caminho));
+            raiz.Preencher([], [no]);
+            no.Preencher([], []);
+            return ItemAcao.DaPasta(no);
+        }
+
+        var info = new FileInfo(caminho);
+        var arquivo = new ArquivoInfo(info.Name, info.Length, info.Length, info.LastWriteTime, MarcaArquivo.Nenhuma);
+        raiz.Preencher([arquivo], []);
+        return ItemAcao.DoArquivo(raiz, arquivo);
+    }
+
+    [Fact]
+    public void Conferencia_ve_arquivo_que_mudou_ou_sumiu()
+    {
+        using var pasta = new PastaTeste();
+        var caminho = pasta.Arquivo("a.bin", 100, new DateTime(2025, 1, 1));
+        var item = ItemDoDisco(caminho);
+        var ops = new OperacoesArquivo();
+
+        Assert.Null(ops.Mudanca(item));
+        File.WriteAllBytes(caminho, new byte[150]);
+        Assert.Equal("mudou desde a varredura", ops.Mudanca(item));
+        File.Delete(caminho);
+        Assert.Equal("não existe mais", ops.Mudanca(item));
+    }
+
+    [Fact]
+    public void Mover_na_mesma_unidade_renomeia()
+    {
+        using var pasta = new PastaTeste();
+        pasta.Arquivo(@"origem\docs\a.txt", 10);
+        var destino = pasta.Pasta("destino");
+
+        new OperacoesArquivo().Mover(pasta.Caminho(@"origem\docs"), destino, true, CancellationToken.None);
+
+        Assert.False(Directory.Exists(pasta.Caminho(@"origem\docs")));
+        Assert.Equal(10, new FileInfo(pasta.Caminho(@"destino\docs\a.txt")).Length);
+    }
+
+    [Fact]
+    public void Mover_entre_unidades_copia_confere_e_so_depois_apaga_a_origem()
+    {
+        using var pasta = new PastaTeste();
+        pasta.Arquivo(@"origem\docs\a.txt", 10);
+        pasta.Arquivo(@"origem\docs\sub\b.txt", 2000);
+        File.SetAttributes(pasta.Caminho(@"origem\docs\a.txt"), FileAttributes.ReadOnly);
+        var destino = pasta.Pasta("destino");
+        var ops = new OperacoesArquivo(mesmoVolume: (_, _) => false);
+
+        ops.Mover(pasta.Caminho(@"origem\docs"), destino, true, CancellationToken.None);
+
+        Assert.False(Directory.Exists(pasta.Caminho(@"origem\docs")));
+        Assert.Equal(10, new FileInfo(pasta.Caminho(@"destino\docs\a.txt")).Length);
+        Assert.Equal(2000, new FileInfo(pasta.Caminho(@"destino\docs\sub\b.txt")).Length);
+        File.SetAttributes(pasta.Caminho(@"destino\docs\a.txt"), FileAttributes.Normal);
+    }
+
+    [Fact]
+    public void Mover_nunca_sobrescreve_no_destino()
+    {
+        using var pasta = new PastaTeste();
+        pasta.Arquivo(@"origem\a.txt", 10);
+        pasta.Arquivo(@"destino\a.txt", 99);
+
+        var erro = Assert.Throws<IOException>(() =>
+            new OperacoesArquivo().Mover(pasta.Caminho(@"origem\a.txt"), pasta.Caminho("destino"), false, CancellationToken.None));
+
+        Assert.Equal("Já existe um item com esse nome no destino.", erro.Message);
+        Assert.True(File.Exists(pasta.Caminho(@"origem\a.txt")));
+        Assert.Equal(99, new FileInfo(pasta.Caminho(@"destino\a.txt")).Length);
+    }
+
+    [Fact]
+    public void Mover_cancelado_apaga_so_a_copia_parcial()
+    {
+        using var pasta = new PastaTeste();
+        pasta.Arquivo(@"origem\docs\a.txt", 10);
+        var destino = pasta.Pasta("destino");
+        using var cancelar = new CancellationTokenSource();
+        cancelar.Cancel();
+
+        Assert.Throws<OperationCanceledException>(() =>
+            new OperacoesArquivo(mesmoVolume: (_, _) => false).Mover(pasta.Caminho(@"origem\docs"), destino, true, cancelar.Token));
+
+        Assert.True(File.Exists(pasta.Caminho(@"origem\docs\a.txt")));
+        Assert.False(Directory.Exists(pasta.Caminho(@"destino\docs")));
+    }
+
+    [Fact]
+    public void Mover_entre_unidades_recusa_pasta_com_link()
+    {
+        using var pasta = new PastaTeste();
+        pasta.Arquivo(@"alvo\x.txt", 5);
+        pasta.Pasta(@"origem\docs");
+        pasta.Juncao(@"origem\docs\atalho", "alvo");
+
+        var erro = Assert.Throws<IOException>(() =>
+            new OperacoesArquivo(mesmoVolume: (_, _) => false).Mover(pasta.Caminho(@"origem\docs"), pasta.Pasta("destino"), true, CancellationToken.None));
+
+        Assert.StartsWith("Contém link ou arquivo só na nuvem", erro.Message);
+        Assert.True(Directory.Exists(pasta.Caminho(@"origem\docs\atalho")));
+        Assert.False(Directory.Exists(pasta.Caminho(@"destino\docs")));
+    }
+
+    [Fact]
+    public void Excluir_definitivo_apaga_pasta_com_arquivo_somente_leitura()
+    {
+        using var pasta = new PastaTeste();
+        var arquivo = pasta.Arquivo(@"velho\a.txt", 10);
+        File.SetAttributes(arquivo, FileAttributes.ReadOnly);
+
+        new OperacoesArquivo().ExcluirDefinitivo(pasta.Caminho("velho"), true);
+
+        Assert.False(Directory.Exists(pasta.Caminho("velho")));
+    }
+
+    [Fact]
+    public void Demonstracao_nao_toca_no_disco()
+    {
+        using var pasta = new PastaTeste();
+        var arquivo = pasta.Arquivo("a.txt", 10);
+        var ops = new OperacoesDemonstracao();
+
+        ops.EnviarParaLixeira(arquivo);
+        ops.ExcluirDefinitivo(arquivo, false);
+        ops.Mover(arquivo, pasta.Pasta("destino"), false, CancellationToken.None);
+
+        Assert.True(File.Exists(arquivo));
+        Assert.Null(ops.Mudanca(ItemDoDisco(arquivo)));
+    }
 }
