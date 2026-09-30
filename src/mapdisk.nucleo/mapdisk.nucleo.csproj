@@ -17,4 +17,9 @@
     <EmbeddedResource Include="..\..\LICENSE" LogicalName="licenca.txt" />
   </ItemGroup>
 
+  <!-- Logo da MT dentro da página do relatório para o cliente, sem buscar nada fora -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\mapdisk\recursos\mt-logo.png" LogicalName="mt-logo.png" />
+  </ItemGroup>
+
 </Project>

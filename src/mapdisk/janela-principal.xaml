@@ -165,6 +165,16 @@
                         IsEnabled="{Binding PodeRemover}" ToolTip="{Binding MotivoBloqueio}" ToolTipService.ShowOnDisabled="True" Margin="0,0,6,0" />
                 <Button Content="Mover..." Style="{StaticResource BotaoContorno}" Click="AoMover"
                         IsEnabled="{Binding PodeMover}" ToolTip="{Binding MotivoBloqueio}" ToolTipService.ShowOnDisabled="True" Margin="0,0,6,0" />
+                <!-- Relatorio para o cliente avaliar (R20): gerar e ler a resposta -->
+                <Button Content="Relatório do cliente" Style="{StaticResource BotaoContorno}" Click="AoAbrirMenuRelatorio" Margin="0,0,6,0"
+                        ToolTip="Gera um relatório para o cliente decidir o que apagar ou mover, e lê a resposta dele">
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Gerar relatório..." Click="AoGerarRelatorio" />
+                            <MenuItem Header="Ler resposta..." Click="AoLerResposta" />
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
                 <Button Content="Registro de ações" Style="{StaticResource BotaoContorno}" Click="AoAbrirRegistro" Margin="0"
                         ToolTip="Mostra no Explorer o arquivo com o registro de cada ação" />
             </StackPanel>

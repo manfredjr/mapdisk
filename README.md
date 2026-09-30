@@ -43,6 +43,11 @@ Para tratar o que ocupa espaço, selecione pastas ou arquivos na árvore ou nas 
 
 A confirmação mostra a lista, o total e o destino. O programa não deixa agir na raiz da unidade, nas pastas do Windows, em Program Files, em ProgramData, em arquivos do sistema e em pastas sem leitura, e diz o motivo. Cada item fica no registro de ações, em `%LOCALAPPDATA%\MapDisk\acoes.log`, que o botão **Registro de ações** mostra no Explorer. A barra de baixo soma o que a sessão enviou para a Lixeira, moveu e excluiu. No modo `--demonstracao`, as ações seguem o fluxo na tela, mas nada é apagado nem movido.
 
+Quando os arquivos são do cliente, ele decide o que sai. O botão **Relatório do cliente**, no cartão Pastas, tem duas opções:
+
+- **Gerar relatório:** monte a lista com **Sugerir** (maiores pastas, maiores arquivos, antigos e tipos que costumam sobrar, com os critérios que você ajusta), com **Acrescentar a seleção** e com **Tirar da lista**. Escreva o nome do cliente e clique em **Gerar**. Saem dois arquivos: uma página HTML, que o cliente abre no navegador, marca e salva a resposta (ou imprime em PDF), e uma planilha Excel com a coluna Decisão. Para cada item, ele escolhe Apagar, Mover, Manter ou Conversar. Itens bloqueados pelas ações, como pastas do sistema, não entram.
+- **Ler resposta:** depois de varrer a pasta de novo, abra a planilha devolvida ou o arquivo salvo pela página. O MapDisk mostra o que o cliente decidiu e a situação de cada item. Item que mudou depois do relatório ou não existe mais fica de fora. Se a resposta veio por e-mail, use **Marcar pelos números** (por exemplo, `1, 3, 7-9`). Apagar e mover seguem a confirmação de sempre. Guarde a resposta com a ordem de serviço: ela é a autorização do cliente.
+
 Linha de comando (só lê, nunca apaga nem move). O alvo é um caminho completo:
 
     mapdisk varrer C:
@@ -59,4 +64,4 @@ No Prompt de Comando, use `start /wait mapdisk varrer C:` para o prompt esperar 
 | 3 | Painel de análises: maiores arquivos, arquivos antigos, por tipo, por usuário; memória; padrão visual do MapNet com o logo da MT; janela Sobre | `analises` | Plano em [#5](https://github.com/manfredjr/mapdisk/pull/5), código em [#6](https://github.com/manfredjr/mapdisk/pull/6) | Concluída em 30/09/2026 |
 | 4 | Gráficos da pasta selecionada: blocos e pizza | `graficos` | Plano em [#7](https://github.com/manfredjr/mapdisk/pull/7), código em [#8](https://github.com/manfredjr/mapdisk/pull/8) | Concluída em 30/09/2026 |
 | 5 | Ações seguras: Lixeira, mover, exclusão onde não há Lixeira, proteção, registro de ações, "Nesta sessão" | `acoes` | Plano em [#9](https://github.com/manfredjr/mapdisk/pull/9), código em [#10](https://github.com/manfredjr/mapdisk/pull/10) | Concluída em 30/09/2026 |
-| 6 | Relatório para o cliente avaliar: página, planilha e leitura da resposta | `relatorio-cliente` | Spec em [#11](https://github.com/manfredjr/mapdisk/pull/11), plano em [#12](https://github.com/manfredjr/mapdisk/pull/12) | Plano em revisão |
+| 6 | Relatório para o cliente avaliar: página, planilha e leitura da resposta | `relatorio-cliente` | Spec em [#11](https://github.com/manfredjr/mapdisk/pull/11), plano em [#12](https://github.com/manfredjr/mapdisk/pull/12), código em [#13](https://github.com/manfredjr/mapdisk/pull/13) | Concluída em 30/09/2026 |

@@ -1,0 +1,66 @@
+<Window x:Class="MapDisk.JanelaResposta"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Style="{StaticResource JanelaMT}"
+        Title="Resposta do cliente - MapDisk - MT" Width="1000" Height="640" MinWidth="760" MinHeight="460"
+        Icon="pack://application:,,,/mapdisk;component/recursos/mapdisk.ico"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Background="{StaticResource GradienteFaixa}" Padding="18,12">
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="Abrir resposta..." Style="{StaticResource BotaoFaixa}" Click="AoAbrir" />
+                <TextBlock Text="Resposta do cliente" Foreground="White" FontSize="18" FontWeight="ExtraBold" VerticalAlignment="Center" />
+            </DockPanel>
+        </Border>
+        <Border DockPanel.Dock="Top" Height="3" Background="{StaticResource GradienteLinha}" />
+
+        <!-- Acoes: sempre pela confirmacao de sempre -->
+        <Border DockPanel.Dock="Bottom" Style="{StaticResource Cartao}" Margin="14,0,14,14">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="Apagar selecionados..." Style="{StaticResource BotaoContorno}" Click="AoApagar" Margin="0,0,6,0" />
+                    <Button Content="Mover selecionados..." Style="{StaticResource BotaoContorno}" Click="AoMover" Margin="0,0,6,0" />
+                    <Button Content="Fechar" Style="{StaticResource BotaoContorno}" IsCancel="True" Click="AoFechar" Margin="0" />
+                </StackPanel>
+                <WrapPanel VerticalAlignment="Center">
+                    <Button Content="Selecionar os de Apagar" Style="{StaticResource BotaoContorno}" Click="AoSelecionarApagar" Margin="0,0,6,0" />
+                    <Button Content="Selecionar os de Mover" Style="{StaticResource BotaoContorno}" Click="AoSelecionarMover" Margin="0,0,16,0" />
+                    <TextBlock Text="Marcar pelos números:" VerticalAlignment="Center" Margin="0,0,6,0" />
+                    <TextBox x:Name="CampoNumeros" Width="110" Margin="0,0,6,0" AutomationProperties.Name="Números dos itens, como 1, 3, 7-9"
+                             ToolTip="Números dos itens, como 1, 3, 7-9" />
+                    <ComboBox x:Name="CampoDecisao" Width="110" SelectedIndex="0" Margin="0,0,6,0">
+                        <ComboBoxItem Content="Apagar" Tag="Apagar" />
+                        <ComboBoxItem Content="Mover" Tag="Mover" />
+                        <ComboBoxItem Content="Conversar" Tag="Conversar" />
+                        <ComboBoxItem Content="Manter" Tag="Manter" />
+                    </ComboBox>
+                    <Button Content="Marcar" Style="{StaticResource BotaoContorno}" Click="AoMarcar" Margin="0" />
+                </WrapPanel>
+            </DockPanel>
+        </Border>
+
+        <Border Style="{StaticResource Cartao}" Margin="14,14,14,10">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="{Binding Cabecalho}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                <TextBlock DockPanel.Dock="Top" Text="{Binding Aviso}" Foreground="{StaticResource PincelVerdeEscuro}" FontWeight="SemiBold"
+                           TextWrapping="Wrap" Margin="0,4,0,0" />
+                <TextBlock DockPanel.Dock="Top" Text="{Binding Resumo}" Margin="0,4,0,8" TextWrapping="Wrap" />
+                <ListView x:Name="Lista" ItemsSource="{Binding Linhas}" SelectionMode="Extended" BorderThickness="0">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Nº" Width="40" DisplayMemberBinding="{Binding Numero}" />
+                            <GridViewColumn Header="Nome" Width="170" DisplayMemberBinding="{Binding Nome}" />
+                            <GridViewColumn Header="Tamanho" Width="80" DisplayMemberBinding="{Binding TextoTamanho}" />
+                            <GridViewColumn Header="Decisão" Width="80" DisplayMemberBinding="{Binding TextoDecisao}" />
+                            <GridViewColumn Header="Destino" Width="130" DisplayMemberBinding="{Binding Destino}" />
+                            <GridViewColumn Header="Observação" Width="160" DisplayMemberBinding="{Binding Observacao}" />
+                            <GridViewColumn Header="Situação" Width="170" DisplayMemberBinding="{Binding Situacao}" />
+                            <GridViewColumn Header="Caminho" Width="260" DisplayMemberBinding="{Binding Caminho}" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </DockPanel>
+        </Border>
+    </DockPanel>
+</Window>
