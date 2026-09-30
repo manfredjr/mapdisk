@@ -76,4 +76,55 @@ public class GraficoTestes
         Assert.Empty(c.NaoLidas);
         Assert.Equal(0, c.Total);
     }
+
+    [Fact]
+    public void Blocos_tem_area_proporcional_e_cobrem_a_area_toda()
+    {
+        long[] valores = [6, 6, 4, 3, 2, 2, 1];
+
+        var r = Treemap.Dispor(valores, 600, 400);
+
+        Assert.Equal(valores.Length, r.Count);
+        Assert.Equal(240000, r.Sum(b => b.Area), 3);
+        for (var i = 0; i < valores.Length; i++)
+        {
+            Assert.Equal(240000d * valores[i] / 24, r[i].Area, 3);
+        }
+    }
+
+    [Fact]
+    public void Blocos_ficam_dentro_da_area_sem_se_sobrepor()
+    {
+        var r = Treemap.Dispor([50, 30, 10, 5, 3, 1, 1], 300, 200);
+
+        foreach (var b in r)
+        {
+            Assert.True(b.X >= -1e-6 && b.Y >= -1e-6 && b.X + b.Largura <= 300 + 1e-6 && b.Y + b.Altura <= 200 + 1e-6);
+        }
+
+        for (var i = 0; i < r.Count; i++)
+        {
+            for (var j = i + 1; j < r.Count; j++)
+            {
+                var largura = Math.Min(r[i].X + r[i].Largura, r[j].X + r[j].Largura) - Math.Max(r[i].X, r[j].X);
+                var altura = Math.Min(r[i].Y + r[i].Altura, r[j].Y + r[j].Altura) - Math.Max(r[i].Y, r[j].Y);
+                Assert.False(largura > 1e-6 && altura > 1e-6, $"blocos {i} e {j} se sobrepõem");
+            }
+        }
+    }
+
+    [Fact]
+    public void Blocos_evitam_retangulos_finos()
+    {
+        var r = Treemap.Dispor([6, 6, 4, 3, 2, 2, 1], 600, 400);
+
+        Assert.All(r, b => Assert.True(Math.Max(b.Largura / b.Altura, b.Altura / b.Largura) < 3));
+    }
+
+    [Fact]
+    public void Sem_valores_ou_sem_area_nao_ha_blocos()
+    {
+        Assert.Empty(Treemap.Dispor([], 300, 200));
+        Assert.Empty(Treemap.Dispor([10, 5], 0, 200));
+    }
 }
