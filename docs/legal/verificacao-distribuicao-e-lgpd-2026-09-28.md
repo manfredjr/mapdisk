@@ -142,3 +142,23 @@ Nenhuma. Os pontos que dependiam de parecer (relação de consumo na distribuiç
 
 O texto de rede da seção 5 fica como está. Não há pendência de validação.
 
+## 10. Relatório para o cliente avaliar (acréscimo de 30/09/2026)
+
+**Contexto.** A fatia 6 gera um relatório (página e planilha) para o cliente marcar, item por item, o que apagar, mover, manter ou conversar, e devolver com o nome de quem decidiu. O MapDisk lê a resposta e só seleciona os itens; agir passa pela confirmação da fatia 5.
+
+**INTERPRETAÇÃO.** A resposta devolvida é a instrução documentada do controlador ao operador (LGPD, art. 39, verificado na seção 4.2). Ela fecha, para os casos em que é usada, a medida administrativa que a seção 4.2 apontou como faltante. A frase de declaração ("você declara que pode decidir sobre estes arquivos") cobre o caso de quem responde não ter poder para decidir pelo cliente.
+
+**INTERPRETAÇÃO.** A apresentação proposta prometia que o técnico conferiria a lista "com você", o que nem sempre acontece. Informação ao cliente precisa ser correta. A redação passa a dizer o que o programa garante: o técnico confere cada item antes de agir.
+
+**RECOMENDAÇÃO aplicada.** Em pasta de rede não há Lixeira. A apresentação diz isso, pelo mesmo motivo da seção 4.5: o risco aparece onde a decisão é tomada.
+
+Apresentação, na página:
+
+> Este relatório mostra pastas e arquivos que ocupam espaço em {pasta}. Para cada item, marque o que fazer: Apagar, Mover (diga para onde), Manter ou Conversar. O que ficar sem marca fica como está. Nada é apagado nem movido antes da sua resposta, e o técnico da MT confere cada item antes de agir. Em pastas de rede, o que for apagado não passa pela Lixeira e só volta por uma cópia de segurança.
+
+Autorização, na página e na planilha:
+
+> Ao devolver esta resposta com o seu nome, você declara que pode decidir sobre estes arquivos e autoriza a MT - Manfred Tecnologia a apagar ou mover os itens marcados, como indicado.
+
+**RECOMENDAÇÃO de processo, fora do programa.** O relatório tem nomes de pastas e de arquivos do cliente. No atendimento, enviar só ao contato do cliente que pediu o serviço e guardar a resposta junto da ordem de serviço. Não há pendência de validação.
+

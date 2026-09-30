@@ -104,4 +104,58 @@ public class RelatorioClienteTestes
         Assert.Equal("entre os 1 maiores arquivos; sem alteração há mais de 2 anos", lista.Itens[0].Motivo);
         Assert.Equal("entre as 1 maiores pastas", lista.Itens[1].Motivo);
     }
+
+    internal static Avaliacao Exemplo()
+    {
+        var raiz = AnalisesTestes.Exemplo();
+        var lista = new ListaAvaliacao();
+        lista.Acrescentar(ItemAcao.DoArquivo(raiz, raiz.Arquivos[0]), "entre os 50 maiores arquivos");
+        lista.Acrescentar(ItemAcao.DaPasta(raiz.Subpastas[0]), Sugestao.EscolhidoPeloTecnico);
+        var gerado = new DateTime(2026, 9, 30, 14, 5, 9);
+        return new Avaliacao(Avaliacao.NumeroDe(gerado), "Cliente Exemplo", "tecnico", "Veja o que pode sair.", raiz, gerado, 1000, lista.Itens);
+    }
+
+    [Fact]
+    public void Numero_e_nome_do_arquivo()
+    {
+        var a = Exemplo();
+
+        Assert.Equal("20260930-140509", a.Numero);
+        Assert.Equal("avaliacao-c-2026-09-30", a.NomeDoArquivo);
+        Assert.Equal("avaliacao-dados-publicos-2026-09-30",
+            (a with { Pasta = new NoPasta(@"\\srv\Dados Públicos", null) }).NomeDoArquivo);
+    }
+
+    [Fact]
+    public void Pagina_traz_os_itens_as_opcoes_e_nao_carrega_nada_de_fora()
+    {
+        var html = PaginaAvaliacao.Gerar(Exemplo());
+
+        Assert.Contains("Cliente Exemplo", html);
+        Assert.Contains("data-numero=\"1\"", html);
+        Assert.Contains("data-caminho=\"C:\\video.mp4\"", html);
+        Assert.Contains("value=\"apagar\"", html);
+        Assert.Contains("value=\"conversar\"", html);
+        Assert.Contains(PaginaAvaliacao.FormatoResposta, html);
+        Assert.Contains("data:image/png;base64,", html);
+        Assert.Contains(System.Net.WebUtility.HtmlEncode(TextosAvaliacao.Autorizacao), html);
+        Assert.DoesNotMatch("src=\"(?!data:)", html);
+        Assert.DoesNotContain("url(", html);
+        Assert.DoesNotMatch("<input[^>]*checked", html);
+    }
+
+    [Fact]
+    public void Pagina_escapa_o_que_vem_da_arvore()
+    {
+        var raiz = new NoPasta(@"D:\", null);
+        var arquivo = new ArquivoInfo("<script>x</script>.txt", 10, 10, new DateTime(2020, 1, 1), MarcaArquivo.Nenhuma);
+        raiz.Preencher([arquivo], []);
+        var lista = new ListaAvaliacao();
+        lista.Acrescentar(ItemAcao.DoArquivo(raiz, arquivo), "x");
+
+        var html = PaginaAvaliacao.Gerar(new Avaliacao("1", "A & B", "t", "", raiz, DateTime.Now, null, lista.Itens));
+
+        Assert.DoesNotContain("<script>x</script>", html);
+        Assert.Contains("A &amp; B", html);
+    }
 }
