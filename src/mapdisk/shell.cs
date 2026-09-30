@@ -14,8 +14,23 @@ internal static partial class Shell
 
     public static void CopiarCaminho(string caminho) => Clipboard.SetText(caminho);
 
-    /// <summary>Abre o site da MT no navegador padrão. Só quando o técnico clica no logo.</summary>
-    public static void AbrirSiteMt() => Process.Start(new ProcessStartInfo("https://manfred.com.br") { UseShellExecute = true });
+    /// <summary>
+    /// Abre o endereço no navegador padrão, só quando o técnico clica. O programa em si não manda nada
+    /// para a internet. Se o Windows não tiver navegador, o endereço vai para a área de transferência.
+    /// </summary>
+    public static void AbrirNoNavegador(string endereco)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo(endereco) { UseShellExecute = true });
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            Clipboard.SetText(endereco);
+            MessageBox.Show($"Não foi possível abrir o navegador. O endereço foi copiado:\n{endereco}", "MapDisk - MT",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
 
     public static void Propriedades(nint janela, string caminho) => SHObjectProperties(janela, PorCaminho, caminho, null);
 

@@ -131,7 +131,9 @@ public partial class JanelaPrincipal : Window
         }
     }
 
-    private void AoClicarLogo(object sender, MouseButtonEventArgs e) => Shell.AbrirSiteMt();
+    private void AoClicarLogo(object sender, RoutedEventArgs e) => Shell.AbrirNoNavegador(Sobre.SiteMt);
+
+    private void AoAbrirSobre(object sender, RoutedEventArgs e) => new JanelaSobre { Owner = this }.ShowDialog();
 
     private void AoElevar(object sender, RoutedEventArgs e)
     {

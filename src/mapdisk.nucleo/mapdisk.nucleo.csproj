@@ -12,4 +12,9 @@
     <InternalsVisibleTo Include="mapdisk.testes" />
   </ItemGroup>
 
+  <!-- A licença vai dentro do programa, para a janela Sobre mostrá-la sem internet -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\LICENSE" LogicalName="licenca.txt" />
+  </ItemGroup>
+
 </Project>

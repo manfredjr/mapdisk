@@ -30,6 +30,8 @@ Na árvore:
 
 O botão direito numa linha tem **Mostrar no Explorer**, **Copiar caminho** e **Abrir a pasta na árvore**. As análises usam o que já foi lido, sem varrer de novo, e avisam quando há pastas sem leitura fora da conta.
 
+O botão **Sobre** mostra a versão, a autoria, a licença GPL-3.0 com o texto completo e onde baixar. O logo da MT abre o site www.manfred.com.br.
+
 Linha de comando (só lê, nunca apaga nem move). O alvo é um caminho completo:
 
     mapdisk varrer C:

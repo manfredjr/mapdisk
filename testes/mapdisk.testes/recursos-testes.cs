@@ -32,8 +32,18 @@ public class RecursosTestes
         Assert.True(File.Exists(App(Path.Combine("recursos", "mt-logo.png"))));
         var janela = File.ReadAllText(App("janela-principal.xaml"));
         Assert.Contains("component/recursos/mt-logo.png", janela);
-        Assert.Contains("MouseLeftButtonUp=\"AoClicarLogo\"", janela);
-        Assert.Contains("\"https://manfred.com.br\"", File.ReadAllText(App("shell.cs")));
+        Assert.Contains("Click=\"AoClicarLogo\"", janela);
+    }
+
+    [Fact]
+    public void Janela_tem_o_botao_sobre_com_os_avisos_da_licenca()
+    {
+        Assert.Contains("Click=\"AoAbrirSobre\"", File.ReadAllText(App("janela-principal.xaml")));
+        var sobre = File.ReadAllText(App("janela-sobre.xaml"));
+        foreach (var campo in new[] { "Sobre.Copyright", "Sobre.SoftwareLivre", "Sobre.LicencaEGarantias", "Sobre.Versoes", "Sobre.Repositorio", "CampoLicenca" })
+        {
+            Assert.Contains(campo, sobre);
+        }
     }
 
     [Fact]
