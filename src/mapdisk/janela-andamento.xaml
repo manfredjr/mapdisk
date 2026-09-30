@@ -1,0 +1,47 @@
+<Window x:Class="MapDisk.JanelaAndamento"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Style="{StaticResource JanelaMT}"
+        Width="620" SizeToContent="Height" ResizeMode="NoResize"
+        Icon="pack://application:,,,/mapdisk;component/recursos/mapdisk.ico"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False">
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Background="{StaticResource GradienteFaixa}" Padding="18,12">
+            <TextBlock x:Name="TextoTitulo" Foreground="White" FontSize="18" FontWeight="ExtraBold" />
+        </Border>
+        <Border DockPanel.Dock="Top" Height="3" Background="{StaticResource GradienteLinha}" />
+
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="18,0,18,14">
+            <Button x:Name="BotaoCancelar" Content="Cancelar" Style="{StaticResource BotaoContorno}" Click="AoCancelar" />
+            <Button x:Name="BotaoFechar" Content="Fechar" Style="{StaticResource BotaoContorno}" Click="AoFechar"
+                    Visibility="Collapsed" IsDefault="True" />
+        </StackPanel>
+
+        <Border Style="{StaticResource Cartao}" Margin="18,14,18,14">
+            <StackPanel>
+                <!-- Enquanto roda -->
+                <StackPanel x:Name="PainelAndamento">
+                    <ProgressBar x:Name="Barra" Style="{StaticResource ProgressoMT}" Height="10" />
+                    <TextBlock x:Name="TextoAtual" Margin="0,8,0,0" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+
+                <!-- No fim -->
+                <StackPanel x:Name="PainelResumo" Visibility="Collapsed">
+                    <TextBlock x:Name="TextoResumo" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock x:Name="TextoRegistro" Foreground="{StaticResource PincelVerdeEscuro}" FontWeight="SemiBold"
+                               TextWrapping="Wrap" Margin="0,6,0,0" Visibility="Collapsed" />
+                    <ListView x:Name="ListaFalhas" MaxHeight="220" Margin="0,10,0,0" Visibility="Collapsed"
+                              BorderBrush="{StaticResource PincelBorda}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Item" Width="260" DisplayMemberBinding="{Binding Caminho}" />
+                                <GridViewColumn Header="Resultado" Width="280" DisplayMemberBinding="{Binding Resultado}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </DockPanel>
+</Window>
