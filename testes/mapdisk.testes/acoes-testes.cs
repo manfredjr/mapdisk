@@ -36,4 +36,34 @@ public class AcoesTestes
     {
         Assert.Equal("É arquivo do sistema.", Protecao.Motivo(@"C:\pagefile.sys", false, MarcaArquivo.Sistema, Protegidos));
     }
+
+    [Fact]
+    public void Item_de_pasta_e_de_arquivo_tem_caminho_tamanho_e_data()
+    {
+        var raiz = AnalisesTestes.Exemplo();
+        var bruno = raiz.Subpastas[0].Subpastas[1];
+
+        var pasta = ItemAcao.DaPasta(bruno);
+        var arquivo = ItemAcao.DoArquivo(bruno, bruno.Arquivos[0]);
+
+        Assert.Equal(@"C:\Users\bruno", pasta.Caminho);
+        Assert.True(pasta.EhPasta);
+        Assert.Equal(2100, pasta.Tamanho);
+        Assert.Equal("bruno", pasta.Nome);
+        Assert.Equal(@"C:\Users\bruno\caixa.pst", arquivo.Caminho);
+        Assert.False(arquivo.EhPasta);
+        Assert.Equal(2000, arquivo.Tamanho);
+        Assert.Equal(new DateTime(2025, 6, 1), arquivo.Modificacao);
+        Assert.Same(bruno, arquivo.Pasta);
+    }
+
+    [Theory]
+    [InlineData(@"C:\Dados", DriveType.Fixed, true)]
+    [InlineData(@"E:\fotos", DriveType.Removable, false)]
+    [InlineData(@"Z:\compartilhado", DriveType.Network, false)]
+    [InlineData(@"\\servidor\dados\x", DriveType.Fixed, false)]
+    public void Lixeira_so_em_unidade_fixa(string caminho, DriveType tipo, bool temLixeira)
+    {
+        Assert.Equal(temLixeira, Lixeiras.Existe(caminho, _ => tipo));
+    }
 }
