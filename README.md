@@ -23,6 +23,7 @@ Na árvore:
 
 À direita da árvore, o painel **Análises** responde "o que eu trato?" sobre a pasta selecionada:
 
+- **Gráfico:** o que pesa dentro da pasta, em blocos (área proporcional ao tamanho) ou em pizza (as 10 maiores, com legenda). Segue o "Mostrar" da árvore. Clique duplo num bloco ou numa fatia abre a pasta, e Voltar retorna. Pasta sem leitura fica fora do desenho e aparece pelo nome embaixo dele.
 - **Maiores arquivos:** os 100 maiores.
 - **Arquivos antigos:** sem alteração há mais de 6 meses, 1, 2 ou 5 anos, com a quantidade e o total.
 - **Por tipo:** vídeo, imagem, áudio, e-mail (.pst, .ost), imagem de disco, compactado e backup, instalador, documento e outros, mais o ranking por extensão.
@@ -46,4 +47,4 @@ No Prompt de Comando, use `start /wait mapdisk varrer C:` para o prompt esperar 
 | 1 | Varredura, árvore com colunas, modos e unidades, barra de status, linha de comando com CSV | `varredura` | [#2](https://github.com/manfredjr/mapdisk/pull/2) | Concluída em 29/09/2026 |
 | 2 | Navegação, últimos alvos, atualizar uma pasta, menu de contexto, varredura como administrador com o privilégio de backup, acertos da fatia 1 | `navegacao` | [#4](https://github.com/manfredjr/mapdisk/pull/4) | Concluída em 29/09/2026 |
 | 3 | Painel de análises: maiores arquivos, arquivos antigos, por tipo, por usuário; memória; padrão visual do MapNet com o logo da MT; janela Sobre | `analises` | Plano em [#5](https://github.com/manfredjr/mapdisk/pull/5), código em [#6](https://github.com/manfredjr/mapdisk/pull/6) | Concluída em 30/09/2026 |
-| 4 | Gráficos da pasta selecionada: blocos e pizza | `graficos` | Plano em [#7](https://github.com/manfredjr/mapdisk/pull/7) | Plano em revisão |
+| 4 | Gráficos da pasta selecionada: blocos e pizza | `graficos` | Plano em [#7](https://github.com/manfredjr/mapdisk/pull/7), código em [#8](https://github.com/manfredjr/mapdisk/pull/8) | Aguardando o teste do Manfred |
