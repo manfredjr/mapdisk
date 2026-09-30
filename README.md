@@ -1,6 +1,6 @@
 # MapDisk - MT
 
-Analisador de espaço em disco para Windows, da MT - Manfred Tecnologia. Mostra quais pastas e arquivos ocupam mais espaço numa unidade, numa pasta ou num compartilhamento de rede. Nas próximas versões, também envia para a Lixeira e move, com confirmação e registro.
+Analisador de espaço em disco para Windows, da MT - Manfred Tecnologia. Mostra quais pastas e arquivos ocupam mais espaço numa unidade, numa pasta ou num compartilhamento de rede. Na própria janela, envia para a Lixeira, move e, onde não há Lixeira, exclui definitivamente, sempre com confirmação e registro.
 
 Software livre, sob licença [GPL-3.0](LICENSE).
 
@@ -9,6 +9,8 @@ As regras do projeto estão no [`AGENTS.md`](AGENTS.md) e o desenho em [`docs/su
 ## Uso
 
 Baixe o `mapdisk.exe` e abra. Não precisa instalar nem ser administrador. Escolha a unidade, digite uma pasta ou um caminho de rede (`\\servidor\pasta`) e clique em **Varrer**.
+
+> Uso autorizado. O MapDisk - MT mostra o espaço ocupado em discos e pastas e permite enviar arquivos para a Lixeira, movê-los ou, em pastas de rede, excluí-los definitivamente. Use o programa só em computadores e pastas que você tem autorização para administrar. Antes de apagar ou mover, confira a lista de itens e o destino. Em pastas de rede não existe Lixeira: a exclusão não pode ser desfeita pelo programa. O programa não envia nenhuma informação para fora do computador.
 
 Pastas que o Windows não deixa ler aparecem como **sem acesso**, e a barra de baixo diz quantas são. O total não inclui o que está nelas.
 
@@ -33,6 +35,14 @@ O botão direito numa linha tem **Mostrar no Explorer**, **Copiar caminho** e **
 
 O botão **Sobre** mostra a versão, a autoria, a licença GPL-3.0 com o texto completo e onde baixar. O logo da MT abre o site www.manfred.com.br.
 
+Para tratar o que ocupa espaço, selecione pastas ou arquivos na árvore ou nas listas de análise (Ctrl e Shift para vários) e use os botões no alto do cartão **Pastas**, o botão direito ou a tecla Delete:
+
+- **Enviar para a Lixeira**, em unidade fixa do computador. Os itens voltam pela Lixeira enquanto ela não for esvaziada.
+- **Excluir definitivamente**, em pasta de rede, unidade mapeada, pendrive e disco removível, onde o programa não usa a Lixeira. A confirmação pede que você digite EXCLUIR.
+- **Mover**, para a pasta que você escolher. Entre unidades, a origem só é apagada depois de a cópia ser conferida.
+
+A confirmação mostra a lista, o total e o destino. O programa não deixa agir na raiz da unidade, nas pastas do Windows, em Program Files, em ProgramData, em arquivos do sistema e em pastas sem leitura, e diz o motivo. Cada item fica no registro de ações, em `%LOCALAPPDATA%\MapDisk\acoes.log`, que o botão **Registro de ações** mostra no Explorer. A barra de baixo soma o que a sessão enviou para a Lixeira, moveu e excluiu. No modo `--demonstracao`, as ações seguem o fluxo na tela, mas nada é apagado nem movido.
+
 Linha de comando (só lê, nunca apaga nem move). O alvo é um caminho completo:
 
     mapdisk varrer C:
@@ -48,4 +58,4 @@ No Prompt de Comando, use `start /wait mapdisk varrer C:` para o prompt esperar 
 | 2 | Navegação, últimos alvos, atualizar uma pasta, menu de contexto, varredura como administrador com o privilégio de backup, acertos da fatia 1 | `navegacao` | [#4](https://github.com/manfredjr/mapdisk/pull/4) | Concluída em 29/09/2026 |
 | 3 | Painel de análises: maiores arquivos, arquivos antigos, por tipo, por usuário; memória; padrão visual do MapNet com o logo da MT; janela Sobre | `analises` | Plano em [#5](https://github.com/manfredjr/mapdisk/pull/5), código em [#6](https://github.com/manfredjr/mapdisk/pull/6) | Concluída em 30/09/2026 |
 | 4 | Gráficos da pasta selecionada: blocos e pizza | `graficos` | Plano em [#7](https://github.com/manfredjr/mapdisk/pull/7), código em [#8](https://github.com/manfredjr/mapdisk/pull/8) | Concluída em 30/09/2026 |
-| 5 | Ações seguras: Lixeira, mover, exclusão onde não há Lixeira, proteção, registro de ações, "Nesta sessão" | `acoes` | Plano em [#9](https://github.com/manfredjr/mapdisk/pull/9) | Plano em revisão |
+| 5 | Ações seguras: Lixeira, mover, exclusão onde não há Lixeira, proteção, registro de ações, "Nesta sessão" | `acoes` | Plano em [#9](https://github.com/manfredjr/mapdisk/pull/9), código em [#10](https://github.com/manfredjr/mapdisk/pull/10) | Aguardando o teste do Manfred |
