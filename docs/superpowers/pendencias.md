@@ -47,7 +47,7 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 
 | Item | Motivo | O que fecha |
 |---|---|---|
-| Quantidade de maiores arquivos configurável (R11) | A fatia 3 usa 100, o padrão da spec | Tela de Opções da fatia 7 |
+| Quantidade de maiores arquivos configurável (R11) | A fatia 3 usa 100, o padrão da spec | Tela de Opções da fatia 8 (era a 7 antes da mudança de ordem de 30/09/2026) |
 | Pasta de perfis fora do padrão | O resumo por usuário procura a pasta `Users`. Perfis redirecionados para outra pasta ou compartilhamento de rede não entram | Aceito. Reavaliar se aparecer caso real |
 | Idade pela data de último acesso | "Antigo" usa a última modificação. O último acesso muitas vezes vem desligado no Windows e não é confiável | Aceito |
 
@@ -55,7 +55,7 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 
 | Item | Motivo | O que fecha |
 |---|---|---|
-| Imagem do gráfico no relatório | O R10 pede o gráfico na tela. Levar a imagem para o relatório é decisão do relatório | Relatório HTML da fatia 7 |
+| Imagem do gráfico no relatório | O R10 pede o gráfico na tela. Levar a imagem para o relatório é decisão do relatório | Relatório HTML da fatia 8 (era a 7 antes da mudança de ordem de 30/09/2026) |
 | Gráfico com mais de um nível | O gráfico mostra um nível abaixo da pasta, que se lê de relance. Para descer, clique duplo | Aceito. Reavaliar se o uso pedir |
 | Clique duplo no gráfico conferido pelo agente | O Windows não deixou o roteiro de teste trazer a janela para a frente e clicar | Fechado: o Manfred testou no PR #8 em 30/09/2026 |
 
@@ -65,7 +65,7 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 |---|---|---|
 | Registro de ações sem limite de tamanho | Uma linha por item, antes e depois. Em uso normal cresce devagar | Aceito. Reavaliar se aparecer registro grande |
 | Hard link apagado que deixa a outra cópia sem somar | Se o item apagado era a cópia que somava, a outra continua marcada como repetida até a próxima varredura | Aceito. Atualizar a pasta resolve |
-| Botão "Registro de ações" no cartão das pastas | A tela de Opções ainda não existe | Tela de Opções da fatia 7 |
+| Botão "Registro de ações" no cartão das pastas | A tela de Opções ainda não existe | Tela de Opções da fatia 8 (era a 7 antes da mudança de ordem de 30/09/2026) |
 | Permissões (ACL) no mover entre unidades | A cópia recebe as permissões da pasta de destino, como no Explorer | Aceito |
 | Teste da Lixeira real, da exclusão em rede e do mover pela janela | A Lixeira leva o arquivo para fora da pasta do projeto e o programa real grava o registro em `%LOCALAPPDATA%`. O agente testou pela janela só em demonstração | Fechado: o Manfred testou no PR #10 em 30/09/2026 |
 
@@ -75,6 +75,6 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 |---|---|---|
 | Duplicados como critério do "Sugerir" | Os duplicados ainda não existem | Fatia 7 |
 | Critérios do "Sugerir" guardados entre sessões | A tela de Opções ainda não existe. Cada relatório começa com os padrões | Opções da fatia 8 |
-| Planilha aberta e salva pelo Excel de verdade | Os testes simulam o jeito do Excel e do LibreOffice salvar. O agente não opera o Excel do computador do Manfred | Teste do Manfred no PR da fatia 6 |
+| Planilha aberta e salva pelo Excel de verdade | Os testes simulam o jeito do Excel e do LibreOffice salvar. O agente não opera o Excel do computador do Manfred | Fechado: o Manfred testou no PR #13 em 30/09/2026 |
 | Varredura com a pasta do técnico em `C:\Users` | A pasta do registro de ações é protegida, então no computador do próprio técnico a pasta `Users` não entra no relatório | Aceito: no servidor do cliente, `Users` não é a do técnico |
 
