@@ -15,6 +15,7 @@ public partial class JanelaPrincipal : Window
     private readonly DispatcherTimer _relogio = new() { Interval = TimeSpan.FromMilliseconds(250) };
     private int _concluidasVistas;
     private NoPasta? _pastaAnalisada;
+    private NoPasta? _raizVista;
     private bool _mostrarAnalises = true;
 
     public JanelaPrincipal(PainelPrincipal painel, string sufixoTitulo, bool varrerAoAbrir)
@@ -36,6 +37,12 @@ public partial class JanelaPrincipal : Window
             {
                 _concluidasVistas = _painel.VarredurasConcluidas;
                 _pastaAnalisada = null;
+                _ = AtualizarAnalises();
+            }
+            else if (_painel.Arvore.Raiz != _raizVista)
+            {
+                // Abrir aqui, Voltar, Avançar e Subir trocam a raiz, às vezes sem mudar a seleção.
+                _raizVista = _painel.Arvore.Raiz;
                 _ = AtualizarAnalises();
             }
         };
@@ -135,6 +142,38 @@ public partial class JanelaPrincipal : Window
 
     private void AoAbrirSobre(object sender, RoutedEventArgs e) => new JanelaSobre { Owner = this }.ShowDialog();
 
+    private void AoMudarGrafico(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton { Tag: string tag } && Enum.TryParse<TipoGrafico>(tag, out var tipo))
+        {
+            _painel.Analises.Grafico.DefinirTipo(tipo);
+        }
+    }
+
+    private void AoRedimensionarGrafico(object sender, SizeChangedEventArgs e) =>
+        _painel.Analises.Grafico.Redimensionar(e.NewSize.Width, e.NewSize.Height);
+
+    // Clique duplo num bloco ou numa fatia de pasta abre a pasta na árvore. Voltar retorna.
+    private void AoClicarNoGrafico(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount != 2 || sender is not FrameworkElement { DataContext: var item })
+        {
+            return;
+        }
+
+        var pasta = item switch
+        {
+            BlocoGrafico b => b.Pasta,
+            FatiaGrafico f => f.Pasta,
+            _ => null,
+        };
+        if (pasta is not null)
+        {
+            _painel.AbrirAqui(pasta);
+            e.Handled = true;
+        }
+    }
+
     private void AoElevar(object sender, RoutedEventArgs e)
     {
         _painel.Elevar();
@@ -222,6 +261,7 @@ public partial class JanelaPrincipal : Window
         if (sender is RadioButton { Tag: string tag } && Enum.TryParse<ModoExibicao>(tag, out var modo))
         {
             _painel.Arvore.DefinirModo(modo);
+            _painel.Analises.Grafico.DefinirModo(modo);
         }
     }
 

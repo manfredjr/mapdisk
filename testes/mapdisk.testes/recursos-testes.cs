@@ -52,4 +52,14 @@ public class RecursosTestes
         var manifesto = File.ReadAllText(App("app.manifest"));
         Assert.Contains("level=\"asInvoker\"", manifesto);
     }
+
+    [Fact]
+    public void Aba_grafico_e_a_primeira_do_painel()
+    {
+        var janela = File.ReadAllText(App("janela-principal.xaml"));
+        Assert.Contains("SizeChanged=\"AoRedimensionarGrafico\"", janela);
+        Assert.Contains("MouseLeftButtonDown=\"AoClicarNoGrafico\"", janela);
+        Assert.True(janela.IndexOf("Header=\"Gráfico\"", StringComparison.Ordinal)
+            < janela.IndexOf("Header=\"Maiores arquivos\"", StringComparison.Ordinal));
+    }
 }
