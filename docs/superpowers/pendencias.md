@@ -69,3 +69,12 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 | Permissões (ACL) no mover entre unidades | A cópia recebe as permissões da pasta de destino, como no Explorer | Aceito |
 | Teste da Lixeira real, da exclusão em rede e do mover pela janela | A Lixeira leva o arquivo para fora da pasta do projeto e o programa real grava o registro em `%LOCALAPPDATA%`. O agente testou pela janela só em demonstração | Fechado: o Manfred testou no PR #10 em 30/09/2026 |
 
+## Fatia 6: relatório para o cliente
+
+| Item | Motivo | O que fecha |
+|---|---|---|
+| Duplicados como critério do "Sugerir" | Os duplicados ainda não existem | Fatia 7 |
+| Critérios do "Sugerir" guardados entre sessões | A tela de Opções ainda não existe. Cada relatório começa com os padrões | Opções da fatia 8 |
+| Planilha aberta e salva pelo Excel de verdade | Os testes simulam o jeito do Excel e do LibreOffice salvar. O agente não opera o Excel do computador do Manfred | Teste do Manfred no PR da fatia 6 |
+| Varredura com a pasta do técnico em `C:\Users` | A pasta do registro de ações é protegida, então no computador do próprio técnico a pasta `Users` não entra no relatório | Aceito: no servidor do cliente, `Users` não é a do técnico |
+
