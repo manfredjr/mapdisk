@@ -30,6 +30,7 @@ Na árvore:
 - **Arquivos antigos:** sem alteração há mais de 6 meses, 1, 2 ou 5 anos, com a quantidade e o total.
 - **Por tipo:** vídeo, imagem, áudio, e-mail (.pst, .ost), imagem de disco, compactado e backup, instalador, documento e outros, mais o ranking por extensão.
 - **Por usuário:** o ranking das pastas de perfil em `Users`.
+- **Duplicados:** arquivos com o mesmo conteúdo, conferidos em três etapas (mesmo tamanho, primeiro 1 MB e arquivo inteiro). Só roda quando você clica em **Procurar duplicados**, porque é a única análise que lê o conteúdo dos arquivos. Arquivos só na nuvem nunca são baixados. **Selecionar as cópias** marca todas menos a mais antiga de cada grupo, e o programa não deixa apagar todas as cópias de um grupo.
 
 O botão direito numa linha tem **Mostrar no Explorer**, **Copiar caminho** e **Abrir a pasta na árvore**. As análises usam o que já foi lido, sem varrer de novo, e avisam quando há pastas sem leitura fora da conta.
 
@@ -45,7 +46,7 @@ A confirmação mostra a lista, o total e o destino. O programa não deixa agir 
 
 Quando os arquivos são do cliente, ele decide o que sai. O botão **Relatório do cliente**, no cartão Pastas, tem duas opções:
 
-- **Gerar relatório:** monte a lista com **Sugerir** (maiores pastas, maiores arquivos, antigos e tipos que costumam sobrar, com os critérios que você ajusta), com **Acrescentar a seleção** e com **Tirar da lista**. Escreva o nome do cliente e clique em **Gerar**. Saem dois arquivos: uma página HTML, que o cliente abre no navegador, marca e salva a resposta (ou imprime em PDF), e uma planilha Excel com a coluna Decisão. Para cada item, ele escolhe Apagar, Mover, Manter ou Conversar. Itens bloqueados pelas ações, como pastas do sistema, não entram.
+- **Gerar relatório:** monte a lista com **Sugerir** (maiores pastas, maiores arquivos, antigos e tipos que costumam sobrar, com os critérios que você ajusta), com **Acrescentar a seleção** e com **Tirar da lista**. Escreva o nome do cliente e clique em **Gerar**. Saem dois arquivos: uma página HTML, que o cliente abre no navegador, marca e salva a resposta (ou imprime em PDF), e uma planilha Excel com a coluna Decisão. Para cada item, ele escolhe Apagar, Mover, Manter ou Conversar. Itens bloqueados pelas ações, como pastas do sistema, não entram. Se você já procurou duplicados, o **Sugerir** também traz as cópias repetidas, deixando a mais antiga.
 - **Ler resposta:** depois de varrer a pasta de novo, abra a planilha devolvida ou o arquivo salvo pela página. O MapDisk mostra o que o cliente decidiu e a situação de cada item. Item que mudou depois do relatório ou não existe mais fica de fora. Se a resposta veio por e-mail, use **Marcar pelos números** (por exemplo, `1, 3, 7-9`). Apagar e mover seguem a confirmação de sempre. Guarde a resposta com a ordem de serviço: ela é a autorização do cliente.
 
 Linha de comando (só lê, nunca apaga nem move). O alvo é um caminho completo:
@@ -65,4 +66,4 @@ No Prompt de Comando, use `start /wait mapdisk varrer C:` para o prompt esperar 
 | 4 | Gráficos da pasta selecionada: blocos e pizza | `graficos` | Plano em [#7](https://github.com/manfredjr/mapdisk/pull/7), código em [#8](https://github.com/manfredjr/mapdisk/pull/8) | Concluída em 30/09/2026 |
 | 5 | Ações seguras: Lixeira, mover, exclusão onde não há Lixeira, proteção, registro de ações, "Nesta sessão" | `acoes` | Plano em [#9](https://github.com/manfredjr/mapdisk/pull/9), código em [#10](https://github.com/manfredjr/mapdisk/pull/10) | Concluída em 30/09/2026 |
 | 6 | Relatório para o cliente avaliar: página, planilha e leitura da resposta | `relatorio-cliente` | Spec em [#11](https://github.com/manfredjr/mapdisk/pull/11), plano em [#12](https://github.com/manfredjr/mapdisk/pull/12), código em [#13](https://github.com/manfredjr/mapdisk/pull/13) | Concluída em 30/09/2026 |
-| 7 | Duplicados: busca em três etapas, aba no painel e cópias no relatório para o cliente | `duplicados` | Plano em [#14](https://github.com/manfredjr/mapdisk/pull/14) | Plano em revisão |
+| 7 | Duplicados: busca em três etapas, aba no painel e cópias no relatório para o cliente | `duplicados` | Plano em [#14](https://github.com/manfredjr/mapdisk/pull/14), código em [#15](https://github.com/manfredjr/mapdisk/pull/15) | Aguardando o teste do Manfred |
