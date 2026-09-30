@@ -551,4 +551,74 @@ public class AcoesTestes
 
         Assert.Equal("Faltam 1,1 KB no destino.", preparador.BloqueioDestino(itens, @"D:\Arquivo"));
     }
+
+    private static PainelPrincipal PainelComExemplo(RegistroEmMemoria registro)
+    {
+        var painel = new PainelPrincipal(new DependenciasPainel
+        {
+            Motor = Demonstracao.Motor(),
+            ListarUnidades = () => [],
+            Operacoes = new OperacoesFalsas(),
+            Registro = registro,
+            Locais = Protegidos,
+            TipoDaUnidade = _ => DriveType.Fixed,
+        });
+        painel.Arvore.Carregar(AnalisesTestes.Exemplo());
+        painel.Arvore.AbrirNiveis(3);
+        return painel;
+    }
+
+    [Fact]
+    public void Painel_avalia_a_selecao_para_os_botoes()
+    {
+        var painel = PainelComExemplo(new RegistroEmMemoria());
+
+        painel.AvaliarSelecao([painel.Arvore.Linhas[0]]);
+        Assert.False(painel.PodeRemover);
+        Assert.Equal(@"C:\: É a raiz da unidade.", painel.MotivoBloqueio);
+
+        painel.AvaliarSelecao([painel.Arvore.Linhas.First(l => l.Nome == "bruno")]);
+        Assert.True(painel.PodeRemover);
+        Assert.Equal("Enviar para a Lixeira", painel.TextoRemover);
+    }
+
+    [Fact]
+    public async Task Depois_da_acao_o_item_sai_da_arvore_e_a_sessao_soma()
+    {
+        var registro = new RegistroEmMemoria();
+        var painel = PainelComExemplo(registro);
+        painel.AvaliarSelecao([painel.Arvore.Linhas.First(l => l.Nome == "bruno")]);
+        var pedido = new PedidoAcao(TipoAcao.Lixeira, painel.Selecao.Itens, null);
+
+        var resumo = await painel.Executor.ExecutarAsync(pedido, null, CancellationToken.None);
+        painel.Concluir(pedido, resumo);
+
+        Assert.DoesNotContain(painel.Arvore.Linhas, l => l.Nome == "bruno");
+        Assert.Equal(5300, painel.Arvore.Raiz!.Tamanho);
+        Assert.Equal("Nesta sessão: 2,1 KB para a Lixeira", painel.TextoSessao);
+        Assert.Equal(1, painel.AcoesConcluidas);
+        Assert.Equal(2, registro.Linhas.Count);
+    }
+
+    [Fact]
+    public void Durante_a_varredura_nao_ha_acao()
+    {
+        var painel = new PainelPrincipal(new DependenciasPainel { Motor = Demonstracao.Motor(), ListarUnidades = () => [] });
+        painel.TextoAlvo = @"C:\";
+        painel.Varrer();
+
+        painel.AvaliarSelecao([]);
+
+        Assert.False(painel.PodeRemover);
+        Assert.Equal("Aguarde o fim da varredura.", painel.MotivoBloqueio);
+    }
+
+    [Fact]
+    public void Painel_padrao_de_teste_nunca_toca_no_disco()
+    {
+        var dependencias = new DependenciasPainel { Motor = Demonstracao.Motor(), ListarUnidades = () => [] };
+
+        Assert.IsType<OperacoesDemonstracao>(dependencias.Operacoes);
+        Assert.IsType<RegistroEmMemoria>(dependencias.Registro);
+    }
 }
