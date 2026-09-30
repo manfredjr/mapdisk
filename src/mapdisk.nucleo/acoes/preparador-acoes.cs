@@ -30,15 +30,18 @@ public sealed class PreparadorAcoes
         _demonstracao = demonstracao;
     }
 
-    public AvaliacaoSelecao Avaliar(IEnumerable<object> selecionados)
+    /// <summary>A seleção da tela em itens. A linha "[N arquivos]" não é item: volta no Grupo.</summary>
+    public static (IReadOnlyList<ItemAcao> Itens, string? Grupo) ItensDaSelecao(IEnumerable<object> selecionados)
     {
         var itens = new List<ItemAcao>();
+        string? grupo = null;
         foreach (var s in selecionados)
         {
             switch (s)
             {
-                case LinhaArvore { Tipo: TipoLinha.GrupoArquivos } grupo:
-                    return Bloqueado($"{grupo.Nome}: abra o grupo e selecione os arquivos.");
+                case LinhaArvore { Tipo: TipoLinha.GrupoArquivos } linhaGrupo:
+                    grupo ??= linhaGrupo.Nome;
+                    break;
                 case LinhaArvore { Tipo: TipoLinha.Pasta } pasta:
                     itens.Add(ItemAcao.DaPasta(pasta.Pasta));
                     break;
@@ -54,6 +57,18 @@ public sealed class PreparadorAcoes
             }
         }
 
+        return (itens, grupo);
+    }
+
+    public AvaliacaoSelecao Avaliar(IEnumerable<object> selecionados)
+    {
+        var (itens, grupo) = ItensDaSelecao(selecionados);
+        return grupo is not null ? Bloqueado($"{grupo}: abra o grupo e selecione os arquivos.") : AvaliarItens(itens);
+    }
+
+    /// <summary>Itens já convertidos, da seleção ou da resposta do cliente, pelas mesmas regras.</summary>
+    public AvaliacaoSelecao AvaliarItens(IReadOnlyList<ItemAcao> itens)
+    {
         // Item dentro de outra pasta selecionada sai: a ação sobre a pasta já o leva.
         var unicos = itens.DistinctBy(i => i.Caminho, StringComparer.OrdinalIgnoreCase).ToList();
         unicos = unicos

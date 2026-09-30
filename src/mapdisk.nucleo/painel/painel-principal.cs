@@ -239,6 +239,13 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         Avisar();
     }
 
+    /// <summary>Itens vindos da resposta do cliente, avaliados pelas mesmas regras da seleção.</summary>
+    public void AvaliarItens(IReadOnlyList<ItemAcao> itens)
+    {
+        Selecao = Acoes.AvaliarItens(itens);
+        Avisar();
+    }
+
     /// <summary>Tira da árvore o que deu certo, soma a sessão e relê o destino do mover, se estiver na árvore.</summary>
     public void Concluir(PedidoAcao pedido, ResumoAcao resumo)
     {
