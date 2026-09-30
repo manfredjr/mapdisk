@@ -4,6 +4,7 @@ namespace MapDisk.Nucleo;
 
 public enum AbaAnalise
 {
+    Grafico,
     MaioresArquivos,
     ArquivosAntigos,
     PorTipo,
@@ -27,6 +28,9 @@ public sealed class PainelAnalises : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public AbaAnalise Aba { get; private set; }
+
+    /// <summary>A aba Gráfico: blocos e pizza da mesma pasta das outras abas.</summary>
+    public PainelGrafico Grafico { get; } = new();
 
     public Idade Idade { get; private set; } = Idade.UmAno;
 
@@ -62,6 +66,7 @@ public sealed class PainelAnalises : INotifyPropertyChanged
         Maiores = Antigos = [];
         Categorias = Extensoes = Usuarios = [];
         TextoAntigos = TextoUsuarios = string.Empty;
+        Grafico.Limpar();
         Avisar();
     }
 
@@ -80,6 +85,7 @@ public sealed class PainelAnalises : INotifyPropertyChanged
             return;
         }
 
+        Grafico.Carregar(pasta);
         Titulo = $"Análise de {pasta.CaminhoCompleto()}";
         var semLeitura = pasta.PastasSemAcesso + pasta.PastasComErro;
         Aviso = semLeitura > 0

@@ -163,4 +163,79 @@ public class GraficoTestes
 
         Assert.Equal("M 50,0 A 50,50 0 1 1 50,100 A 50,50 0 1 1 50,0 Z", Assert.Single(f).Caminho);
     }
+
+    [Fact]
+    public void Paleta_da_verde_as_pastas_e_cinza_ao_resto()
+    {
+        Assert.Equal("#006B2D", Paleta.Cor(0, TipoItemGrafico.Pasta));
+        Assert.Equal(Paleta.Cores[0], Paleta.Cor(Paleta.Cores.Length, TipoItemGrafico.Pasta));
+        Assert.Equal(Paleta.CorArquivos, Paleta.Cor(3, TipoItemGrafico.Arquivos));
+        Assert.Equal(Paleta.CorOutros, Paleta.Cor(3, TipoItemGrafico.Outros));
+        Assert.Equal("#FFFFFF", Paleta.CorTexto("#006B2D"));
+        Assert.Equal("#202020", Paleta.CorTexto("#9AD52B"));
+    }
+
+    [Fact]
+    public void Painel_monta_os_blocos_da_pasta_na_area()
+    {
+        var g = new PainelGrafico();
+        g.Redimensionar(400, 300);
+
+        g.Carregar(AnalisesTestes.Exemplo());
+
+        Assert.Equal([ItensGrafico.NomeArquivos, "Users"], g.Blocos.Select(b => b.Nome));
+        Assert.Equal(120000, g.Blocos.Sum(b => b.Largura * b.Altura), 3);
+        Assert.Equal(Paleta.CorArquivos, g.Blocos[0].Cor);
+        Assert.Equal("#006B2D", g.Blocos[1].Cor);
+        Assert.Equal("4,9 KB", g.Blocos[0].TextoValor);
+        Assert.Contains("67,6 %", g.Blocos[0].Dica);
+        Assert.True(g.Blocos[0].MostrarRotulo);
+        Assert.Equal("Sem leitura, fora do gráfico: Windows", g.TextoNaoLidas);
+        Assert.True(g.MostrarBlocos);
+        Assert.Empty(g.Fatias);
+    }
+
+    [Fact]
+    public void Painel_troca_para_pizza_com_legenda()
+    {
+        var g = new PainelGrafico();
+        g.Carregar(AnalisesTestes.Exemplo());
+
+        g.DefinirTipo(TipoGrafico.Pizza);
+
+        Assert.True(g.MostrarPizza);
+        Assert.Empty(g.Blocos);
+        Assert.Equal(["4,9 KB", "2,3 KB"], g.Fatias.Select(f => f.TextoValor));
+        Assert.Equal("67,6 %", g.Fatias[0].TextoPorcentagem);
+        Assert.Equal("Users", g.Fatias[1].Pasta!.Nome);
+        Assert.StartsWith($"M {PainelGrafico.RaioPizza},{PainelGrafico.RaioPizza} ", g.Fatias[0].Caminho);
+    }
+
+    [Fact]
+    public void Painel_segue_o_modo_e_conta_arquivos_na_contagem()
+    {
+        var g = new PainelGrafico();
+        g.Redimensionar(400, 300);
+        g.Carregar(AnalisesTestes.Exemplo());
+
+        g.DefinirModo(ModoExibicao.Contagem);
+
+        Assert.Equal("Users", g.Blocos[0].Nome);
+        Assert.Equal("4 arquivos", g.Blocos[0].TextoValor);
+    }
+
+    [Fact]
+    public void Bloco_pequeno_nao_mostra_rotulo_e_limpar_esvazia()
+    {
+        var g = new PainelGrafico();
+        g.Redimensionar(60, 30);
+        g.Carregar(AnalisesTestes.Exemplo());
+
+        Assert.All(g.Blocos, b => Assert.False(b.MostrarRotulo));
+
+        g.Limpar();
+
+        Assert.Empty(g.Blocos);
+        Assert.Equal(string.Empty, g.TextoNaoLidas);
+    }
 }

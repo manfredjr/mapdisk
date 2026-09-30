@@ -65,4 +65,20 @@ public class PainelAnalisesTestes
         Assert.Same(users.Pasta, p.PastaDasAnalises(users));
         Assert.Same(p.Arvore.Raiz, p.PastaDasAnalises(null));
     }
+
+    [Fact]
+    public async Task Calcular_carrega_o_grafico_e_aguardar_limpa()
+    {
+        var p = new PainelAnalises();
+        p.Grafico.Redimensionar(400, 300);
+
+        await p.CalcularAsync(AnalisesTestes.Exemplo(), AnalisesTestes.Hoje);
+
+        Assert.Equal(2, p.Grafico.Blocos.Count);
+        Assert.Equal(AbaAnalise.Grafico, p.Aba);
+
+        p.Aguardar();
+
+        Assert.Empty(p.Grafico.Blocos);
+    }
 }
