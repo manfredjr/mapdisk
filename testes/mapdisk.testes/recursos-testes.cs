@@ -27,6 +27,14 @@ public class RecursosTestes
     }
 
     [Fact]
+    public void Janela_mostra_o_logo_da_mt()
+    {
+        Assert.True(File.Exists(App(Path.Combine("recursos", "mt-logo.png"))));
+        var janela = File.ReadAllText(App("janela-principal.xaml"));
+        Assert.Contains("component/recursos/mt-logo.png", janela);
+    }
+
+    [Fact]
     public void Manifesto_roda_sem_administrador()
     {
         var manifesto = File.ReadAllText(App("app.manifest"));

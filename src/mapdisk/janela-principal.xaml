@@ -45,10 +45,11 @@
         <!-- Faixa do topo: alvo e comandos -->
         <Border DockPanel.Dock="Top" Background="{StaticResource GradienteFaixa}" Padding="14,10">
             <DockPanel>
-                <!-- Simbolo do MapDisk (docs/marca/mapdisk-mt-simbolo.svg) num quadro branco, para os verdes aparecerem sobre a faixa -->
-                <Border DockPanel.Dock="Left" Background="White" CornerRadius="6" Padding="4"
-                        VerticalAlignment="Center" Margin="0,0,10,0">
-                    <Viewbox Width="26" Height="26">
+                <!-- Selo do MapDisk: simbolo (docs/marca/mapdisk-mt-simbolo.svg) e nome em verde sobre o branco, no padrao do MapNet -->
+                <Border DockPanel.Dock="Left" Background="White" CornerRadius="8" Padding="8,5,12,5"
+                        VerticalAlignment="Center" Margin="0,0,18,0">
+                    <StackPanel Orientation="Horizontal">
+                    <Viewbox Width="26" Height="26" Margin="0,0,8,0">
                         <Canvas Width="64" Height="64">
                             <Rectangle Canvas.Left="3" Canvas.Top="3" Width="24" Height="58" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerdeEscuro}" />
                             <Rectangle Canvas.Left="31" Canvas.Top="3" Width="30" Height="28" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerde}" />
@@ -56,9 +57,10 @@
                             <Rectangle Canvas.Left="48" Canvas.Top="35" Width="13" Height="26" RadiusX="3" RadiusY="3" Fill="{StaticResource PincelVerdeClaro}" />
                         </Canvas>
                     </Viewbox>
+                    <TextBlock Text="MapDisk" Foreground="{StaticResource PincelVerdeEscuro}" FontSize="20"
+                               FontWeight="ExtraBold" VerticalAlignment="Center" />
+                    </StackPanel>
                 </Border>
-                <TextBlock DockPanel.Dock="Left" Text="MapDisk - MT" Foreground="White" FontSize="20"
-                           FontWeight="ExtraBold" VerticalAlignment="Center" Margin="0,0,18,0" />
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <ComboBox x:Name="CampoAlvo" Width="340" IsEditable="True"
                               ItemsSource="{Binding Opcoes}" TextSearch.TextPath="Caminho"
@@ -117,7 +119,7 @@
             </StackPanel>
         </Border>
 
-        <!-- Barra de status -->
+        <!-- Barra de status, com a linha da marca por cima -->
         <Border DockPanel.Dock="Bottom" Background="{StaticResource PincelGrafite}" Padding="12,6">
             <DockPanel>
                 <ProgressBar DockPanel.Dock="Left" Style="{StaticResource ProgressoMT}" Width="120" Margin="0,0,12,0"
@@ -133,16 +135,23 @@
                 </StackPanel>
             </DockPanel>
         </Border>
+        <Border DockPanel.Dock="Bottom" Height="3" Background="{StaticResource GradienteLinha}" />
 
-        <Grid>
+        <Grid Margin="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" MinWidth="400" />
-                <ColumnDefinition x:Name="ColunaDivisoria" Width="5" />
+                <ColumnDefinition x:Name="ColunaDivisoria" Width="12" />
                 <ColumnDefinition x:Name="ColunaPainel" Width="520" MinWidth="0" />
             </Grid.ColumnDefinitions>
 
-        <!-- Arvore com colunas. So as linhas visiveis sao desenhadas -->
-        <ListView x:Name="Tabela" Grid.Column="0" SelectionChanged="AoSelecionarNaArvore" ItemsSource="{Binding Arvore.Linhas}" BorderThickness="0"
+        <!-- Cartao das pastas: arvore com colunas. So as linhas visiveis sao desenhadas -->
+        <Border Grid.Column="0" Style="{StaticResource Cartao}">
+        <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
+            <Border Style="{StaticResource BarraTitulo}" />
+            <TextBlock Text="Pastas" Style="{StaticResource TituloCartao}" />
+        </StackPanel>
+        <ListView x:Name="Tabela" SelectionChanged="AoSelecionarNaArvore" ItemsSource="{Binding Arvore.Linhas}" BorderThickness="0"
                   VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
                   ScrollViewer.CanContentScroll="True" SelectionMode="Single"
                   MouseDoubleClick="AoClicarDuasVezes" KeyDown="AoTeclarNaTabela">
@@ -253,15 +262,34 @@
                 </GridView>
             </ListView.View>
         </ListView>
+        </DockPanel>
+        </Border>
 
-            <GridSplitter x:Name="Divisoria" Grid.Column="1" Width="5" HorizontalAlignment="Stretch"
-                          Background="{StaticResource PincelBorda}" />
+            <GridSplitter x:Name="Divisoria" Grid.Column="1" Width="12" HorizontalAlignment="Stretch"
+                          Background="Transparent" />
 
             <!-- Painel de analises: sobre a pasta selecionada, com a arvore ja lida -->
-            <Border x:Name="PainelLateral" Grid.Column="2" Background="White" DataContext="{Binding Analises}">
-                <DockPanel Margin="10,8,10,4">
-                    <TextBlock DockPanel.Dock="Top" Text="{Binding Titulo}" Style="{StaticResource TituloGrupo}"
-                               TextTrimming="CharacterEllipsis" />
+            <Border x:Name="PainelLateral" Grid.Column="2" Style="{StaticResource Cartao}" DataContext="{Binding Analises}">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,6">
+                        <Border Style="{StaticResource BarraTitulo}" />
+                        <TextBlock Text="Análises" Style="{StaticResource TituloCartao}" />
+                    </StackPanel>
+                    <!-- Logo da MT no pe do cartao, no mesmo lugar da coluna do MapNet -->
+                    <Image DockPanel.Dock="Bottom" Source="pack://application:,,,/mapdisk;component/recursos/mt-logo.png"
+                           Height="64" HorizontalAlignment="Center" Margin="0,10,0,0"
+                           RenderOptions.BitmapScalingMode="HighQuality" ToolTip="MT - Manfred Tecnologia" />
+                    <TextBlock DockPanel.Dock="Top" Text="{Binding Titulo}" TextTrimming="CharacterEllipsis">
+                        <TextBlock.Style>
+                            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TituloGrupo}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Titulo}" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                     <TextBlock DockPanel.Dock="Top" Text="{Binding Aviso}" Foreground="{StaticResource PincelTextoSuave}"
                                TextWrapping="Wrap" Margin="0,2,0,6" />
                     <TabControl>

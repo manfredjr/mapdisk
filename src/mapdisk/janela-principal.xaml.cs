@@ -87,7 +87,7 @@ public partial class JanelaPrincipal : Window
         }
 
         ColunaPainel.Width = _mostrarAnalises ? new GridLength(520) : new GridLength(0);
-        ColunaDivisoria.Width = _mostrarAnalises ? new GridLength(5) : new GridLength(0);
+        ColunaDivisoria.Width = _mostrarAnalises ? new GridLength(12) : new GridLength(0);
         if (_mostrarAnalises)
         {
             _pastaAnalisada = null;

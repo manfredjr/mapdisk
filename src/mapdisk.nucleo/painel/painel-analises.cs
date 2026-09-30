@@ -30,7 +30,7 @@ public sealed class PainelAnalises : INotifyPropertyChanged
 
     public Idade Idade { get; private set; } = Idade.UmAno;
 
-    public string Titulo { get; private set; } = "Análises";
+    public string Titulo { get; private set; } = string.Empty;
 
     /// <summary>Aviso do topo do painel: aguarde, ou pastas sem leitura fora da conta.</summary>
     public string Aviso { get; private set; } = "Varra uma unidade ou pasta para ver as análises.";
