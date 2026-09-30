@@ -42,4 +42,4 @@ No Prompt de Comando, use `start /wait mapdisk varrer C:` para o prompt esperar 
 | Fatia | Conteúdo | Ramo | Pull Request | Situação |
 |---|---|---|---|---|
 | 1 | Varredura, árvore com colunas, modos e unidades, barra de status, linha de comando com CSV | `varredura` | [#2](https://github.com/manfredjr/mapdisk/pull/2) | Concluída em 29/09/2026 |
-| 2 | Navegação, últimos alvos, atualizar uma pasta, menu de contexto, varredura como administrador com o privilégio de backup, acertos da fatia 1 | `navegacao` | [#4](https://github.com/manfredjr/mapdisk/pull/4) | Aguardando o teste do Manfred |
+| 2 | Navegação, últimos alvos, atualizar uma pasta, menu de contexto, varredura como administrador com o privilégio de backup, acertos da fatia 1 | `navegacao` | [#4](https://github.com/manfredjr/mapdisk/pull/4) | Concluída em 29/09/2026 |
