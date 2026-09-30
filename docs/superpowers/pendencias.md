@@ -59,3 +59,13 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 | Gráfico com mais de um nível | O gráfico mostra um nível abaixo da pasta, que se lê de relance. Para descer, clique duplo | Aceito. Reavaliar se o uso pedir |
 | Clique duplo no gráfico conferido pelo agente | O Windows não deixou o roteiro de teste trazer a janela para a frente e clicar | Fechado: o Manfred testou no PR #8 em 30/09/2026 |
 
+## Fatia 5: ações seguras
+
+| Item | Motivo | O que fecha |
+|---|---|---|
+| Registro de ações sem limite de tamanho | Uma linha por item, antes e depois. Em uso normal cresce devagar | Aceito. Reavaliar se aparecer registro grande |
+| Hard link apagado que deixa a outra cópia sem somar | Se o item apagado era a cópia que somava, a outra continua marcada como repetida até a próxima varredura | Aceito. Atualizar a pasta resolve |
+| Botão "Registro de ações" no cartão das pastas | A tela de Opções ainda não existe | Tela de Opções da fatia 7 |
+| Permissões (ACL) no mover entre unidades | A cópia recebe as permissões da pasta de destino, como no Explorer | Aceito |
+| Teste da Lixeira real, da exclusão em rede e do mover pela janela | A Lixeira leva o arquivo para fora da pasta do projeto e o programa real grava o registro em `%LOCALAPPDATA%`. O agente testou pela janela só em demonstração | Fechado: o Manfred testou no PR #10 em 30/09/2026 |
+

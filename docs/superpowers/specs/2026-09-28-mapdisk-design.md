@@ -47,7 +47,7 @@ O fluxo de trabalho que o programa atende:
 | R5 | Expandir a árvore até N níveis. Voltar e avançar entre pastas visitadas |
 | R6 | Os arquivos soltos de cada pasta ficam agrupados numa linha "[N arquivos]". `pagefile.sys`, `hiberfil.sys` e `swapfile.sys` recebem o rótulo "arquivo do sistema" |
 | R7 | Pasta sem permissão de leitura aparece como "sem acesso", nunca como 0 Bytes. O total de pastas sem acesso aparece na barra de status, com o botão "Varrer como administrador" |
-| R8 | Barra de status com espaço livre e total da unidade, número de arquivos, pastas sem acesso, tamanho do cluster, sistema de arquivos e "Liberado nesta sessão" |
+| R8 | Barra de status com espaço livre e total da unidade, número de arquivos, pastas sem acesso, tamanho do cluster, sistema de arquivos e "Nesta sessão", separado em enviado para a Lixeira, movido e excluído (ajustado em 30/09/2026, PR #9) |
 | R9 | Menu de contexto na árvore e nas listas: Abrir no Explorer, Copiar caminho, Varrer a partir daqui, Atualizar ramificação, Propriedades, Mover e Enviar para a Lixeira |
 | R10 | Gráficos da pasta selecionada: treemap e pizza |
 | R11 | Maiores arquivos (100 por padrão, configurável) |
@@ -55,7 +55,7 @@ O fluxo de trabalho que o programa atende:
 | R13 | Resumo por tipo, com as extensões agrupadas em categorias: vídeo, imagem, áudio, e-mail (`.pst`, `.ost`), imagem de disco (`.iso`, `.vhd`, `.vhdx`), compactado e backup, instalador, documento e outros |
 | R14 | Resumo por usuário: quando a varredura inclui `C:\Users` ou outra pasta de perfis, o ranking das pastas de perfil |
 | R15 | Duplicados, sob demanda, confirmados em três etapas: mesmo tamanho, hash do primeiro 1 MB e hash completo |
-| R16 | Ações: Enviar para a Lixeira e Mover, com o fluxo seguro da seção 7. Excluir definitivamente só em caminho de rede. Toda ação vai para o registro de ações |
+| R16 | Ações: Enviar para a Lixeira e Mover, com o fluxo seguro da seção 7. Excluir definitivamente só onde o programa não usa a Lixeira: caminho de rede, unidade mapeada e unidade removível (ajustado em 30/09/2026, PR #9). Toda ação vai para o registro de ações |
 | R17 | Exportação em HTML com a marca da MT (imprimível em PDF pelo navegador) e em CSV |
 | R18 | Linha de comando para varrer e gerar relatório sem abrir a janela |
 | R19 | Item "Analisar com MapDisk" no menu de contexto de pastas e unidades do Explorer, ligado e desligado em Opções, sem administrador |
@@ -152,11 +152,11 @@ A linha de comando não tem ação de mover nem de apagar.
 1. O técnico seleciona um ou mais itens na árvore ou em qualquer lista.
 2. A confirmação mostra os itens, o total em GB e o destino. Na Lixeira, o aviso diz para qual Lixeira vai. No mover, o técnico escolhe a pasta de destino.
 3. **Proteção:** o programa bloqueia ação em `C:\Windows`, `C:\Program Files`, `C:\Program Files (x86)`, `C:\ProgramData`, `System Volume Information`, `$Recycle.Bin`, na raiz de qualquer unidade e nos arquivos de sistema do R6. O botão fica desativado e diz o motivo.
-4. **Rede:** caminho de rede não tem Lixeira. Lá a ação vira "Excluir definitivamente", e a confirmação exige digitar `EXCLUIR`.
+4. **Sem Lixeira:** a Lixeira só é usada em unidade fixa local. Em caminho de rede, unidade mapeada e unidade removível, a ação vira "Excluir definitivamente", e a confirmação exige digitar `EXCLUIR` (ajustado em 30/09/2026, PR #9).
 5. **Conferência na hora:** antes de agir, o programa confere se o tamanho e a data do item mudaram desde a varredura. Se mudaram, avisa e pede nova confirmação. No mover, confere se o destino tem espaço e bloqueia com "faltam X GB no destino".
 6. **Mover entre unidades:** copia, confere o tamanho da cópia e só então apaga a origem. Se a cópia falhar, a origem fica intacta. Na mesma unidade, só renomeia o caminho.
 7. **Execução:** barra de progresso com Cancelar. Item em uso ou sem permissão falha sozinho, os outros seguem, e no fim aparece o resumo do que deu certo e do que falhou, com o motivo.
-8. **Depois:** a ramificação é atualizada sozinha e a barra de status soma o "Liberado nesta sessão".
+8. **Depois:** a ramificação é atualizada sozinha e a barra de status soma o "Nesta sessão", separado por tipo: o que vai para a Lixeira só libera espaço quando ela é esvaziada. No modo `--demonstracao`, as ações seguem o fluxo na tela sem tocar no disco (ajustado em 30/09/2026, PR #9).
 9. **Registro:** toda ação vai para `%LOCALAPPDATA%\MapDisk\acoes.log`, uma linha por item, com data e hora, usuário do Windows, ação, caminho de origem, destino, tamanho e resultado.
 
 ## 8. Erros

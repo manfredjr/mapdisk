@@ -62,4 +62,19 @@ public class RecursosTestes
         Assert.True(janela.IndexOf("Header=\"Gráfico\"", StringComparison.Ordinal)
             < janela.IndexOf("Header=\"Maiores arquivos\"", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void Janela_tem_as_acoes_com_confirmacao()
+    {
+        var janela = File.ReadAllText(App("janela-principal.xaml"));
+        Assert.Contains("Click=\"AoRemover\"", janela);
+        Assert.Contains("Click=\"AoMover\"", janela);
+        Assert.Contains("Click=\"AoAbrirRegistro\"", janela);
+        Assert.Contains("SelectionMode=\"Extended\"", janela);
+        Assert.Contains("ToolTipService.ShowOnDisabled=\"True\"", janela);
+        Assert.Contains("{Binding TextoSessao}", janela);
+        var confirmacao = File.ReadAllText(App("janela-confirmacao.xaml"));
+        Assert.Contains("x:Name=\"CampoExcluir\"", confirmacao);
+        Assert.Contains("IsCancel=\"True\"", confirmacao);
+    }
 }

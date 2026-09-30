@@ -111,10 +111,10 @@ Os textos seguem o modelo do parecer do MapNet, adaptados ao risco do MapDisk. P
 ## 6. Requisitos para implementação
 
 - [ ] Textos "Uso autorizado" e "Licença e garantias" na página e no README, perto do download (fatia 7).
-- [ ] Confirmação de cada ação com a lista, o total e o destino, e o aviso de risco da seção 5 (fatia 5).
-- [ ] Exclusão em rede com a palavra EXCLUIR digitada e o aviso de que não há Lixeira (fatia 5).
-- [ ] Registro de ações só com data e hora, usuário do Windows, ação, origem, destino, tamanho e resultado. Sem conteúdo de arquivo (fatia 5).
-- [ ] Opções mostra onde fica o registro e abre a pasta dele (fatia 5).
+- [x] Confirmação de cada ação com a lista, o total e o destino, e o aviso de risco da seção 5 (fatia 5).
+- [x] Exclusão em rede com a palavra EXCLUIR digitada e o aviso de que não há Lixeira (fatia 5). Vale também para unidade removível e mapeada, com o texto da seção 9.
+- [x] Registro de ações só com data e hora, usuário do Windows, ação, origem, destino, tamanho e resultado. Sem conteúdo de arquivo (fatia 5).
+- [x] Opções mostra onde fica o registro e abre a pasta dele (fatia 5). Por enquanto, pelo botão "Registro de ações" no cartão das pastas; vai para a tela de Opções na fatia 7.
 - [ ] Nada sai da máquina: nenhum envio de rede no programa, conferido por teste (todas as fatias).
 - [ ] Fora do programa, no atendimento da MT: autorização do cliente para as exclusões registrada na ordem de serviço, com cópia do `acoes.log` anexada. Fica em `docs/superpowers/pendencias.md` como decisão de processo do Manfred.
 
@@ -129,4 +129,16 @@ Nenhuma. Os pontos que dependiam de parecer (relação de consumo na distribuiç
 **Incidência.** A seção 5 regula quem distribui versão modificada. A MANFRED TECNOLOGIA LTDA, titular do código, não está obrigada pela própria licença. O aviso é **RECOMENDAÇÃO**: o próprio texto da GPL, em "How to Apply These Terms", sugere uma caixa "Sobre" para programa com janela. Com o aviso na janela, quem distribuir versão modificada já recebe a tela pronta.
 
 **RECOMENDAÇÃO aplicada.** A janela Sobre mostra o aviso de copyright, o aviso de software livre (tradução do aviso sugerido pela GPL, só com "versão 3", sem a cláusula "ou posterior", que não foi decidida) e o texto "Licença e garantias" da seção 5 sem mudança. O texto integral da licença vai embutido no programa e abre pelo botão "Ver a licença", sem internet. O texto "Licença e garantias" já cita apagar e mover, que chegam na fatia 5. Fica sem mudança porque nenhuma versão é publicada antes da fatia 7, e a versão publicada terá essas ações.
+
+## 9. Exclusão em unidade sem Lixeira garantida (acréscimo de 30/09/2026)
+
+**Contexto.** A fatia 5 limita a Lixeira à unidade fixa local, decisão aprovada pelo Manfred no PR #9. Em unidade removível ou mapeada, a ação vira exclusão definitiva, como na rede, e a confirmação precisa de uma variante do texto aprovado da seção 5.
+
+**INTERPRETAÇÃO.** A variante cumpre a mesma função da seção 4.5: diz o risco na hora da decisão e mantém a frase de que os itens só voltam por cópia de segurança. A redação "Esta unidade não tem Lixeira" seria inexata: algumas unidades removíveis formatadas em NTFS têm Lixeira, e quem decide não usá-la é o programa. Informação sobre risco precisa ser correta (CDC, art. 6º, III, já verificado na seção 4.5).
+
+**RECOMENDAÇÃO aplicada.** Texto da confirmação em unidade removível ou mapeada:
+
+> Excluir definitivamente N itens (X GB) de E:\fotos? Nesta unidade, o MapDisk não usa a Lixeira. Depois de excluídos, os itens só voltam por uma cópia de segurança. Para confirmar, digite EXCLUIR.
+
+O texto de rede da seção 5 fica como está. Não há pendência de validação.
 

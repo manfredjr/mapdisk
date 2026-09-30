@@ -31,6 +31,9 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         _historico = dependencias.Historico;
         _elevar = dependencias.Elevar;
         Administrador = dependencias.Administrador;
+        Acoes = new PreparadorAcoes(dependencias.Locais, dependencias.TipoDaUnidade, dependencias.Operacoes, dependencias.Demonstracao);
+        Executor = new ExecutorAcoes(dependencias.Operacoes, dependencias.Registro);
+        LocalDoRegistro = dependencias.Registro.Local;
         Unidades = _listarUnidades();
         TextoAlvo = Unidades.FirstOrDefault()?.Raiz ?? string.Empty;
         MontarOpcoes();
@@ -50,6 +53,8 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         Historico = HistoricoAlvosArquivo.Padrao(),
         Administrador = Privilegios.EhAdministrador(),
         Elevar = Elevacao.Reabrir,
+        Operacoes = new OperacoesArquivo(),
+        Registro = RegistroAcoes.Padrao(),
     });
 
     /// <summary>O processo já roda como administrador.</summary>
@@ -201,6 +206,91 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         }
 
         Avisar();
+    }
+
+    private long _sessaoLixeira;
+    private long _sessaoMovido;
+    private long _sessaoExcluido;
+
+    public PreparadorAcoes Acoes { get; }
+
+    public ExecutorAcoes Executor { get; }
+
+    public string LocalDoRegistro { get; }
+
+    public AvaliacaoSelecao Selecao { get; private set; } = new([], "Selecione pastas ou arquivos na árvore ou nas listas.", TipoAcao.Lixeira);
+
+    public bool PodeRemover => Estado == EstadoPainel.Parado && Selecao.PodeRemover;
+
+    public bool PodeMover => Estado == EstadoPainel.Parado && Selecao.PodeMover;
+
+    public string TextoRemover => Selecao.TextoRemover;
+
+    public string MotivoBloqueio => Estado != EstadoPainel.Parado ? "Aguarde o fim da varredura." : Selecao.Bloqueio ?? string.Empty;
+
+    /// <summary>Quantas ações terminaram. A janela compara para recalcular as análises.</summary>
+    public int AcoesConcluidas { get; private set; }
+
+    public string TextoSessao { get; private set; } = string.Empty;
+
+    public void AvaliarSelecao(IEnumerable<object> selecionados)
+    {
+        Selecao = Acoes.Avaliar(selecionados);
+        Avisar();
+    }
+
+    /// <summary>Tira da árvore o que deu certo, soma a sessão e relê o destino do mover, se estiver na árvore.</summary>
+    public void Concluir(PedidoAcao pedido, ResumoAcao resumo)
+    {
+        foreach (var r in resumo.Resultados.Where(r => r.Ok))
+        {
+            Arvore.Remover(r.Item);
+        }
+
+        switch (pedido.Acao)
+        {
+            case TipoAcao.Lixeira:
+                _sessaoLixeira += resumo.BytesOk;
+                break;
+            case TipoAcao.Mover:
+                _sessaoMovido += resumo.BytesOk;
+                break;
+            default:
+                _sessaoExcluido += resumo.BytesOk;
+                break;
+        }
+
+        var partes = new List<string>();
+        if (_sessaoLixeira > 0)
+        {
+            partes.Add($"{Formatador.Tamanho(_sessaoLixeira)} para a Lixeira");
+        }
+
+        if (_sessaoMovido > 0)
+        {
+            partes.Add($"{Formatador.Tamanho(_sessaoMovido)} movidos");
+        }
+
+        if (_sessaoExcluido > 0)
+        {
+            partes.Add($"{Formatador.Tamanho(_sessaoExcluido)} excluídos");
+        }
+
+        TextoSessao = partes.Count == 0 ? string.Empty : $"Nesta sessão: {string.Join(", ", partes)}";
+        AcoesConcluidas++;
+        Selecao = Acoes.Avaliar([]);
+        AtualizarTextos();
+
+        var raizDaVarredura = Arvore.Raiz;
+        while (raizDaVarredura?.Pai is { } pai)
+        {
+            raizDaVarredura = pai;
+        }
+
+        if (pedido.Acao == TipoAcao.Mover && resumo.Ok > 0 && raizDaVarredura?.Encontrar(pedido.Destino!) is { } destino)
+        {
+            AtualizarPasta(destino);
+        }
     }
 
     public bool PodeVoltar => Arvore.PodeVoltar;

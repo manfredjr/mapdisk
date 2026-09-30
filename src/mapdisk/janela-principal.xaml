@@ -31,9 +31,15 @@
             <MenuItem Header="Mostrar no Explorer" Click="AoMostrarArquivoNoExplorer" />
             <MenuItem Header="Copiar caminho" Click="AoCopiarCaminhoDoArquivo" />
             <MenuItem Header="Abrir a pasta na árvore" Click="AoAbrirPastaDoArquivo" />
+            <Separator />
+            <MenuItem Header="Apagar..." InputGestureText="Delete" Click="AoRemover" />
+            <MenuItem Header="Mover..." Click="AoMover" />
         </ContextMenu>
         <ContextMenu x:Key="MenuPerfil" x:Shared="False">
             <MenuItem Header="Abrir aqui" Click="AoAbrirPerfil" />
+            <Separator />
+            <MenuItem Header="Apagar..." InputGestureText="Delete" Click="AoRemover" />
+            <MenuItem Header="Mover..." Click="AoMover" />
         </ContextMenu>
 
         <Style x:Key="Numero" TargetType="{x:Type TextBlock}">
@@ -135,6 +141,8 @@
                     <TextBlock Text="{Binding TextoTotais}" Style="{StaticResource TextoEstado}" Margin="18,0,0,0" />
                     <TextBlock Text="{Binding TextoSemLeitura}" Style="{StaticResource TextoEstado}" Margin="18,0,0,0"
                                Foreground="{StaticResource PincelVerdeClaro}" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding TextoSessao}" Style="{StaticResource TextoEstado}" Margin="18,0,0,0"
+                               ToolTip="O que vai para a Lixeira só libera espaço quando a Lixeira é esvaziada" />
                 </StackPanel>
             </DockPanel>
         </Border>
@@ -150,13 +158,24 @@
         <!-- Cartao das pastas: arvore com colunas. So as linhas visiveis sao desenhadas -->
         <Border Grid.Column="0" Style="{StaticResource Cartao}">
         <DockPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,8">
-            <Border Style="{StaticResource BarraTitulo}" />
-            <TextBlock Text="Pastas" Style="{StaticResource TituloCartao}" />
-        </StackPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+            <!-- Acoes sobre a selecao da arvore ou das listas. Desligadas, dizem o motivo -->
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Content="{Binding TextoRemover}" Style="{StaticResource BotaoContorno}" Click="AoRemover"
+                        IsEnabled="{Binding PodeRemover}" ToolTip="{Binding MotivoBloqueio}" ToolTipService.ShowOnDisabled="True" Margin="0,0,6,0" />
+                <Button Content="Mover..." Style="{StaticResource BotaoContorno}" Click="AoMover"
+                        IsEnabled="{Binding PodeMover}" ToolTip="{Binding MotivoBloqueio}" ToolTipService.ShowOnDisabled="True" Margin="0,0,6,0" />
+                <Button Content="Registro de ações" Style="{StaticResource BotaoContorno}" Click="AoAbrirRegistro" Margin="0"
+                        ToolTip="Mostra no Explorer o arquivo com o registro de cada ação" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Border Style="{StaticResource BarraTitulo}" />
+                <TextBlock Text="Pastas" Style="{StaticResource TituloCartao}" />
+            </StackPanel>
+        </DockPanel>
         <ListView x:Name="Tabela" SelectionChanged="AoSelecionarNaArvore" ItemsSource="{Binding Arvore.Linhas}" BorderThickness="0"
                   VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
-                  ScrollViewer.CanContentScroll="True" SelectionMode="Single"
+                  ScrollViewer.CanContentScroll="True" SelectionMode="Extended"
                   MouseDoubleClick="AoClicarDuasVezes" KeyDown="AoTeclarNaTabela">
             <ListView.ContextMenu>
                 <ContextMenu>
@@ -167,6 +186,9 @@
                     <MenuItem Header="Atualizar esta pasta" InputGestureText="Shift+F5" Click="AoAtualizarPasta" />
                     <Separator />
                     <MenuItem Header="Propriedades" Click="AoPropriedades" />
+                    <Separator />
+                    <MenuItem Header="Apagar..." InputGestureText="Delete" Click="AoRemover" />
+                    <MenuItem Header="Mover..." Click="AoMover" />
                 </ContextMenu>
             </ListView.ContextMenu>
             <ListView.ItemContainerStyle>
@@ -368,7 +390,8 @@
                             </DockPanel>
                         </TabItem>
                         <TabItem Header="Maiores arquivos">
-                            <ListView x:Name="ListaMaiores" ItemsSource="{Binding Maiores}" BorderThickness="0" SelectionMode="Single"
+                            <ListView x:Name="ListaMaiores" ItemsSource="{Binding Maiores}" BorderThickness="0" SelectionMode="Extended"
+                                      SelectionChanged="AoSelecionarParaAcao" KeyDown="AoTeclarNaLista"
                                       VirtualizingPanel.IsVirtualizing="True">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="{x:Type ListViewItem}">
@@ -402,7 +425,8 @@
                                 </StackPanel>
                                 <TextBlock DockPanel.Dock="Top" Text="{Binding TextoAntigos}" FontWeight="SemiBold"
                                            TextWrapping="Wrap" Margin="0,0,0,6" />
-                            <ListView x:Name="ListaAntigos" ItemsSource="{Binding Antigos}" BorderThickness="0" SelectionMode="Single"
+                            <ListView x:Name="ListaAntigos" ItemsSource="{Binding Antigos}" BorderThickness="0" SelectionMode="Extended"
+                                      SelectionChanged="AoSelecionarParaAcao" KeyDown="AoTeclarNaLista"
                                       VirtualizingPanel.IsVirtualizing="True">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="{x:Type ListViewItem}">
@@ -522,7 +546,8 @@
                         <TabItem Header="Por usuário">
                             <DockPanel>
                                 <TextBlock DockPanel.Dock="Top" Text="{Binding TextoUsuarios}" TextWrapping="Wrap" Margin="0,6,0,6" />
-                            <ListView x:Name="ListaUsuarios" ItemsSource="{Binding Usuarios}" BorderThickness="0" SelectionMode="Single">
+                            <ListView x:Name="ListaUsuarios" ItemsSource="{Binding Usuarios}" BorderThickness="0" SelectionMode="Extended"
+                                      SelectionChanged="AoSelecionarParaAcao" KeyDown="AoTeclarNaLista">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="{x:Type ListViewItem}">
                                         <Setter Property="ContextMenu" Value="{StaticResource MenuPerfil}" />

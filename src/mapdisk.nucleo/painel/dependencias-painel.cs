@@ -14,4 +14,16 @@ public sealed class DependenciasPainel
 
     /// <summary>Reabre o programa como administrador varrendo o alvo.</summary>
     public Func<string, ResultadoElevacao> Elevar { get; init; } = _ => ResultadoElevacao.Recusada;
+
+    /// <summary>Operações no disco. O padrão não toca no disco: só o Padrao() do painel liga as reais.</summary>
+    public IOperacoesArquivo Operacoes { get; init; } = new OperacoesDemonstracao();
+
+    public IRegistroAcoes Registro { get; init; } = new RegistroEmMemoria();
+
+    public LocaisProtegidos Locais { get; init; } = LocaisProtegidos.DoSistema();
+
+    public Func<string, DriveType> TipoDaUnidade { get; init; } = Lixeiras.TipoDaUnidade;
+
+    /// <summary>Modo --demonstracao: a confirmação avisa que nada é feito.</summary>
+    public bool Demonstracao { get; init; }
 }

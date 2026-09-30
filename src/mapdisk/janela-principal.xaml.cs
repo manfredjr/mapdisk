@@ -1,3 +1,5 @@
+using System.Collections;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,6 +18,7 @@ public partial class JanelaPrincipal : Window
     private int _concluidasVistas;
     private NoPasta? _pastaAnalisada;
     private NoPasta? _raizVista;
+    private IList? _ultimaSelecao;
     private bool _mostrarAnalises = true;
 
     public JanelaPrincipal(PainelPrincipal painel, string sufixoTitulo, bool varrerAoAbrir)
@@ -57,7 +60,111 @@ public partial class JanelaPrincipal : Window
 
     private void AoParar(object sender, RoutedEventArgs e) => _painel.Parar();
 
-    private void AoSelecionarNaArvore(object sender, SelectionChangedEventArgs e) => _ = AtualizarAnalises();
+    private void AoSelecionarNaArvore(object sender, SelectionChangedEventArgs e)
+    {
+        AoSelecionarParaAcao(sender, e);
+        _ = AtualizarAnalises();
+    }
+
+    // A última lista em que o técnico selecionou algo é a que vale para os botões de ação.
+    private void AoSelecionarParaAcao(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is ListView lista)
+        {
+            _ultimaSelecao = lista.SelectedItems;
+            _painel.AvaliarSelecao(lista.SelectedItems.Cast<object>());
+        }
+    }
+
+    private void AoTeclarNaLista(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Delete)
+        {
+            AoRemover(sender, e);
+            e.Handled = true;
+        }
+    }
+
+    private async void AoRemover(object sender, RoutedEventArgs e)
+    {
+        _painel.AvaliarSelecao(_ultimaSelecao?.Cast<object>() ?? []);
+        if (_painel.PodeRemover)
+        {
+            await Agir(new PedidoAcao(_painel.Selecao.Remocao, _painel.Selecao.Itens, null));
+        }
+        else if (_painel.MotivoBloqueio.Length > 0)
+        {
+            MessageBox.Show(this, _painel.MotivoBloqueio, "MapDisk - MT", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+
+    private async void AoMover(object sender, RoutedEventArgs e)
+    {
+        _painel.AvaliarSelecao(_ultimaSelecao?.Cast<object>() ?? []);
+        if (!_painel.PodeMover)
+        {
+            if (_painel.MotivoBloqueio.Length > 0)
+            {
+                MessageBox.Show(this, _painel.MotivoBloqueio, "MapDisk - MT", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+
+            return;
+        }
+
+        var itens = _painel.Selecao.Itens;
+        var dialogo = new OpenFolderDialog { Title = "Escolha a pasta de destino" };
+        if (dialogo.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        if (_painel.Acoes.BloqueioDestino(itens, dialogo.FolderName) is { } bloqueio)
+        {
+            MessageBox.Show(this, bloqueio, "MapDisk - MT", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        await Agir(new PedidoAcao(TipoAcao.Mover, itens, dialogo.FolderName));
+    }
+
+    // Conferência na hora, confirmação, execução com andamento e o que muda depois.
+    private async Task Agir(PedidoAcao pedido)
+    {
+        var mudancas = _painel.Acoes.Mudancas(pedido.Itens);
+        if (mudancas.Count > 0 && MessageBox.Show(this,
+                $"Estes itens mudaram desde a varredura:\n\n{string.Join("\n", mudancas.Take(10))}\n\nSeguir mesmo assim?",
+                "MapDisk - MT", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        if (new JanelaConfirmacao(_painel.Acoes.Confirmar(pedido), pedido) { Owner = this }.ShowDialog() != true)
+        {
+            return;
+        }
+
+        var andamento = new JanelaAndamento(_painel.Executor, pedido, _painel.LocalDoRegistro) { Owner = this };
+        andamento.ShowDialog();
+        if (andamento.Resumo is { } resumo)
+        {
+            _painel.Concluir(pedido, resumo);
+            _pastaAnalisada = null;
+            await AtualizarAnalises();
+        }
+    }
+
+    private void AoAbrirRegistro(object sender, RoutedEventArgs e)
+    {
+        if (File.Exists(_painel.LocalDoRegistro))
+        {
+            Shell.MostrarNoExplorer(_painel.LocalDoRegistro, ehArquivo: true);
+        }
+        else
+        {
+            MessageBox.Show(this, $"Nenhuma ação registrada ainda. O registro fica em {_painel.LocalDoRegistro}.", "MapDisk - MT",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
 
     // Calcula as análises da pasta selecionada, ou da raiz mostrada, com a varredura parada.
     private async Task AtualizarAnalises()
@@ -313,6 +420,10 @@ public partial class JanelaPrincipal : Window
 
         switch (e.Key)
         {
+            case Key.Delete:
+                AoRemover(sender, e);
+                e.Handled = true;
+                break;
             case Key.Back:
                 _painel.Voltar();
                 e.Handled = true;

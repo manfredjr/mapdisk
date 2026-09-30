@@ -153,6 +153,59 @@ public sealed class NoPasta
         }
     }
 
+    /// <summary>Tira a subpasta que foi apagada ou movida, e o que havia nela, das somas acima.</summary>
+    internal void RemoverSubpasta(NoPasta sub)
+    {
+        sub.DescontarAcima();
+        Somar(0, 0, 0, -1, 0, 0, 0);
+        Volatile.Write(ref _subpastas, Volatile.Read(ref _subpastas).Where(s => s != sub).ToArray());
+    }
+
+    /// <summary>Tira o arquivo que foi apagado ou movido. Hard link repetido não somava e não desconta.</summary>
+    internal void RemoverArquivo(ArquivoInfo arquivo)
+    {
+        var lista = Volatile.Read(ref _arquivos).ToList();
+        if (!lista.Remove(arquivo))
+        {
+            return;
+        }
+
+        var tamanho = arquivo.Soma ? arquivo.Tamanho : 0;
+        var alocado = arquivo.Soma ? arquivo.Alocado : 0;
+        TamanhoProprio -= tamanho;
+        AlocadoProprio -= alocado;
+        Somar(-tamanho, -alocado, -1, 0, 0, 0, 0);
+        Volatile.Write(ref _arquivos, lista.ToArray());
+    }
+
+    /// <summary>A pasta com esse caminho, procurando a partir desta. Null se não está na árvore.</summary>
+    public NoPasta? Encontrar(string caminho)
+    {
+        var inicio = CaminhoCompleto().TrimEnd('\\');
+        var alvo = caminho.TrimEnd('\\');
+        if (string.Equals(alvo, inicio, StringComparison.OrdinalIgnoreCase))
+        {
+            return this;
+        }
+
+        if (!alvo.StartsWith(inicio + @"\", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        NoPasta? no = this;
+        foreach (var parte in alvo[(inicio.Length + 1)..].Split('\\'))
+        {
+            no = no.Subpastas.FirstOrDefault(s => string.Equals(s.Nome, parte, StringComparison.OrdinalIgnoreCase));
+            if (no is null)
+            {
+                return null;
+            }
+        }
+
+        return no;
+    }
+
     internal void TrocarSubpasta(NoPasta antiga, NoPasta nova)
     {
         var copia = (NoPasta[])Volatile.Read(ref _subpastas).Clone();

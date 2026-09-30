@@ -12,7 +12,15 @@ public static class Demonstracao
 
     private static readonly InfoVolume _volume = new(@"C:\", "Sistema", "NTFS", 373 * Gb, 952 * Gb, 4096);
 
-    public static PainelPrincipal Painel() => new(Motor(), () => [_volume]);
+    // Nada toca no disco: os nomes fictícios podem existir de verdade na máquina.
+    public static PainelPrincipal Painel() => new(new DependenciasPainel
+    {
+        Motor = Motor(),
+        ListarUnidades = () => [_volume],
+        Operacoes = new OperacoesDemonstracao(),
+        Registro = new RegistroEmMemoria(),
+        Demonstracao = true,
+    });
 
     public static IMotorVarredura Motor() => new MotorDemonstracao();
 
