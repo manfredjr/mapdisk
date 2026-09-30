@@ -171,7 +171,8 @@ public partial class JanelaPrincipal : Window
             return;
         }
 
-        var relatorio = new PainelRelatorio(raiz, Volumes.Ler(raiz.CaminhoCompleto())?.Livre, Environment.UserName, _painel.Locais);
+        var relatorio = new PainelRelatorio(raiz, Volumes.Ler(raiz.CaminhoCompleto())?.Livre, Environment.UserName, _painel.Locais,
+            _painel.Analises.Duplicados.Resultado);
         new JanelaRelatorio(relatorio, () => _ultimaSelecao?.Cast<object>().ToList() ?? []) { Owner = this }.ShowDialog();
     }
 
@@ -285,27 +286,60 @@ public partial class JanelaPrincipal : Window
     private static object? ItemDoMenu(object sender) =>
         ((sender as MenuItem)?.Parent as ContextMenu)?.PlacementTarget is FrameworkElement { DataContext: var linha } ? linha : null;
 
+    // O arquivo da linha em que o menu foi aberto, seja de Maiores, Antigos ou Duplicados.
+    private static ArquivoEncontrado? ArquivoDoMenu(object sender) => ItemDoMenu(sender) switch
+    {
+        LinhaArquivo l => l.Encontrado,
+        LinhaDuplicado d => d.Encontrado,
+        _ => null,
+    };
+
+    private async void AoProcurarDuplicados(object sender, RoutedEventArgs e)
+    {
+        if (_painel.Estado != EstadoPainel.Parado || _painel.PastaDasAnalises(Tabela.SelectedItem as LinhaArvore) is not { } pasta)
+        {
+            MessageBox.Show(this, "Varra a pasta primeiro e espere o fim da varredura.", "MapDisk - MT", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        await _painel.Analises.Duplicados.ProcurarAsync(pasta);
+    }
+
+    private void AoCancelarDuplicados(object sender, RoutedEventArgs e) => _painel.Analises.Duplicados.Cancelar();
+
+    private void AoSelecionarCopias(object sender, RoutedEventArgs e)
+    {
+        var copias = _painel.Analises.Duplicados.Copias().ToHashSet();
+        ListaDuplicados.SelectedItems.Clear();
+        foreach (var linha in ListaDuplicados.Items.Cast<LinhaDuplicado>().Where(copias.Contains))
+        {
+            ListaDuplicados.SelectedItems.Add(linha);
+        }
+
+        ListaDuplicados.Focus();
+    }
+
     private void AoMostrarArquivoNoExplorer(object sender, RoutedEventArgs e)
     {
-        if (ItemDoMenu(sender) is LinhaArquivo linha)
+        if (ArquivoDoMenu(sender) is { } arquivo)
         {
-            Shell.MostrarNoExplorer(linha.Caminho, ehArquivo: true);
+            Shell.MostrarNoExplorer(arquivo.Caminho, ehArquivo: true);
         }
     }
 
     private void AoCopiarCaminhoDoArquivo(object sender, RoutedEventArgs e)
     {
-        if (ItemDoMenu(sender) is LinhaArquivo linha)
+        if (ArquivoDoMenu(sender) is { } arquivo)
         {
-            Shell.CopiarCaminho(linha.Caminho);
+            Shell.CopiarCaminho(arquivo.Caminho);
         }
     }
 
     private void AoAbrirPastaDoArquivo(object sender, RoutedEventArgs e)
     {
-        if (ItemDoMenu(sender) is LinhaArquivo linha)
+        if (ArquivoDoMenu(sender) is { } arquivo)
         {
-            _painel.AbrirAqui(linha.Encontrado.Pasta);
+            _painel.AbrirAqui(arquivo.Pasta);
         }
     }
 
