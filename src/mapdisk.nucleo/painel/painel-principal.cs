@@ -35,6 +35,7 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         Executor = new ExecutorAcoes(dependencias.Operacoes, dependencias.Registro);
         LocalDoRegistro = dependencias.Registro.Local;
         Locais = dependencias.Locais;
+        Analises = new PainelAnalises(dependencias.Leitor);
         Unidades = _listarUnidades();
         TextoAlvo = Unidades.FirstOrDefault()?.Raiz ?? string.Empty;
         MontarOpcoes();
@@ -164,7 +165,7 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
 
     public void LimparErro() => Erro = null;
 
-    public PainelAnalises Analises { get; } = new();
+    public PainelAnalises Analises { get; }
 
     /// <summary>
     /// Quantas varreduras terminaram. A janela compara com o último número visto para recalcular
@@ -257,6 +258,8 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         {
             Arvore.Remover(r.Item);
         }
+
+        Analises.Duplicados.Tirar(resumo.Resultados.Where(r => r.Ok).Select(r => r.Item));
 
         switch (pedido.Acao)
         {

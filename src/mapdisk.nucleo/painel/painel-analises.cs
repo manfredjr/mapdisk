@@ -25,6 +25,11 @@ public sealed class PainelAnalises : INotifyPropertyChanged
 
     private NoPasta? _pasta;
 
+    public PainelAnalises(ILeitorConteudo? leitor = null) => Duplicados = new PainelDuplicados(leitor ?? new LeitorConteudo());
+
+    /// <summary>A aba Duplicados. O resultado diz de qual pasta é e só some numa nova varredura.</summary>
+    public PainelDuplicados Duplicados { get; }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public AbaAnalise Aba { get; private set; }
@@ -67,6 +72,7 @@ public sealed class PainelAnalises : INotifyPropertyChanged
         Categorias = Extensoes = Usuarios = [];
         TextoAntigos = TextoUsuarios = string.Empty;
         Grafico.Limpar();
+        Duplicados.Limpar();
         Avisar();
     }
 

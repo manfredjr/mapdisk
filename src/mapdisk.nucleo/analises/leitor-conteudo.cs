@@ -42,8 +42,12 @@ public sealed class LeitorConteudo : ILeitorConteudo
     }
 }
 
-/// <summary>Demonstração: não abre arquivo. O resumo é o tamanho, então arquivos de mesmo tamanho viram grupo.</summary>
-public sealed class LeitorDemonstracao(Func<string, long> tamanhoDe) : ILeitorConteudo
+/// <summary>
+/// Demonstração: não abre arquivo. O resumo é o nome; como a primeira etapa já separou por
+/// tamanho, arquivos de mesmo nome e mesmo tamanho viram grupo.
+/// </summary>
+public sealed class LeitorDemonstracao : ILeitorConteudo
 {
-    public byte[] Resumo(string caminho, long bytes, CancellationToken cancelar) => BitConverter.GetBytes(tamanhoDe(caminho));
+    public byte[] Resumo(string caminho, long bytes, CancellationToken cancelar) =>
+        SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(Path.GetFileName(caminho)));
 }

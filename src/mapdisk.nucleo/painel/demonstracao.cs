@@ -19,6 +19,7 @@ public static class Demonstracao
         ListarUnidades = () => [_volume],
         Operacoes = new OperacoesDemonstracao(),
         Registro = new RegistroEmMemoria(),
+        Leitor = new LeitorDemonstracao(),
         Demonstracao = true,
     });
 
@@ -50,7 +51,8 @@ public static class Demonstracao
         Encher(publico, d, ("Documents", 1 * Gb, 40));
         Encher(windows, d, ("System32", 9 * Gb, 19000), ("WinSxS", 11 * Gb, 60000), ("Temp", 3 * Gb, 2400));
         Encher(programas, d, ("Office", 4 * Gb, 5600), ("Sistemas", 7 * Gb, 9800));
-        Encher(dados, d, ("Backup", 120 * Gb, 48), ("Fotos", 31 * Gb, 15000));
+        // "Backup antigo" repete dois arquivos de "Backup", para a aba Duplicados mostrar grupos.
+        Encher(dados, d, ("Backup", 120 * Gb, 48), ("Fotos", 31 * Gb, 15000), ("Backup antigo", 5 * Gb, 2));
         return raiz;
     }
 
@@ -79,7 +81,7 @@ public static class Demonstracao
         "Fotos" => ".jpg",
         "Downloads" => ".zip",
         "Documents" or "Desktop" => ".pdf",
-        "Backup" => ".bak",
+        "Backup" or "Backup antigo" => ".bak",
         "Office" or "Sistemas" => ".dll",
         "AppData" => ".pst",
         _ => ".dat",
