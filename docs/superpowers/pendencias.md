@@ -67,5 +67,5 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 | Hard link apagado que deixa a outra cópia sem somar | Se o item apagado era a cópia que somava, a outra continua marcada como repetida até a próxima varredura | Aceito. Atualizar a pasta resolve |
 | Botão "Registro de ações" no cartão das pastas | A tela de Opções ainda não existe | Tela de Opções da fatia 7 |
 | Permissões (ACL) no mover entre unidades | A cópia recebe as permissões da pasta de destino, como no Explorer | Aceito |
-| Teste da Lixeira real, da exclusão em rede e do mover pela janela | A Lixeira leva o arquivo para fora da pasta do projeto e o programa real grava o registro em `%LOCALAPPDATA%`. O agente testou pela janela só em demonstração | Teste do Manfred no PR da fatia 5 |
+| Teste da Lixeira real, da exclusão em rede e do mover pela janela | A Lixeira leva o arquivo para fora da pasta do projeto e o programa real grava o registro em `%LOCALAPPDATA%`. O agente testou pela janela só em demonstração | Fechado: o Manfred testou no PR #10 em 30/09/2026 |
 
