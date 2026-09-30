@@ -160,6 +160,12 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
 
     public PainelAnalises Analises { get; } = new();
 
+    /// <summary>
+    /// Quantas varreduras terminaram. A janela compara com o último número visto para recalcular
+    /// as análises: uma varredura rápida começa e termina entre duas batidas do relógio.
+    /// </summary>
+    public int VarredurasConcluidas { get; private set; }
+
     /// <summary>A pasta que as análises mostram: a selecionada, ou a raiz mostrada.</summary>
     public NoPasta? PastaDasAnalises(LinhaArvore? selecionada) =>
         selecionada is { Tipo: TipoLinha.Pasta, Pasta.Estado: EstadoPasta.Lida } linha ? linha.Pasta : Arvore.Raiz;
@@ -257,6 +263,8 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     {
         var varredura = _varredura!;
         _varredura = null;
+
+        VarredurasConcluidas++;
 
         // Primeiro o estado, depois qualquer aviso: os botões voltam ao normal antes da caixa de erro.
         Estado = EstadoPainel.Parado;

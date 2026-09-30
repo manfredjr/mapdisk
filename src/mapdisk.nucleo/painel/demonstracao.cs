@@ -52,16 +52,30 @@ public static class Demonstracao
         pasta.Preencher([], subpastas);
         for (var i = 0; i < filhas.Length; i++)
         {
-            var (_, bytes, quantos) = filhas[i];
+            var (nome, bytes, quantos) = filhas[i];
+            var extensao = Extensao(nome);
             var cada = bytes / quantos;
             var alocado = (cada + 4095) / 4096 * 4096;
             subpastas[i].Preencher(
                 Enumerable.Range(1, quantos)
-                    .Select(n => new ArquivoInfo($"arquivo-{n:D5}.dat", cada, alocado, data.AddDays(-n), MarcaArquivo.Nenhuma))
+                    .Select(n => new ArquivoInfo($"arquivo-{n:D5}{extensao}", cada, alocado, data.AddDays(-n), MarcaArquivo.Nenhuma))
                     .ToArray(),
                 []);
         }
     }
+
+    // Extensão de exemplo conforme a pasta, para o resumo por tipo da demonstração ter categorias.
+    private static string Extensao(string pasta) => pasta switch
+    {
+        "Videos" => ".mp4",
+        "Fotos" => ".jpg",
+        "Downloads" => ".zip",
+        "Documents" or "Desktop" => ".pdf",
+        "Backup" => ".bak",
+        "Office" or "Sistemas" => ".dll",
+        "AppData" => ".pst",
+        _ => ".dat",
+    };
 
     private sealed class MotorDemonstracao : IMotorVarredura
     {
