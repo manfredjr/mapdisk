@@ -59,6 +59,7 @@ O fluxo de trabalho que o programa atende:
 | R17 | Exportação em HTML com a marca da MT (imprimível em PDF pelo navegador) e em CSV |
 | R18 | Linha de comando para varrer e gerar relatório sem abrir a janela |
 | R19 | Item "Analisar com MapDisk" no menu de contexto de pastas e unidades do Explorer, ligado e desligado em Opções, sem administrador |
+| R20 | Relatório para o cliente avaliar o que pode ser apagado ou movido, com leitura da resposta. Desenho em `2026-09-30-relatorio-cliente-design.md` (acrescentado em 30/09/2026) |
 
 ## 5. Arquitetura
 
@@ -194,10 +195,11 @@ A linha de comando não tem ação de mover nem de apagar.
 | 3 | Painel de análise: maiores arquivos, arquivos antigos, por tipo, por usuário (R11 a R14) |
 | 4 | Gráficos: treemap e pizza (R10) |
 | 5 | Ações seguras: Lixeira, mover, exclusão em rede, proteção, registro, "Liberado nesta sessão" (R16, R9 completo) |
-| 6 | Duplicados (R15) |
-| 7 | Relatório HTML com a marca da MT, integração ao Explorer e página `public/` (R17, R19, R18 completo) |
+| 6 | Relatório para o cliente avaliar, com leitura da resposta (R20). Acrescentada em 30/09/2026 |
+| 7 | Duplicados (R15) |
+| 8 | Relatório HTML com a marca da MT, integração ao Explorer e página `public/` (R17, R19, R18 completo) |
 
-A ordem das fatias 3 a 7 pode mudar por decisão do Manfred.
+A ordem das fatias 3 a 8 pode mudar por decisão do Manfred. Em 30/09/2026, o Manfred pôs o relatório para o cliente como fatia 6 e passou os duplicados para a 7.
 
 ## 12. Prioridade dos testes
 
