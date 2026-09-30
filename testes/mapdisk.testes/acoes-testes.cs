@@ -243,4 +243,106 @@ public class AcoesTestes
         Assert.True(File.Exists(arquivo));
         Assert.Null(ops.Mudanca(ItemDoDisco(arquivo)));
     }
+
+    private sealed class OperacoesFalsas : IOperacoesArquivo
+    {
+        public List<string> Feitas { get; } = [];
+
+        public HashSet<string> FalharEm { get; } = [];
+
+        public string? Mudanca(ItemAcao item) => null;
+
+        public long? Livre(string pasta) => long.MaxValue;
+
+        public bool MesmoVolume(string origem, string pastaDestino) => true;
+
+        public void EnviarParaLixeira(string caminho) => Fazer("lixeira", caminho);
+
+        public void ExcluirDefinitivo(string caminho, bool ehPasta) => Fazer("excluir", caminho);
+
+        public void Mover(string origem, string pastaDestino, bool ehPasta, CancellationToken cancelar) => Fazer("mover", origem);
+
+        private void Fazer(string acao, string caminho)
+        {
+            if (FalharEm.Contains(caminho))
+            {
+                throw new IOException("em uso");
+            }
+
+            Feitas.Add($"{acao} {caminho}");
+        }
+    }
+
+    private sealed class RegistroQueFalha : IRegistroAcoes
+    {
+        public string Local => "nenhum";
+
+        public void Gravar(TipoAcao acao, string origem, string? destino, long bytes, string resultado) =>
+            throw new IOException("disco cheio");
+    }
+
+    private static IReadOnlyList<ItemAcao> ItensDoExemplo()
+    {
+        var bruno = AnalisesTestes.Exemplo().Subpastas[0].Subpastas[1];
+        return [ItemAcao.DoArquivo(bruno, bruno.Arquivos[0]), ItemAcao.DoArquivo(bruno, bruno.Arquivos[1])];
+    }
+
+    [Fact]
+    public void Executor_registra_antes_e_depois_e_segue_depois_de_uma_falha()
+    {
+        var ops = new OperacoesFalsas();
+        ops.FalharEm.Add(@"C:\Users\bruno\caixa.pst");
+        var registro = new RegistroEmMemoria();
+
+        var r = new ExecutorAcoes(ops, registro).Executar(new PedidoAcao(TipoAcao.Lixeira, ItensDoExemplo(), null), null, CancellationToken.None);
+
+        Assert.Equal([@"lixeira C:\Users\bruno\setup.exe"], ops.Feitas);
+        Assert.Equal(1, r.Ok);
+        Assert.Equal(1, r.Falhas);
+        Assert.Equal("falhou: em uso", r.Resultados[0].Resultado);
+        Assert.Equal(100, r.BytesOk);
+        Assert.Equal(
+            [
+                @"Lixeira|C:\Users\bruno\caixa.pst||2000|iniciado",
+                @"Lixeira|C:\Users\bruno\caixa.pst||2000|falhou: em uso",
+                @"Lixeira|C:\Users\bruno\setup.exe||100|iniciado",
+                @"Lixeira|C:\Users\bruno\setup.exe||100|ok",
+            ],
+            registro.Linhas);
+    }
+
+    [Fact]
+    public void Sem_registro_nada_e_feito()
+    {
+        var ops = new OperacoesFalsas();
+
+        var r = new ExecutorAcoes(ops, new RegistroQueFalha()).Executar(new PedidoAcao(TipoAcao.Excluir, ItensDoExemplo(), null), null, CancellationToken.None);
+
+        Assert.Empty(ops.Feitas);
+        Assert.True(r.RegistroFalhou);
+        Assert.Empty(r.Resultados);
+    }
+
+    [Fact]
+    public void Cancelar_para_antes_do_proximo_item()
+    {
+        var ops = new OperacoesFalsas();
+        using var cancelar = new CancellationTokenSource();
+        cancelar.Cancel();
+
+        var r = new ExecutorAcoes(ops, new RegistroEmMemoria()).Executar(new PedidoAcao(TipoAcao.Mover, ItensDoExemplo(), @"D:\Arquivo"), null, cancelar.Token);
+
+        Assert.True(r.Cancelada);
+        Assert.Empty(ops.Feitas);
+    }
+
+    [Fact]
+    public async Task Executar_async_roda_numa_thread_sta()
+    {
+        var ops = new OperacoesFalsas();
+
+        var r = await new ExecutorAcoes(ops, new RegistroEmMemoria()).ExecutarAsync(new PedidoAcao(TipoAcao.Lixeira, ItensDoExemplo(), null), null, CancellationToken.None);
+
+        Assert.Equal(2, r.Ok);
+    }
 }
