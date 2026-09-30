@@ -127,4 +127,40 @@ public class GraficoTestes
         Assert.Empty(Treemap.Dispor([], 300, 200));
         Assert.Empty(Treemap.Dispor([10, 5], 0, 200));
     }
+
+    [Fact]
+    public void Fatias_somam_uma_volta_proporcional_aos_valores()
+    {
+        var f = Pizza.Fatias([30, 10], 100);
+
+        Assert.Equal(0, f[0].Inicio, 6);
+        Assert.Equal(270, f[0].Fim, 6);
+        Assert.Equal(270, f[1].Inicio, 6);
+        Assert.Equal(360, f[1].Fim, 6);
+    }
+
+    [Fact]
+    public void Caminho_da_fatia_no_formato_do_wpf()
+    {
+        var f = Pizza.Fatias([1, 1], 50);
+
+        Assert.Equal("M 50,50 L 50,0 A 50,50 0 0 1 50,100 Z", f[0].Caminho);
+        Assert.Equal("M 50,50 L 50,100 A 50,50 0 0 1 50,0 Z", f[1].Caminho);
+    }
+
+    [Fact]
+    public void Fatia_maior_que_meia_volta_usa_o_arco_grande()
+    {
+        var f = Pizza.Fatias([3, 1], 50);
+
+        Assert.Equal("M 50,50 L 50,0 A 50,50 0 1 1 0,50 Z", f[0].Caminho);
+    }
+
+    [Fact]
+    public void Um_item_so_e_o_circulo_inteiro()
+    {
+        var f = Pizza.Fatias([7], 50);
+
+        Assert.Equal("M 50,0 A 50,50 0 1 1 50,100 A 50,50 0 1 1 50,0 Z", Assert.Single(f).Caminho);
+    }
 }
