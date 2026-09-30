@@ -34,6 +34,7 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         Acoes = new PreparadorAcoes(dependencias.Locais, dependencias.TipoDaUnidade, dependencias.Operacoes, dependencias.Demonstracao);
         Executor = new ExecutorAcoes(dependencias.Operacoes, dependencias.Registro);
         LocalDoRegistro = dependencias.Registro.Local;
+        Locais = dependencias.Locais;
         Unidades = _listarUnidades();
         TextoAlvo = Unidades.FirstOrDefault()?.Raiz ?? string.Empty;
         MontarOpcoes();
@@ -217,6 +218,9 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     public ExecutorAcoes Executor { get; }
 
     public string LocalDoRegistro { get; }
+
+    /// <summary>O que as ações bloqueiam. O relatório para o cliente usa a mesma lista.</summary>
+    public LocaisProtegidos Locais { get; }
 
     public AvaliacaoSelecao Selecao { get; private set; } = new([], "Selecione pastas ou arquivos na árvore ou nas listas.", TipoAcao.Lixeira);
 

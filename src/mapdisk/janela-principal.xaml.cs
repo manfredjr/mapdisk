@@ -153,6 +153,78 @@ public partial class JanelaPrincipal : Window
         }
     }
 
+    private void AoAbrirMenuRelatorio(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { ContextMenu: { } menu } botao)
+        {
+            menu.PlacementTarget = botao;
+            menu.IsOpen = true;
+        }
+    }
+
+    private void AoGerarRelatorio(object sender, RoutedEventArgs e)
+    {
+        if (_painel.Arvore.Raiz is not { } raiz || _painel.Estado != EstadoPainel.Parado)
+        {
+            MessageBox.Show(this, "Varra a pasta primeiro e espere o fim da varredura.", "MapDisk - MT",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var relatorio = new PainelRelatorio(raiz, Volumes.Ler(raiz.CaminhoCompleto())?.Livre, Environment.UserName, _painel.Locais);
+        new JanelaRelatorio(relatorio, () => _ultimaSelecao?.Cast<object>().ToList() ?? []) { Owner = this }.ShowDialog();
+    }
+
+    private void AoLerResposta(object sender, RoutedEventArgs e)
+    {
+        var raiz = _painel.Arvore.Raiz;
+        while (raiz?.Pai is { } pai)
+        {
+            raiz = pai;
+        }
+
+        if (raiz is null || _painel.Estado != EstadoPainel.Parado)
+        {
+            MessageBox.Show(this, "Varra a pasta do relatório antes de ler a resposta.", "MapDisk - MT",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        new JanelaResposta(new PainelResposta(raiz), AgirSobre) { Owner = this }.ShowDialog();
+    }
+
+    // Itens vindos da resposta do cliente: as mesmas regras e a mesma confirmação da seleção.
+    private async Task AgirSobre(IReadOnlyList<ItemAcao> itens, bool mover)
+    {
+        _painel.AvaliarItens(itens);
+        if (!_painel.PodeRemover)
+        {
+            MessageBox.Show(this, _painel.MotivoBloqueio, "MapDisk - MT", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        if (!mover)
+        {
+            await Agir(new PedidoAcao(_painel.Selecao.Remocao, _painel.Selecao.Itens, null));
+            return;
+        }
+
+        var selecionados = _painel.Selecao.Itens;
+        var dialogo = new OpenFolderDialog { Title = "Escolha a pasta de destino" };
+        if (dialogo.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        if (_painel.Acoes.BloqueioDestino(selecionados, dialogo.FolderName) is { } bloqueio)
+        {
+            MessageBox.Show(this, bloqueio, "MapDisk - MT", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        await Agir(new PedidoAcao(TipoAcao.Mover, selecionados, dialogo.FolderName));
+    }
+
     private void AoAbrirRegistro(object sender, RoutedEventArgs e)
     {
         if (File.Exists(_painel.LocalDoRegistro))

@@ -415,4 +415,20 @@ public class RelatorioClienteTestes
         Assert.Equal([1], p.NumerosDe(Decisao.Apagar));
         Assert.Equal(@"Nenhum item foi encontrado na varredura atual. Varra a pasta do relatório antes: C:\", p.Aviso);
     }
+
+    [Fact]
+    public void Lista_com_protecao_deixa_fora_o_que_as_acoes_bloqueiam()
+    {
+        var raiz = AnalisesTestes.Exemplo();
+        var locais = new LocaisProtegidos([@"C:\Users"], @"E:\registro");
+        var lista = new ListaAvaliacao(locais);
+        var sistema = new ArquivoInfo("pagefile.sys", 9000, 9000, new DateTime(2020, 1, 1), MarcaArquivo.Sistema);
+        var pasta = new NoPasta(@"D:\", null);
+        pasta.Preencher([sistema], []);
+
+        Sugestao.Sugerir(lista, raiz, new CriteriosSugestao(TamanhoMinimo: 1), AnalisesTestes.Hoje);
+        lista.Acrescentar(ItemAcao.DoArquivo(pasta, sistema), Sugestao.EscolhidoPeloTecnico);
+
+        Assert.Equal(["video.mp4"], lista.Itens.Select(i => i.Item.Nome));
+    }
 }

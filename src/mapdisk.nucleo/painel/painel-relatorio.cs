@@ -10,10 +10,11 @@ public sealed class PainelRelatorio : INotifyPropertyChanged
 {
     private readonly NoPasta _pasta;
     private readonly long? _livre;
-    private readonly ListaAvaliacao _lista = new();
+    private readonly ListaAvaliacao _lista;
 
-    public PainelRelatorio(NoPasta pasta, long? livre, string tecnico)
+    public PainelRelatorio(NoPasta pasta, long? livre, string tecnico, LocaisProtegidos? locais = null)
     {
+        _lista = new ListaAvaliacao(locais);
         _pasta = pasta;
         _livre = livre;
         Tecnico = tecnico;

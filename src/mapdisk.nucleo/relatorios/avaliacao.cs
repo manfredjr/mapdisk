@@ -49,9 +49,11 @@ public sealed record ItemAvaliacao(int Numero, ItemAcao Item, string Motivo)
 
 /// <summary>
 /// Os candidatos que o cliente vai avaliar. Pasta sem leitura não entra (regra 3). O que está
-/// dentro de uma pasta da lista não entra de novo: a decisão sobre a pasta já o leva.
+/// dentro de uma pasta da lista não entra de novo: a decisão sobre a pasta já o leva. Com os
+/// locais protegidos, o que as ações bloqueiam também não entra: o cliente não decide sobre o
+/// que não pode ser feito.
 /// </summary>
-public sealed class ListaAvaliacao
+public sealed class ListaAvaliacao(LocaisProtegidos? locais = null)
 {
     private readonly List<(ItemAcao Item, List<string> Motivos)> _itens = [];
 
@@ -65,6 +67,11 @@ public sealed class ListaAvaliacao
     public void Acrescentar(ItemAcao item, string motivo)
     {
         if (item.EhPasta && item.Pasta.Estado != EstadoPasta.Lida)
+        {
+            return;
+        }
+
+        if (locais is not null && Protecao.Motivo(item.Caminho, item.EhPasta, item.Marcas, locais) is not null)
         {
             return;
         }

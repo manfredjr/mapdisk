@@ -77,4 +77,15 @@ public class RecursosTestes
         Assert.Contains("x:Name=\"CampoExcluir\"", confirmacao);
         Assert.Contains("IsCancel=\"True\"", confirmacao);
     }
+
+    [Fact]
+    public void Janela_tem_o_relatorio_para_o_cliente()
+    {
+        var janela = File.ReadAllText(App("janela-principal.xaml"));
+        Assert.Contains("Click=\"AoAbrirMenuRelatorio\"", janela);
+        Assert.Contains("Click=\"AoGerarRelatorio\"", janela);
+        Assert.Contains("Click=\"AoLerResposta\"", janela);
+        Assert.True(File.Exists(App("janela-relatorio.xaml")));
+        Assert.True(File.Exists(App("janela-resposta.xaml")));
+    }
 }
