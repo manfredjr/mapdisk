@@ -158,4 +158,31 @@ public class RelatorioClienteTestes
         Assert.DoesNotContain("<script>x</script>", html);
         Assert.Contains("A &amp; B", html);
     }
+
+    [Fact]
+    public void Planilha_tem_as_duas_abas_e_a_lista_de_opcoes()
+    {
+        using var pasta = new PastaTeste();
+        var arquivo = pasta.Caminho("avaliacao.xlsx");
+
+        PlanilhaAvaliacao.Gravar(Exemplo(), arquivo);
+
+        using var zip = System.IO.Compression.ZipFile.OpenRead(arquivo);
+        var livro = LerEntrada(zip, "xl/workbook.xml");
+        Assert.Contains("name=\"Avaliação\"", livro);
+        Assert.Contains("name=\"Controle\" sheetId=\"2\" state=\"hidden\"", livro);
+        var aba = LerEntrada(zip, "xl/worksheets/sheet1.xml");
+        Assert.Contains("<formula1>\"Apagar,Mover,Manter,Conversar\"</formula1>", aba);
+        Assert.Contains("sqref=\"I11:I12\"", aba);
+        Assert.Contains("Cliente Exemplo", aba);
+        var controle = LerEntrada(zip, "xl/worksheets/sheet2.xml");
+        Assert.Contains("20260930-140509", controle);
+        Assert.Contains(new DateTime(2023, 1, 10).Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture), controle);
+    }
+
+    internal static string LerEntrada(System.IO.Compression.ZipArchive zip, string nome)
+    {
+        using var leitor = new StreamReader(zip.GetEntry(nome)!.Open());
+        return leitor.ReadToEnd();
+    }
 }
