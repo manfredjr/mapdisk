@@ -206,7 +206,7 @@ public class DuplicadosTestes
     [Fact]
     public async Task Demonstracao_mostra_os_dois_grupos_sem_abrir_arquivo()
     {
-        var raiz = Demonstracao.Motor().Iniciar(@"C:\", CancellationToken.None).Conclusao.GetAwaiter().GetResult().Raiz;
+        var raiz = (await Demonstracao.Motor().Iniciar(@"C:\", CancellationToken.None).Conclusao).Raiz;
 
         var r = await Duplicados.ProcurarAsync(raiz, new OpcoesDuplicados(), new LeitorDemonstracao(), null, CancellationToken.None);
 
