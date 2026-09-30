@@ -345,4 +345,74 @@ public class RelatorioClienteTestes
 
         Assert.Equal([Decisao.SemDecisao, Decisao.Apagar], nova.Itens.Select(i => i.Decisao));
     }
+
+    [Fact]
+    public void Painel_do_relatorio_monta_a_lista_e_pede_o_cliente()
+    {
+        var arvore = ArvoreAberta();
+        var p = new PainelRelatorio(arvore.Raiz!, null, "tecnico");
+
+        Assert.Equal("Monte a lista com Sugerir ou Acrescentar a seleção.", p.MotivoParaNaoGerar);
+        p.AcrescentarSelecao([LinhaDe(arvore, "bruno")]);
+        Assert.Equal("Escreva o nome do cliente.", p.MotivoParaNaoGerar);
+        p.Cliente = "Cliente Exemplo";
+        Assert.Null(p.MotivoParaNaoGerar);
+        Assert.Equal("bruno", p.Linhas[0].Nome);
+        Assert.Equal(Sugestao.EscolhidoPeloTecnico, p.Linhas[0].Motivo);
+        Assert.Equal("1 item, 2,1 KB", p.TextoTotal);
+    }
+
+    [Fact]
+    public void Painel_do_relatorio_grava_a_pagina_e_a_planilha()
+    {
+        using var pasta = new PastaTeste();
+        var arvore = ArvoreAberta();
+        var p = new PainelRelatorio(arvore.Raiz!, null, "tecnico") { Cliente = "Cliente Exemplo" };
+        p.AcrescentarSelecao([LinhaDe(arvore, "bruno")]);
+        var agora = new DateTime(2026, 9, 30, 14, 5, 9);
+
+        var (pagina, planilha) = p.Gerar(pasta.Caminho(p.NomeSugerido(agora) + ".html"), agora);
+
+        Assert.EndsWith("avaliacao-c-2026-09-30.html", pagina);
+        Assert.EndsWith("avaliacao-c-2026-09-30.xlsx", planilha);
+        Assert.True(File.Exists(pagina) && File.Exists(planilha));
+    }
+
+    [Fact]
+    public void Painel_da_resposta_agrupa_e_da_os_itens_para_agir()
+    {
+        using var pasta = new PastaTeste();
+        var raiz = AnalisesTestes.Exemplo();
+        var arquivo = pasta.Caminho("r.json");
+        var video = raiz.Arquivos[0];
+        File.WriteAllText(arquivo, $$"""
+            {"formato":"mapdisk-avaliacao-resposta","versao":1,"relatorio":"20260930-140509","decididoPor":"Ana","data":"2026-10-01",
+             "itens":[{"numero":1,"caminho":"C:\\video.mp4","bytes":"{{video.Tamanho}}","modificacao":"{{video.Modificacao.Ticks}}","decisao":"apagar","destino":"","observacao":""},
+                      {"numero":2,"caminho":"C:\\Users","bytes":"1","modificacao":"0","decisao":"conversar","destino":"","observacao":""}]}
+            """);
+        var p = new PainelResposta(raiz);
+
+        p.Ler(arquivo);
+
+        Assert.Equal("Resposta do relatório 20260930-140509, decidida por Ana em 2026-10-01", p.Cabecalho);
+        Assert.Equal("Apagar: 1 item (4,9 KB) | Mover: 0 itens | Conversar: 1 item | Manter ou sem marca: 0 itens", p.Resumo);
+        Assert.Equal([1], p.NumerosDe(Decisao.Apagar));
+        Assert.Equal("mudou depois do relatório", p.Linhas[1].Situacao);
+        Assert.Equal(["video.mp4"], p.ItensDe(p.Linhas).Select(i => i.Nome));
+    }
+
+    [Fact]
+    public void Painel_da_resposta_marca_pelos_numeros_e_avisa_sem_varredura()
+    {
+        using var pasta = new PastaTeste();
+        var arquivo = pasta.Caminho("r.xlsx");
+        PlanilhaAvaliacao.Gravar(Exemplo(), arquivo);
+        var p = new PainelResposta(new NoPasta(@"D:\", null));
+
+        p.Ler(arquivo);
+        p.MarcarPorNumeros("1", Decisao.Apagar);
+
+        Assert.Equal([1], p.NumerosDe(Decisao.Apagar));
+        Assert.Equal(@"Nenhum item foi encontrado na varredura atual. Varra a pasta do relatório antes: C:\", p.Aviso);
+    }
 }
