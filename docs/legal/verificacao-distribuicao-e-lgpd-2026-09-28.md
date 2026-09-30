@@ -130,3 +130,15 @@ Nenhuma. Os pontos que dependiam de parecer (relação de consumo na distribuiç
 
 **RECOMENDAÇÃO aplicada.** A janela Sobre mostra o aviso de copyright, o aviso de software livre (tradução do aviso sugerido pela GPL, só com "versão 3", sem a cláusula "ou posterior", que não foi decidida) e o texto "Licença e garantias" da seção 5 sem mudança. O texto integral da licença vai embutido no programa e abre pelo botão "Ver a licença", sem internet. O texto "Licença e garantias" já cita apagar e mover, que chegam na fatia 5. Fica sem mudança porque nenhuma versão é publicada antes da fatia 7, e a versão publicada terá essas ações.
 
+## 9. Exclusão em unidade sem Lixeira garantida (acréscimo de 30/09/2026)
+
+**Contexto.** A fatia 5 limita a Lixeira à unidade fixa local, decisão aprovada pelo Manfred no PR #9. Em unidade removível ou mapeada, a ação vira exclusão definitiva, como na rede, e a confirmação precisa de uma variante do texto aprovado da seção 5.
+
+**INTERPRETAÇÃO.** A variante cumpre a mesma função da seção 4.5: diz o risco na hora da decisão e mantém a frase de que os itens só voltam por cópia de segurança. A redação "Esta unidade não tem Lixeira" seria inexata: algumas unidades removíveis formatadas em NTFS têm Lixeira, e quem decide não usá-la é o programa. Informação sobre risco precisa ser correta (CDC, art. 6º, III, já verificado na seção 4.5).
+
+**RECOMENDAÇÃO aplicada.** Texto da confirmação em unidade removível ou mapeada:
+
+> Excluir definitivamente N itens (X GB) de E:\fotos? Nesta unidade, o MapDisk não usa a Lixeira. Depois de excluídos, os itens só voltam por uma cópia de segurança. Para confirmar, digite EXCLUIR.
+
+O texto de rede da seção 5 fica como está. Não há pendência de validação.
+

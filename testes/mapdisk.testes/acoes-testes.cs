@@ -402,4 +402,153 @@ public class AcoesTestes
         Assert.Same(users, arvore.Raiz);
         Assert.DoesNotContain(arvore.Linhas, l => l.Nome == "bruno");
     }
+
+    // Registro fora de C:\Users, para a pasta Users do exemplo poder ser selecionada.
+    private static PreparadorAcoes Preparador(DriveType tipo = DriveType.Fixed, bool demonstracao = false) =>
+        new(Protegidos with { PastaRegistro = @"E:\registro" }, _ => tipo, new OperacoesFalsas(), demonstracao);
+
+    private static LinhaArvore LinhaDe(ArvoreVisivel arvore, string nome) => arvore.Linhas.First(l => l.Nome == nome);
+
+    private static ArvoreVisivel ArvoreAberta()
+    {
+        var arvore = new ArvoreVisivel();
+        arvore.Carregar(AnalisesTestes.Exemplo());
+        arvore.AbrirNiveis(3);
+        return arvore;
+    }
+
+    [Fact]
+    public void Selecao_na_arvore_vira_itens_sem_repetir_o_que_esta_dentro()
+    {
+        var arvore = ArvoreAberta();
+
+        var a = Preparador().Avaliar([LinhaDe(arvore, "Users"), LinhaDe(arvore, "bruno")]);
+
+        Assert.Equal([@"C:\Users"], a.Itens.Select(i => i.Caminho));
+        Assert.Null(a.Bloqueio);
+        Assert.Equal(TipoAcao.Lixeira, a.Remocao);
+        Assert.Equal("Enviar para a Lixeira", a.TextoRemover);
+    }
+
+    [Fact]
+    public void Raiz_sistema_e_pasta_sem_leitura_bloqueiam_com_o_motivo()
+    {
+        var arvore = ArvoreAberta();
+
+        Assert.Equal(@"C:\: É a raiz da unidade.", Preparador().Avaliar([arvore.Linhas[0]]).Bloqueio);
+        Assert.Equal(@"C:\Windows: É pasta do sistema (C:\Windows).", Preparador().Avaliar([LinhaDe(arvore, "Windows")]).Bloqueio);
+
+        var raiz = new NoPasta(@"D:\", null);
+        var velha = new NoPasta("velha", raiz);
+        raiz.Preencher([], [velha]);
+        velha.MarcarSemAcesso("acesso negado");
+        var outra = new ArvoreVisivel();
+        outra.Carregar(raiz);
+        Assert.Equal("velha: pasta sem leitura. Atualize ou varra como administrador antes.",
+            Preparador().Avaliar([LinhaDe(outra, "velha")]).Bloqueio);
+    }
+
+    [Fact]
+    public void Sem_lixeira_a_remocao_vira_exclusao()
+    {
+        var arvore = ArvoreAberta();
+
+        var a = Preparador(DriveType.Removable).Avaliar([LinhaDe(arvore, "bruno")]);
+
+        Assert.Equal(TipoAcao.Excluir, a.Remocao);
+        Assert.Equal("Excluir definitivamente", a.TextoRemover);
+    }
+
+    [Fact]
+    public void Nada_selecionado_explica()
+    {
+        Assert.Equal("Selecione pastas ou arquivos na árvore ou nas listas.", Preparador().Avaliar([]).Bloqueio);
+    }
+
+    [Fact]
+    public void Confirmacao_da_lixeira_usa_o_texto_aprovado()
+    {
+        var arvore = ArvoreAberta();
+        var itens = Preparador().Avaliar([LinhaDe(arvore, "bruno")]).Itens;
+
+        var c = Preparador().Confirmar(new PedidoAcao(TipoAcao.Lixeira, itens, null));
+
+        Assert.Equal("Enviar 1 item (2,1 KB) para a Lixeira de C:? Eles podem ser restaurados pela Lixeira enquanto ela não for esvaziada.", c.Texto);
+        Assert.False(c.PedeExcluir);
+        Assert.Contains("É a pasta de perfil de um usuário. Apagar a pasta não remove a conta do Windows.", c.Avisos);
+    }
+
+    [Fact]
+    public void Confirmacao_da_exclusao_pede_excluir()
+    {
+        var arvore = ArvoreAberta();
+        var itens = Preparador().Avaliar([LinhaDe(arvore, "bruno")]).Itens;
+
+        var c = Preparador().Confirmar(new PedidoAcao(TipoAcao.Excluir, itens, null));
+
+        Assert.True(c.PedeExcluir);
+        Assert.Equal("Excluir definitivamente", c.TextoBotao);
+        Assert.Equal(@"Excluir definitivamente 1 item (2,1 KB) de C:\Users? Nesta unidade, o MapDisk não usa a Lixeira. Depois de excluídos, os itens só voltam por uma cópia de segurança. Para confirmar, digite EXCLUIR.", c.Texto);
+    }
+
+    [Fact]
+    public void Confirmacao_da_exclusao_em_rede_usa_o_texto_aprovado()
+    {
+        var raiz = new NoPasta(@"\\servidor\dados", null);
+        var velha = new NoPasta("velha", raiz);
+        raiz.Preencher([], [velha]);
+        velha.Preencher([new ArquivoInfo("a.bin", 1024, 1024, new DateTime(2020, 1, 1), MarcaArquivo.Nenhuma)], []);
+
+        var c = Preparador().Confirmar(new PedidoAcao(TipoAcao.Excluir, [ItemAcao.DaPasta(velha)], null));
+
+        Assert.Equal(@"Excluir definitivamente 1 item (1,0 KB) de \\servidor\dados? Pastas de rede não têm Lixeira. Depois de excluídos, os itens só voltam por uma cópia de segurança. Para confirmar, digite EXCLUIR.", c.Texto);
+    }
+
+    [Fact]
+    public void Confirmacao_na_demonstracao_avisa()
+    {
+        var arvore = ArvoreAberta();
+        var itens = Preparador().Avaliar([LinhaDe(arvore, "bruno")]).Itens;
+
+        var c = Preparador(demonstracao: true).Confirmar(new PedidoAcao(TipoAcao.Lixeira, itens, null));
+
+        Assert.Contains("Modo de demonstração: nada é apagado nem movido.", c.Avisos);
+    }
+
+    [Fact]
+    public void Destino_dentro_do_item_ou_na_mesma_pasta_e_bloqueado()
+    {
+        var arvore = ArvoreAberta();
+        var itens = Preparador().Avaliar([LinhaDe(arvore, "bruno")]).Itens;
+
+        Assert.Equal("O destino fica dentro de bruno.", Preparador().BloqueioDestino(itens, @"C:\Users\bruno\sub"));
+        Assert.Equal("Os itens já estão nesta pasta.", Preparador().BloqueioDestino(itens, @"C:\Users"));
+        Assert.Equal(@"Destino: É pasta do sistema (C:\Windows).", Preparador().BloqueioDestino(itens, @"C:\Windows\Temp"));
+        Assert.Null(Preparador().BloqueioDestino(itens, @"D:\Arquivo"));
+    }
+
+    private sealed class OperacoesSemEspaco : IOperacoesArquivo
+    {
+        public string? Mudanca(ItemAcao item) => null;
+
+        public long? Livre(string pasta) => 1000;
+
+        public bool MesmoVolume(string origem, string pastaDestino) => false;
+
+        public void EnviarParaLixeira(string caminho) => throw new InvalidOperationException();
+
+        public void ExcluirDefinitivo(string caminho, bool ehPasta) => throw new InvalidOperationException();
+
+        public void Mover(string origem, string pastaDestino, bool ehPasta, CancellationToken cancelar) => throw new InvalidOperationException();
+    }
+
+    [Fact]
+    public void Destino_sem_espaco_diz_quanto_falta()
+    {
+        var arvore = ArvoreAberta();
+        var preparador = new PreparadorAcoes(Protegidos, _ => DriveType.Fixed, new OperacoesSemEspaco(), false);
+        var itens = preparador.Avaliar([LinhaDe(arvore, "bruno")]).Itens;
+
+        Assert.Equal("Faltam 1,1 KB no destino.", preparador.BloqueioDestino(itens, @"D:\Arquivo"));
+    }
 }
