@@ -9,7 +9,7 @@ public static class Sugestao
 
     private static readonly Categoria[] QueCostumamSobrar = [Categoria.ImagemDeDisco, Categoria.CompactadoEBackup, Categoria.Instalador];
 
-    public static void Sugerir(ListaAvaliacao lista, NoPasta pasta, CriteriosSugestao criterios, DateTime hoje)
+    public static void Sugerir(ListaAvaliacao lista, NoPasta pasta, CriteriosSugestao criterios, DateTime hoje, ResultadoDuplicados? duplicados = null)
     {
         foreach (var sub in pasta.Subpastas.Where(s => s.Estado == EstadoPasta.Lida && s.Tamanho > 0).OrderByDescending(s => s.Tamanho).Take(criterios.MaioresPastas))
         {
@@ -34,6 +34,16 @@ public static class Sugestao
             if (QueCostumamSobrar.Contains(categoria))
             {
                 lista.Acrescentar(ItemAcao.DoArquivo(a.Pasta, a.Arquivo), Categorias.Nome(categoria).ToLowerInvariant());
+            }
+        }
+
+        // Cópias repetidas, se a busca de duplicados já rodou: fica a mais antiga de cada grupo.
+        foreach (var grupo in duplicados?.Grupos ?? [])
+        {
+            var manter = grupo.Mantido;
+            foreach (var copia in grupo.Arquivos.Where(a => a != manter && Protecao.Dentro(a.Caminho, pasta.CaminhoCompleto())))
+            {
+                lista.Acrescentar(ItemAcao.DoArquivo(copia.Pasta, copia.Arquivo), $"cópia repetida de {manter.Caminho}");
             }
         }
     }

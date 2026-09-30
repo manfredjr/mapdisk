@@ -214,4 +214,21 @@ public class DuplicadosTestes
         Assert.All(r.Grupos, g => Assert.Equal(2, g.Arquivos.Count));
         Assert.Equal(5L * 1024 * 1024 * 1024, r.TotalRepetido);
     }
+
+    [Fact]
+    public async Task Sugerir_acrescenta_as_copias_e_mantem_a_mais_antiga()
+    {
+        var (p, pasta) = await PainelComGrupo();
+        using (pasta)
+        {
+            var lista = new ListaAvaliacao();
+            var raiz = p.Resultado!.Pasta;
+
+            Sugestao.Sugerir(lista, raiz, new CriteriosSugestao(MaioresPastas: 0, MaioresArquivos: 0, TamanhoMinimo: long.MaxValue), DateTime.Now, p.Resultado);
+
+            Assert.Equal(["novo.bin", "novo2.bin"], lista.Itens.Select(i => i.Item.Nome).Order());
+            Assert.All(lista.Itens, i => Assert.Equal($"cópia repetida de {p.Resultado.Grupos[0].Mantido.Caminho}", i.Motivo));
+            Assert.EndsWith("velho.bin", p.Resultado.Grupos[0].Mantido.Caminho);
+        }
+    }
 }
