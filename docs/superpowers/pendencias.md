@@ -42,3 +42,11 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 | Hard link depois de "Atualizar esta pasta" | A releitura confere hard link só dentro da pasta relida. Um arquivo com outro nome fora dela passa a somar duas vezes | Aceito. Reavaliar se aparecer caso real |
 | Leitura como administrador em caminho de rede | O privilégio de backup vale só para disco local. Em `\\servidor\pasta`, quem manda são as permissões do servidor | Aceito, é como o Windows funciona |
 | Conferência da janela elevada | O aviso de elevação do Windows é confirmado pelo Manfred, não pelo agente | Teste do Manfred no PR da fatia 2 |
+
+## Fatia 3: painel de análises
+
+| Item | Motivo | O que fecha |
+|---|---|---|
+| Quantidade de maiores arquivos configurável (R11) | A fatia 3 usa 100, o padrão da spec | Tela de Opções da fatia 7 |
+| Pasta de perfis fora do padrão | O resumo por usuário procura a pasta `Users`. Perfis redirecionados para outra pasta ou compartilhamento de rede não entram | Aceito. Reavaliar se aparecer caso real |
+| Idade pela data de último acesso | "Antigo" usa a última modificação. O último acesso muitas vezes vem desligado no Windows e não é confiável | Aceito |

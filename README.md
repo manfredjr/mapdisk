@@ -21,6 +21,15 @@ Na árvore:
 - O botão direito também tem **Mostrar no Explorer**, **Copiar caminho** e **Propriedades**.
 - A lista de alvos mostra as unidades e os últimos 10 alvos usados. A lista fica só neste computador.
 
+À direita da árvore, o painel **Análises** responde "o que eu trato?" sobre a pasta selecionada:
+
+- **Maiores arquivos:** os 100 maiores.
+- **Arquivos antigos:** sem alteração há mais de 6 meses, 1, 2 ou 5 anos, com a quantidade e o total.
+- **Por tipo:** vídeo, imagem, áudio, e-mail (.pst, .ost), imagem de disco, compactado e backup, instalador, documento e outros, mais o ranking por extensão.
+- **Por usuário:** o ranking das pastas de perfil em `Users`.
+
+O botão direito numa linha tem **Mostrar no Explorer**, **Copiar caminho** e **Abrir a pasta na árvore**. As análises usam o que já foi lido, sem varrer de novo, e avisam quando há pastas sem leitura fora da conta.
+
 Linha de comando (só lê, nunca apaga nem move). O alvo é um caminho completo:
 
     mapdisk varrer C:
