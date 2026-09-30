@@ -32,6 +32,8 @@ public class RecursosTestes
         Assert.True(File.Exists(App(Path.Combine("recursos", "mt-logo.png"))));
         var janela = File.ReadAllText(App("janela-principal.xaml"));
         Assert.Contains("component/recursos/mt-logo.png", janela);
+        Assert.Contains("MouseLeftButtonUp=\"AoClicarLogo\"", janela);
+        Assert.Contains("\"https://manfred.com.br\"", File.ReadAllText(App("shell.cs")));
     }
 
     [Fact]

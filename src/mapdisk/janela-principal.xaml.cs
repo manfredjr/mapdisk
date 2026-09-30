@@ -131,6 +131,8 @@ public partial class JanelaPrincipal : Window
         }
     }
 
+    private void AoClicarLogo(object sender, MouseButtonEventArgs e) => Shell.AbrirSiteMt();
+
     private void AoElevar(object sender, RoutedEventArgs e)
     {
         _painel.Elevar();

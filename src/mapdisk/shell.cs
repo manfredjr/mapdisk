@@ -14,6 +14,9 @@ internal static partial class Shell
 
     public static void CopiarCaminho(string caminho) => Clipboard.SetText(caminho);
 
+    /// <summary>Abre o site da MT no navegador padrão. Só quando o técnico clica no logo.</summary>
+    public static void AbrirSiteMt() => Process.Start(new ProcessStartInfo("https://manfred.com.br") { UseShellExecute = true });
+
     public static void Propriedades(nint janela, string caminho) => SHObjectProperties(janela, PorCaminho, caminho, null);
 
     [LibraryImport("shell32.dll", StringMarshalling = StringMarshalling.Utf16)]

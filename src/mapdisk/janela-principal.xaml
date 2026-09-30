@@ -278,7 +278,8 @@
                     <!-- Logo da MT no pe do cartao, no mesmo lugar da coluna do MapNet -->
                     <Image DockPanel.Dock="Bottom" Source="pack://application:,,,/mapdisk;component/recursos/mt-logo.png"
                            Height="64" HorizontalAlignment="Center" Margin="0,10,0,0"
-                           RenderOptions.BitmapScalingMode="HighQuality" ToolTip="MT - Manfred Tecnologia" />
+                           RenderOptions.BitmapScalingMode="HighQuality" Cursor="Hand"
+                           ToolTip="MT - Manfred Tecnologia: abre manfred.com.br no navegador" MouseLeftButtonUp="AoClicarLogo" />
                     <TextBlock DockPanel.Dock="Top" Text="{Binding Titulo}" TextTrimming="CharacterEllipsis">
                         <TextBlock.Style>
                             <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource TituloGrupo}">
