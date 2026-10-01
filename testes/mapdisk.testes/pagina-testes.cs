@@ -5,13 +5,18 @@ public class PaginaTestes
     private static string Publico(string relativo) =>
         Path.Combine(CaracteresProibidosTestes.RaizDoRepositorio(), "public", relativo);
 
-    [Fact]
-    public void Pagina_nao_carrega_nada_de_fora()
+    [Theory]
+    [InlineData("index.html")]
+    [InlineData("privacidade.html")]
+    public void Paginas_nao_carregam_nada_de_fora(string pagina)
     {
-        var html = File.ReadAllText(Publico("index.html"));
+        var html = File.ReadAllText(Publico(pagina));
         Assert.DoesNotContain("<script", html);
         Assert.DoesNotContain("src=\"http", html);
-        Assert.DoesNotContain("<link rel=\"stylesheet\"", html);
+        Assert.DoesNotContain("@import", File.ReadAllText(Publico(Path.Combine("css", "site.css"))));
+        Assert.Contains("<link rel=\"stylesheet\" href=\"css/site.css\">", html);
+        Assert.Equal(1, html.Split("rel=\"stylesheet\"").Length - 1);
+        Assert.Contains("href=\"privacidade.html\"", File.ReadAllText(Publico("index.html")));
     }
 
     [Fact]
@@ -32,6 +37,7 @@ public class PaginaTestes
     public void Pagina_nao_usa_marca_de_terceiro()
     {
         Assert.DoesNotContain("treesize", File.ReadAllText(Publico("index.html")), StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("treesize", File.ReadAllText(Publico("privacidade.html")), StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
