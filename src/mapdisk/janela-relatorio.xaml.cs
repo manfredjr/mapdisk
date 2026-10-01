@@ -12,11 +12,14 @@ public partial class JanelaRelatorio : Window
     private const long Mb = 1024 * 1024;
     private readonly PainelRelatorio _painel;
     private readonly Func<IEnumerable<object>> _selecaoAtual;
+    private readonly Action<CriteriosSugestao> _guardarCriterios;
 
-    public JanelaRelatorio(PainelRelatorio painel, Func<IEnumerable<object>> selecaoAtual)
+    /// <param name="guardarCriterios">Guarda os critérios usados no Sugerir para o próximo relatório.</param>
+    public JanelaRelatorio(PainelRelatorio painel, Func<IEnumerable<object>> selecaoAtual, Action<CriteriosSugestao> guardarCriterios)
     {
         _painel = painel;
         _selecaoAtual = selecaoAtual;
+        _guardarCriterios = guardarCriterios;
         DataContext = painel;
         InitializeComponent();
         var c = painel.Criterios;
@@ -38,6 +41,7 @@ public partial class JanelaRelatorio : Window
         }
 
         _painel.Criterios = new CriteriosSugestao(pastas, arquivos, anos, minimo * Mb);
+        _guardarCriterios(_painel.Criterios);
         _painel.Sugerir(DateTime.Now);
     }
 

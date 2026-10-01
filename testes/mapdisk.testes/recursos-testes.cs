@@ -69,7 +69,7 @@ public class RecursosTestes
         var janela = File.ReadAllText(App("janela-principal.xaml"));
         Assert.Contains("Click=\"AoRemover\"", janela);
         Assert.Contains("Click=\"AoMover\"", janela);
-        Assert.Contains("Click=\"AoAbrirRegistro\"", janela);
+        Assert.Contains("Click=\"AoAbrirRegistro\"", File.ReadAllText(App("janela-opcoes.xaml")));
         Assert.Contains("SelectionMode=\"Extended\"", janela);
         Assert.Contains("ToolTipService.ShowOnDisabled=\"True\"", janela);
         Assert.Contains("{Binding TextoSessao}", janela);
@@ -87,6 +87,22 @@ public class RecursosTestes
         Assert.Contains("Click=\"AoLerResposta\"", janela);
         Assert.True(File.Exists(App("janela-relatorio.xaml")));
         Assert.True(File.Exists(App("janela-resposta.xaml")));
+    }
+
+    [Fact]
+    public void Janela_tem_exportar_e_opcoes()
+    {
+        var janela = File.ReadAllText(App("janela-principal.xaml"));
+        Assert.Contains("Click=\"AoAbrirOpcoes\"", janela);
+        Assert.Contains("Click=\"AoExportarHtml\"", janela);
+        Assert.Contains("Click=\"AoExportarCsv\"", janela);
+        var opcoes = File.ReadAllText(App("janela-opcoes.xaml"));
+        foreach (var nome in new[] { "BotaoLigar", "BotaoDesligar", "CampoMaiores", "CampoMinimoDuplicados", "CampoPastas", "CampoArquivos", "CampoAnos", "CampoMinimo", "ListaAlvos", "TextoRegistro" })
+        {
+            Assert.Contains($"x:Name=\"{nome}\"", opcoes);
+        }
+
+        Assert.Contains("Abertura.EhPedido", File.ReadAllText(App("programa.cs")));
     }
 
     [Fact]

@@ -28,6 +28,14 @@ public static class RelatorioTecnico
         "footer{margin-top:24px;font-size:12px;color:#666}" +
         "@media print{body{background:#fff}header{background:#fff;color:#006B2D;border-bottom:2px solid #006B2D}tr{page-break-inside:avoid}svg{page-break-inside:avoid}}";
 
+    /// <summary>Nome sugerido, sem extensão: "espaco-" mais a pasta e a data. A raiz "C:\" vira "c".</summary>
+    public static string NomeDoArquivo(NoPasta pasta, DateTime agora)
+    {
+        var invalidos = Path.GetInvalidFileNameChars();
+        var nome = new string(pasta.Nome.Where(c => !invalidos.Contains(c) && c != ':').ToArray()).Trim().ToLowerInvariant();
+        return $"espaco-{(nome.Length > 0 ? nome : "pasta")}-{agora.ToString("yyyyMMdd-HHmm", CultureInfo.InvariantCulture)}";
+    }
+
     public static void Gravar(DadosRelatorio dados, string arquivo) =>
         File.WriteAllText(arquivo, Gerar(dados), new UTF8Encoding(false));
 
@@ -80,7 +88,7 @@ public static class RelatorioTecnico
         if (semLeitura > 0)
         {
             s.Append($"<p class=\"aviso\">{H(Formatador.Plural(semLeitura, "pasta não pôde ser lida e não entra nesta conta", "pastas não puderam ser lidas e não entram nesta conta"))}. ");
-            s.Append("Varrer como administrador lê as pastas locais sem acesso.</p>");
+            s.Append("O botão \"Varrer como administrador\" lê as pastas locais que ficaram sem acesso.</p>");
         }
     }
 

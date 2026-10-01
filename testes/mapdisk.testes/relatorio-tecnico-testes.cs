@@ -73,6 +73,14 @@ public class RelatorioTecnicoTestes
     }
 
     [Fact]
+    public void Nome_do_arquivo_vem_da_pasta_e_da_data()
+    {
+        var quando = new DateTime(2026, 10, 1, 9, 5, 0);
+        Assert.Equal("espaco-c-20261001-0905", RelatorioTecnico.NomeDoArquivo(new NoPasta(@"C:\", null), quando));
+        Assert.Equal("espaco-financeiro-20261001-0905", RelatorioTecnico.NomeDoArquivo(new NoPasta("Financeiro", null), quando));
+    }
+
+    [Fact]
     public void Grava_em_utf8()
     {
         var arquivo = Path.Combine(AppContext.BaseDirectory, "relatorio-" + Guid.NewGuid().ToString("N") + ".html");

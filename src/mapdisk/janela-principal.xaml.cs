@@ -172,8 +172,12 @@ public partial class JanelaPrincipal : Window
         }
 
         var relatorio = new PainelRelatorio(raiz, Volumes.Ler(raiz.CaminhoCompleto())?.Livre, Environment.UserName, _painel.Locais,
-            _painel.Analises.Duplicados.Resultado);
-        new JanelaRelatorio(relatorio, () => _ultimaSelecao?.Cast<object>().ToList() ?? []) { Owner = this }.ShowDialog();
+            _painel.Analises.Duplicados.Resultado)
+        {
+            Criterios = _painel.Preferencias.Criterios,
+        };
+        new JanelaRelatorio(relatorio, () => _ultimaSelecao?.Cast<object>().ToList() ?? [],
+            c => _painel.GravarPreferencias(_painel.Preferencias.ComCriterios(c))) { Owner = this }.ShowDialog();
     }
 
     private void AoLerResposta(object sender, RoutedEventArgs e)
@@ -226,16 +230,77 @@ public partial class JanelaPrincipal : Window
         await Agir(new PedidoAcao(TipoAcao.Mover, selecionados, dialogo.FolderName));
     }
 
-    private void AoAbrirRegistro(object sender, RoutedEventArgs e)
+    private void AoAbrirOpcoes(object sender, RoutedEventArgs e)
     {
-        if (File.Exists(_painel.LocalDoRegistro))
+        if (new JanelaOpcoes(_painel) { Owner = this }.ShowDialog() == true)
         {
-            Shell.MostrarNoExplorer(_painel.LocalDoRegistro, ehArquivo: true);
+            // A quantidade de maiores arquivos pode ter mudado: calcula de novo.
+            _pastaAnalisada = null;
+            _ = AtualizarAnalises();
         }
-        else
+    }
+
+    private void AoExportarHtml(object sender, RoutedEventArgs e)
+    {
+        if (PastaParaExportar() is not { } pasta
+            || Destino("Onde gravar o relatório", RelatorioTecnico.NomeDoArquivo(pasta, DateTime.Now) + ".html", "Página HTML (*.html)|*.html") is not { } arquivo)
         {
-            MessageBox.Show(this, $"Nenhuma ação registrada ainda. O registro fica em {_painel.LocalDoRegistro}.", "MapDisk - MT",
+            return;
+        }
+
+        var dados = new DadosRelatorio(pasta, DateTime.Now, Environment.MachineName, _painel.Volume, _painel.Interrompida,
+            _painel.Preferencias.MaioresArquivos, _painel.Analises.Duplicados.Resultado);
+        if (Gravar(() => RelatorioTecnico.Gravar(dados, arquivo))
+            && MessageBox.Show(this, "Relatório gravado. Abrir agora?", "MapDisk - MT", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+        {
+            Shell.AbrirNoNavegador(arquivo);
+        }
+    }
+
+    private void AoExportarCsv(object sender, RoutedEventArgs e)
+    {
+        if (PastaParaExportar() is not { } pasta
+            || Destino("Onde gravar a planilha", RelatorioTecnico.NomeDoArquivo(pasta, DateTime.Now) + ".csv", "CSV (*.csv)|*.csv") is not { } arquivo)
+        {
+            return;
+        }
+
+        if (Gravar(() => ExportadorCsv.Gravar(pasta, arquivo)))
+        {
+            Shell.MostrarNoExplorer(arquivo, ehArquivo: true);
+        }
+    }
+
+    // A mesma pasta das análises: a selecionada na árvore, ou a raiz mostrada.
+    private NoPasta? PastaParaExportar()
+    {
+        if (_painel.Estado != EstadoPainel.Parado || _painel.PastaDasAnalises(Tabela.SelectedItem as LinhaArvore) is not { } pasta)
+        {
+            MessageBox.Show(this, "Varra uma unidade ou pasta antes de exportar e espere o fim da varredura.", "MapDisk - MT",
                 MessageBoxButton.OK, MessageBoxImage.Information);
+            return null;
+        }
+
+        return pasta;
+    }
+
+    private string? Destino(string titulo, string nome, string filtro)
+    {
+        var dialogo = new SaveFileDialog { Title = titulo, FileName = nome, Filter = filtro, OverwritePrompt = true };
+        return dialogo.ShowDialog(this) == true ? dialogo.FileName : null;
+    }
+
+    private bool Gravar(Action gravar)
+    {
+        try
+        {
+            gravar();
+            return true;
+        }
+        catch (Exception erro) when (erro is IOException or UnauthorizedAccessException)
+        {
+            MessageBox.Show(this, $"Não foi possível gravar: {erro.Message}", "MapDisk - MT", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return false;
         }
     }
 

@@ -24,7 +24,10 @@ internal static class Programa
 
         var demonstracao = args is [Demonstracao.Argumento];
         var elevado = Elevacao.EhPedido(args, out var alvoElevado);
-        if (args.Length > 0 && !demonstracao && !elevado)
+
+        // Pedido do item "Analisar com MapDisk" do Explorer: abre a janela já varrendo.
+        var aberto = Abertura.EhPedido(args, out var alvoAberto);
+        if (args.Length > 0 && !demonstracao && !elevado && !aberto)
         {
             return ModoLinhaDeComando.Executar(ArgumentosCli.Interpretar(args));
         }
@@ -41,12 +44,12 @@ internal static class Programa
         }
 
         var painel = PainelPrincipal.Padrao();
-        if (elevado)
+        if (elevado || aberto)
         {
-            painel.TextoAlvo = alvoElevado!;
+            painel.TextoAlvo = (alvoElevado ?? alvoAberto)!;
         }
 
-        return aplicativo.Run(new JanelaPrincipal(painel, administrador ? " (administrador)" : string.Empty, varrerAoAbrir: elevado));
+        return aplicativo.Run(new JanelaPrincipal(painel, administrador ? " (administrador)" : string.Empty, varrerAoAbrir: elevado || aberto));
     }
 
     /// <summary>
