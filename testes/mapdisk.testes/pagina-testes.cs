@@ -18,7 +18,7 @@ public class PaginaTestes
     public void Pagina_tem_download_licenca_e_imagens()
     {
         var html = File.ReadAllText(Publico("index.html"));
-        Assert.Contains("https://github.com/manfredjr/mapdisk/releases/latest", html);
+        Assert.Contains("href=\"https://github.com/manfredjr/mapdisk/releases/latest/download/mapdisk.exe\"", html);
         Assert.Contains("GPL-3.0", html);
         Assert.Contains("https://www.manfred.com.br", html);
         foreach (var imagem in new[] { "mt-logo.png", "mapdisk.png", "janela.png", "relatorio.png" })
