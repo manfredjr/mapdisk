@@ -58,7 +58,7 @@ Pendências que esta fatia fecha:
 | Critérios do "Sugerir" | A janela do relatório para o cliente começa com os critérios guardados. Ao clicar em "Sugerir", grava os critérios usados | O técnico ajusta onde usa, sem precisar abrir Opções |
 | Tela de Opções | Botão "Opções" na faixa do topo, ao lado de "Sobre". Seções: "Menu do Explorer" (estado, Ligar, Desligar), "Análises" (maiores arquivos, mínimo dos duplicados), "Relatório para o cliente" (os quatro critérios), "Últimos alvos" (lista, Esquecer, Limpar a lista) e "Registro de ações" (o caminho e o botão Abrir) | Spec, seção 6, mais as pendências |
 | Lugar do registro de ações | Continua fixo em `%LOCALAPPDATA%\MapDisk\acoes.log`. As Opções mostram o caminho e abrem a pasta | Mudar de lugar no meio do uso partiria o histórico em dois arquivos. Fica como está, sem pendência |
-| Pastas excluídas da varredura | **Fora desta fatia, proposta para depois da versão 1.** Fica nas pendências | Pasta pulada teria que aparecer como "excluída" em todo total e relatório (regra 3). Mexe no motor, na árvore e nas contas, e é a parte mais arriscada da versão. Muda o desenho aprovado, então depende do Manfred |
+| Pastas excluídas da varredura | **Fica para depois da versão 1**, por decisão do Manfred em 01/10/2026. Vai para as pendências | Pasta pulada teria que aparecer como "excluída" em todo total e relatório (regra 3). Mexe no motor, na árvore e nas contas, e é a parte mais arriscada da versão |
 | Página | `public/index.html`, um arquivo só com o estilo dentro, mais `public/imagens/` (logo da MT, ícone do MapDisk e duas telas do modo `--demonstracao`). Download pelo link da última versão no GitHub Releases. Fica pronta no repositório. A publicação no cPanel é outro passo, com autorização | `AGENTS.md`, Publicação. O roteiro do cPanel é lido na hora de publicar, com pedido para ler fora da pasta |
 
 ## Git desta fatia
@@ -1606,7 +1606,7 @@ sh .superpowers/rascunho/commit.sh "Cria a pagina do programa" "Pagina estatica 
 
 | Item | Motivo | O que fecha |
 |---|---|---|
-| Pastas excluídas da varredura (spec, seção 6) | Fora da fatia 8, por decisão do Manfred no plano. Mexe no motor e em todas as contas | [conforme a resposta do Manfred no PR do plano] |
+| Pastas excluídas da varredura (spec, seção 6) | Fica para depois da versão 1, por decisão do Manfred em 01/10/2026. Mexe no motor e em todas as contas | Uma fatia própria depois da versão 1.0.0 |
 | Item no menu compacto do Windows 11 | Exige empacotamento MSIX e assinatura (spec, seção 13) | Fora da versão 1 |
 | Publicação da página | Publicar pede autorização. O roteiro do cPanel fica fora da pasta do projeto | Passo da versão 1.0.0, com autorização |
 | Teste do item do Explorer | Grava no registro do Windows do Manfred | Teste do Manfred no PR da fatia 8 |
@@ -1643,6 +1643,6 @@ start /wait mapdisk varrer C:\Users --relatorio c:\temp\users.html
 | R17, HTML com a marca da MT e CSV | 2 e 5 (o CSV pela janela; pela linha de comando já existia) |
 | R18, linha de comando completa | 4 |
 | R19, item do Explorer sem administrador, ligado e desligado em Opções | 3, 4 e 5 |
-| Seção 6, Opções | 1 e 5. As pastas excluídas da varredura ficam fora, a confirmar com o Manfred |
+| Seção 6, Opções | 1 e 5. As pastas excluídas da varredura ficam para depois da versão 1, por decisão do Manfred |
 | Página `public/` | 6 |
 | Pendências das fatias 2 a 7 que apontam para a 8 | 1, 2 e 5 |
