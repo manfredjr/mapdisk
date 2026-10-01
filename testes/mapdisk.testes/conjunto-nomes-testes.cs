@@ -25,4 +25,18 @@ public class ConjuntoNomesTestes
 
         Assert.Equal(10, guardados.Distinct(ReferenceEqualityComparer.Instance).Count());
     }
+
+    [Fact]
+    public void Muitos_nomes_diferentes_crescem_sem_perder_nenhum()
+    {
+        var nomes = new ConjuntoNomes();
+        var primeiros = Enumerable.Range(0, 50_000).Select(i => nomes.Guardar($"arquivo-{i}.txt".AsSpan())).ToList();
+
+        for (var i = 0; i < 50_000; i++)
+        {
+            Assert.Same(primeiros[i], nomes.Guardar($"arquivo-{i}.txt".AsSpan()));
+        }
+
+        Assert.Equal(string.Empty, nomes.Guardar(ReadOnlySpan<char>.Empty));
+    }
 }
