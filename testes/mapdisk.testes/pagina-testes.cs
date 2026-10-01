@@ -46,7 +46,8 @@ public class PaginaTestes
         var raiz = CaracteresProibidosTestes.RaizDoRepositorio();
         var htaccess = File.ReadAllText(Publico(".htaccess"));
         Assert.Contains("Options -Indexes", htaccess);
-        Assert.Contains("script-src 'none'", htaccess);
+        Assert.Contains("script-src 'self'", htaccess);
+        Assert.DoesNotContain("unsafe-eval", htaccess);
         var deploy = File.ReadAllText(Path.Combine(raiz, ".cpanel.yml"));
         Assert.Contains("test -f $REPO/public/index.html", deploy);
         Assert.Contains("$HOME/repositories/mapdisk", deploy);
