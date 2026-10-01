@@ -20,7 +20,10 @@
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <!-- Sem compressao: comprimido, o .exe fica com 67 MB, mas o .NET descomprime as bibliotecas
+         na memoria ao abrir, cerca de 80 MB a mais. Sem ela, o .exe tem uns 149 MB e o pico de
+         uma varredura com 1,1 milhao de arquivos fica abaixo de 300 MB. Decisao do Manfred em 01/10/2026 -->
+    <EnableCompressionInSingleFile>false</EnableCompressionInSingleFile>
   </PropertyGroup>
 
   <!-- Fonte e logo da MT embutidos no .exe e lidos pela tela com pack:// -->
