@@ -211,3 +211,5 @@ Autorização, na página e na planilha:
 - [ ] Página publicada só depois do teste de lançamento, que inclui um Windows Server.
 
 Não há pendência de validação.
+
+**Acréscimo de 01/10/2026, download direto.** A pedido do Manfred, o botão da página passou a baixar o `mapdisk.exe` direto da última Release do GitHub, sem abrir a página do GitHub. Pelo mesmo motivo do ponto 3 (LGPD, art. 6º, VI), a página diz que o arquivo vem do GitHub e que ele também registra os acessos. Não há pendência de validação.
