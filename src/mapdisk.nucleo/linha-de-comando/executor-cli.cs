@@ -45,6 +45,7 @@ public static class ExecutorCli
         }
 
         saida.WriteLine($"Varrendo {argumentos.Caminho}...");
+        motor.Exclusoes = RegrasExclusao.De(argumentos.Excluir);
         var r = motor.Iniciar(argumentos.Caminho!, cancelar).Conclusao.GetAwaiter().GetResult();
         var raiz = r.Raiz;
         if (raiz.Estado is EstadoPasta.SemAcesso or EstadoPasta.ErroLeitura)
@@ -70,6 +71,11 @@ public static class ExecutorCli
         if (raiz.PastasComErro > 0)
         {
             saida.WriteLine($"Atenção: {Formatador.Plural(raiz.PastasComErro, "pasta com erro de leitura", "pastas com erro de leitura")}. O total não inclui o que está nelas.");
+        }
+
+        if (raiz.PastasExcluidas > 0)
+        {
+            saida.WriteLine($"Atenção: {Formatador.Plural(raiz.PastasExcluidas, "pasta excluída da varredura", "pastas excluídas da varredura")}, fora do total.");
         }
 
         if (!r.Cancelada && r.PastasNaoLidas > 0)
@@ -128,6 +134,7 @@ public static class ExecutorCli
                 EstadoPasta.SemAcesso => "sem acesso",
                 EstadoPasta.ErroLeitura => "erro",
                 EstadoPasta.Link => "link",
+                EstadoPasta.Excluida => "excluída",
                 _ => Formatador.Tamanho(p.Tamanho),
             }, Lida: p.Estado == EstadoPasta.Lida))
             .ToList();

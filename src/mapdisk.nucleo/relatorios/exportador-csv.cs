@@ -48,6 +48,7 @@ public static class ExportadorCsv
         EstadoPasta.SemAcesso => "sem acesso",
         EstadoPasta.ErroLeitura => "erro de leitura",
         EstadoPasta.Link => "link",
+        EstadoPasta.Excluida => "excluída",
         _ => "não lida",
     };
 

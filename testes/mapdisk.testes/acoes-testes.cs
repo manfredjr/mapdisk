@@ -449,6 +449,20 @@ public class AcoesTestes
     }
 
     [Fact]
+    public void Pasta_excluida_bloqueia_e_diz_como_ler()
+    {
+        var raiz = new NoPasta(@"D:", null);
+        var modulos = new NoPasta("node_modules", raiz);
+        raiz.Preencher([], [modulos]);
+        modulos.MarcarExcluida("node_modules");
+        var arvore = new ArvoreVisivel();
+        arvore.Carregar(raiz);
+
+        Assert.Equal("node_modules: pasta excluída da varredura. Use Atualizar esta pasta para ler antes de agir.",
+            Preparador().Avaliar([LinhaDe(arvore, "node_modules")]).Bloqueio);
+    }
+
+    [Fact]
     public void Sem_lixeira_a_remocao_vira_exclusao()
     {
         var arvore = ArvoreAberta();

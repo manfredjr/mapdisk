@@ -69,7 +69,7 @@ public class ArgumentosTestes
     {
         Assert.Equal("d.html", ArgumentosCli.Interpretar(["varrer", "D:", "--relatorio", "d.html"]).Relatorio);
         Assert.Contains("O arquivo de --relatorio tem que terminar em .html.", ArgumentosCli.Interpretar(["varrer", "D:", "--relatorio", "d.txt"]).Erros);
-        Assert.Contains("As opções --csv, --relatorio e --top pedem o comando varrer.", ArgumentosCli.Interpretar(["--relatorio", "d.html"]).Erros);
+        Assert.Contains("As opções --csv, --relatorio, --top e --excluir pedem o comando varrer.", ArgumentosCli.Interpretar(["--relatorio", "d.html"]).Erros);
     }
 
     [Fact]
@@ -87,5 +87,13 @@ public class ArgumentosTestes
         {
             Assert.Contains(opcao, ArgumentosCli.TextoAjuda);
         }
+    }
+
+    [Fact]
+    public void Le_excluir_repetido_e_recusa_regra_invalida()
+    {
+        var a = ArgumentosCli.Interpretar(["varrer", "D:", "--excluir", "node_modules", "--excluir", @"D:\Backup"]);
+        Assert.Equal(["node_modules", @"D:\Backup"], a.Excluir);
+        Assert.Contains("--excluir *.tmp: Use o nome da pasta ou o caminho completo, sem * nem ?", ArgumentosCli.Interpretar(["varrer", "D:", "--excluir", "*.tmp"]).Erros);
     }
 }

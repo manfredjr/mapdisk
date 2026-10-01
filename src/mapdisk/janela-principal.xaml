@@ -356,6 +356,8 @@
                                     <RadioButton GroupName="TipoGrafico" Content="Blocos" Tag="Blocos" IsChecked="True" Checked="AoMudarGrafico" Margin="0,0,12,0" />
                                     <RadioButton GroupName="TipoGrafico" Content="Pizza" Tag="Pizza" Checked="AoMudarGrafico" />
                                 </StackPanel>
+                                <TextBlock DockPanel.Dock="Bottom" Text="{Binding TextoExcluidas}" Foreground="{StaticResource PincelTextoSuave}"
+                                           TextWrapping="Wrap" Margin="0,2,0,0" />
                                 <TextBlock DockPanel.Dock="Bottom" Text="{Binding TextoNaoLidas}" Foreground="{StaticResource PincelTextoSuave}"
                                            TextWrapping="Wrap" Margin="0,6,0,0" />
                                 <Grid>
