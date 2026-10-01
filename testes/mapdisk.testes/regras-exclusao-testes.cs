@@ -50,4 +50,45 @@ public class RegrasExclusaoTestes
         Assert.Equal(["node_modules", @"D:\Backup"], armazem.Ler().Regras);
         Directory.Delete(Path.GetDirectoryName(arquivo)!, true);
     }
+
+    [Fact]
+    public async Task Varredura_nao_le_a_pasta_excluida_e_conta_ela()
+    {
+        using var p = new PastaTeste();
+        p.Arquivo(@"site\index.html", 1000);
+        p.Arquivo(@"site\node_modules\pacote\a.js", 50_000);
+        p.Arquivo(@"backup\velho.zip", 70_000);
+        var motor = new MotorVarredura { Exclusoes = RegrasExclusao.De(["node_modules", p.Caminho("backup")]) };
+
+        var raiz = (await motor.Iniciar(p.Raiz, CancellationToken.None).Conclusao).Raiz;
+
+        var site = raiz.Subpastas.Single(s => s.Nome == "site");
+        var modulos = site.Subpastas.Single();
+        Assert.Equal(EstadoPasta.Excluida, modulos.Estado);
+        Assert.Equal("node_modules", modulos.Motivo);
+        Assert.Empty(modulos.Subpastas);
+        Assert.Equal(1000, site.Tamanho);
+        Assert.Equal(EstadoPasta.Excluida, raiz.Subpastas.Single(s => s.Nome == "backup").Estado);
+        Assert.Equal(2, raiz.PastasExcluidas);
+        Assert.Equal(0, raiz.PastasSemAcesso + raiz.PastasComErro);
+    }
+
+    [Fact]
+    public async Task Alvo_nunca_e_excluido_e_atualizar_le_a_pasta_excluida()
+    {
+        using var p = new PastaTeste();
+        p.Arquivo(@"node_modules\a.js", 5000);
+        var motor = new MotorVarredura { Exclusoes = RegrasExclusao.De(["node_modules"]) };
+
+        var direto = (await motor.Iniciar(p.Caminho("node_modules"), CancellationToken.None).Conclusao).Raiz;
+        Assert.Equal(EstadoPasta.Lida, direto.Estado);
+        Assert.Equal(5000, direto.Tamanho);
+
+        var raiz = (await motor.Iniciar(p.Raiz, CancellationToken.None).Conclusao).Raiz;
+        var excluida = raiz.Subpastas.Single();
+        var relida = (await motor.Reler(excluida, CancellationToken.None).Conclusao).Raiz;
+        Assert.Equal(EstadoPasta.Lida, relida.Estado);
+        Assert.Equal(5000, raiz.Tamanho);
+        Assert.Equal(0, raiz.PastasExcluidas);
+    }
 }
