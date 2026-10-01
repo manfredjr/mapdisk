@@ -93,5 +93,5 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 | Pastas excluídas da varredura (spec, seção 6) | Fica para depois da versão 1, por decisão do Manfred em 01/10/2026. Mexe no motor e em todas as contas | Uma fatia própria depois da versão 1.0.0 |
 | Item no menu compacto do Windows 11 | Exige empacotamento MSIX e assinatura (spec, seção 13) | Fora da versão 1 |
 | Publicação da página | Publicar pede autorização. O roteiro do cPanel fica fora da pasta do projeto | Passo da versão 1.0.0, depois do teste de lançamento, com autorização |
-| Teste do item do Explorer | Ligar grava no registro do Windows do Manfred. O agente testou só com as chaves em memória | Teste do Manfred no PR #17 |
-| Exportar pela janela | O diálogo de salvar não foi operado pelo agente. O relatório e o CSV foram conferidos pela linha de comando, que usa o mesmo código | Teste do Manfred no PR #17 |
+| Teste do item do Explorer | Ligar grava no registro do Windows do Manfred. O agente testou só com as chaves em memória | Fechado: teste do Manfred no PR #17, em 01/10/2026 |
+| Exportar pela janela | O diálogo de salvar não foi operado pelo agente. O relatório e o CSV foram conferidos pela linha de comando, que usa o mesmo código | Fechado: teste do Manfred no PR #17, em 01/10/2026 |
