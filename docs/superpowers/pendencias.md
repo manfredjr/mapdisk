@@ -84,5 +84,5 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 |---|---|---|
 | Tamanho mínimo dos duplicados guardado entre sessões | A tela de Opções ainda não existe. Cada sessão começa com 1 MB | Opções da fatia 8 |
 | Resultado dos duplicados some ao atualizar uma pasta | "Atualizar esta pasta" e a releitura do destino do mover limpam o resultado, porque os caminhos podem ter mudado | Aceito. Procurar de novo |
-| Busca de duplicados num disco grande de verdade | Os testes usam arquivos pequenos. O tempo e o peso num servidor com muitos arquivos grandes só aparecem no uso | Teste do Manfred no PR da fatia 7 |
+| Busca de duplicados num disco grande de verdade | Os testes usam arquivos pequenos. O tempo e o peso num servidor com muitos arquivos grandes só aparecem no uso | Fechado: teste do Manfred no PR #15, em 01/10/2026 |
 
