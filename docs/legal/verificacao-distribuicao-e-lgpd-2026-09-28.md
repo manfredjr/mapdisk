@@ -110,12 +110,12 @@ Os textos seguem o modelo do parecer do MapNet, adaptados ao risco do MapDisk. P
 
 ## 6. Requisitos para implementação
 
-- [ ] Textos "Uso autorizado" e "Licença e garantias" na página e no README, perto do download (fatia 7).
+- [x] Textos "Uso autorizado" e "Licença e garantias" na página e no README, perto do download (fatia 8, com o ajuste da seção 11).
 - [x] Confirmação de cada ação com a lista, o total e o destino, e o aviso de risco da seção 5 (fatia 5).
 - [x] Exclusão em rede com a palavra EXCLUIR digitada e o aviso de que não há Lixeira (fatia 5). Vale também para unidade removível e mapeada, com o texto da seção 9.
 - [x] Registro de ações só com data e hora, usuário do Windows, ação, origem, destino, tamanho e resultado. Sem conteúdo de arquivo (fatia 5).
-- [x] Opções mostra onde fica o registro e abre a pasta dele (fatia 5). Por enquanto, pelo botão "Registro de ações" no cartão das pastas; vai para a tela de Opções na fatia 7.
-- [ ] Nada sai da máquina: nenhum envio de rede no programa, conferido por teste (todas as fatias).
+- [x] Opções mostra onde fica o registro e abre a pasta dele (fatia 5, e na tela de Opções desde a fatia 8).
+- [x] Nada sai da máquina: nenhum envio de rede no programa, conferido pelo teste `SemRedeTestes` (fatia 8).
 - [ ] Fora do programa, no atendimento da MT: autorização do cliente para as exclusões registrada na ordem de serviço, com cópia do `acoes.log` anexada. Fica em `docs/superpowers/pendencias.md` como decisão de processo do Manfred.
 
 ## 7. Pendências de validação
