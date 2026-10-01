@@ -26,6 +26,7 @@ public partial class JanelaOpcoes : Window
         TextoRegistro.Text = painel.LocalDoRegistro;
         MostrarExplorer();
         MostrarAlvos();
+        MostrarExcluidas();
     }
 
     private void MostrarExplorer()
@@ -41,6 +42,56 @@ public partial class JanelaOpcoes : Window
     }
 
     private void MostrarAlvos() => ListaAlvos.ItemsSource = _painel.UltimosUsados;
+
+    private void MostrarExcluidas() => ListaExcluidas.ItemsSource = _painel.Exclusoes.Regras;
+
+    private void AoAcrescentarExcluida(object sender, RoutedEventArgs e)
+    {
+        if (Acrescentar(CampoExcluir.Text))
+        {
+            CampoExcluir.Clear();
+        }
+    }
+
+    private void AoEscolherExcluida(object sender, RoutedEventArgs e)
+    {
+        var dialogo = new Microsoft.Win32.OpenFolderDialog { Title = "Pasta que a varredura não vai ler" };
+        if (dialogo.ShowDialog(this) == true)
+        {
+            Acrescentar(dialogo.FolderName);
+        }
+    }
+
+    private void AoTirarExcluida(object sender, RoutedEventArgs e)
+    {
+        if (ListaExcluidas.SelectedItem is string regra)
+        {
+            _painel.GravarExclusoes(RegrasExclusao.De(_painel.Exclusoes.Regras.Where(r => r != regra)));
+            TextoErroExcluir.Text = string.Empty;
+            MostrarExcluidas();
+        }
+    }
+
+    // Grava na hora, como o Esquecer dos últimos alvos. A regra inválida mostra o motivo.
+    private bool Acrescentar(string texto)
+    {
+        if (RegrasExclusao.Validar(texto, out var motivo) is not { } regra)
+        {
+            TextoErroExcluir.Text = motivo!;
+            return false;
+        }
+
+        if (_painel.Exclusoes.Regras.Count >= RegrasExclusao.Maximo)
+        {
+            TextoErroExcluir.Text = $"Limite de {RegrasExclusao.Maximo} pastas excluídas.";
+            return false;
+        }
+
+        _painel.GravarExclusoes(RegrasExclusao.De(_painel.Exclusoes.Regras.Append(regra)));
+        TextoErroExcluir.Text = string.Empty;
+        MostrarExcluidas();
+        return true;
+    }
 
     private void AoLigar(object sender, RoutedEventArgs e)
     {

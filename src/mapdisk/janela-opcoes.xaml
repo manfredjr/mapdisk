@@ -53,6 +53,29 @@
                     </StackPanel>
                 </Border>
 
+                <!-- Pastas que a varredura nao le. Gravam na hora e valem na proxima varredura -->
+                <Border Style="{StaticResource Cartao}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <Border Style="{StaticResource BarraTitulo}" />
+                            <TextBlock Text="Pastas excluídas da varredura" Style="{StaticResource TituloCartao}" />
+                        </StackPanel>
+                        <TextBlock TextWrapping="Wrap" Foreground="{StaticResource PincelTextoSuave}" Margin="0,0,0,8"
+                                   Text="A varredura não lê estas pastas. O nome, como node_modules, vale em qualquer nível. O caminho completo, como D:\Backup\Veeam, vale só para aquela pasta. A pasta excluída aparece como &quot;excluída&quot;, fora dos totais. Vale na próxima varredura." />
+                        <ListBox x:Name="ListaExcluidas" Height="90" Margin="0,0,0,8" AutomationProperties.Name="Pastas excluídas da varredura" />
+                        <DockPanel Margin="0,0,0,4">
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Content="Acrescentar" Style="{StaticResource BotaoContorno}" Click="AoAcrescentarExcluida" Margin="6,0,6,0" />
+                                <Button Content="Escolher pasta..." Style="{StaticResource BotaoContorno}" Click="AoEscolherExcluida" Margin="0,0,6,0" />
+                                <Button Content="Tirar" Style="{StaticResource BotaoContorno}" Click="AoTirarExcluida" Margin="0"
+                                        ToolTip="Tira da lista a pasta selecionada" />
+                            </StackPanel>
+                            <TextBox x:Name="CampoExcluir" VerticalContentAlignment="Center" AutomationProperties.Name="Nome ou caminho da pasta a excluir" />
+                        </DockPanel>
+                        <TextBlock x:Name="TextoErroExcluir" TextWrapping="Wrap" Foreground="#B3261E" />
+                    </StackPanel>
+                </Border>
+
                 <Border Style="{StaticResource Cartao}" Margin="0,0,0,10">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
