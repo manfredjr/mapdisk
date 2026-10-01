@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MapDisk - MT: onde está o espaço ocupado no disco</title>
+<meta name="description" content="Analisador de espaço em disco para Windows, gratuito e de código aberto, da MT - Manfred Tecnologia.">
+<link rel="icon" href="imagens/mapdisk.png">
+<style>
+:root{--verde-escuro:#006B2D;--verde:#0F8F2F;--verde-medio:#43A92C;--verde-claro:#9AD52B;--grafite:#202020;--cinza:#F4F4F4}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;color:var(--grafite);background:var(--cinza);line-height:1.55}
+a{color:var(--verde-escuro)}
+.faixa{background:linear-gradient(90deg,var(--verde-escuro),var(--verde));color:#fff}
+.conteudo{max-width:1100px;margin:0 auto;padding:0 20px}
+header .conteudo{display:flex;gap:28px;align-items:center;padding-top:36px;padding-bottom:36px}
+header img{background:#fff;border-radius:16px;padding:10px;flex:none}
+header h1{margin:0;font-size:34px}
+header p{margin:8px 0 0;font-size:18px}
+.baixar{display:inline-block;margin-top:18px;background:#fff;color:var(--verde-escuro);font-weight:700;text-decoration:none;border-radius:24px;padding:10px 22px}
+.baixar:hover{background:var(--verde-claro)}
+.requisitos{font-size:14px;opacity:.9;margin-top:10px}
+.linha{height:4px;background:linear-gradient(90deg,var(--verde-medio),var(--verde-claro))}
+main section{margin:36px 0}
+h2{color:var(--verde-escuro);border-left:5px solid var(--verde-medio);padding-left:10px;font-size:24px}
+.colunas{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.cartao{background:#fff;border-radius:12px;padding:18px 22px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tela{width:100%;height:auto;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.15);background:#fff}
+figure{margin:0}
+figcaption{font-size:14px;color:#555;margin-top:6px}
+ul{padding-left:20px}
+li{margin:4px 0}
+.aviso{font-size:15px}
+footer{margin-top:48px;padding:24px 0;font-size:14px}
+footer .conteudo{display:flex;gap:18px;align-items:center}
+footer img{background:#fff;border-radius:8px;padding:4px;flex:none}
+@media (max-width:600px){
+header .conteudo{flex-direction:column;align-items:flex-start;padding-top:24px;padding-bottom:24px}
+header h1{font-size:28px}
+.colunas{grid-template-columns:1fr}
+footer .conteudo{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<header class="faixa">
+<div class="conteudo">
+<img src="imagens/mapdisk.png" alt="Símbolo do MapDisk - MT" width="120" height="120">
+<div>
+<h1>MapDisk - MT</h1>
+<p>Descubra o que ocupa o disco e libere espaço com segurança.</p>
+<p>Analisador de espaço em disco para Windows, gratuito e de código aberto. Um arquivo só, sem instalar e sem pedir administrador.</p>
+<a class="baixar" href="https://github.com/manfredjr/mapdisk/releases/latest">Baixar para Windows</a>
+<p class="requisitos">Windows 10 e 11 e Windows Server 2016 ou mais novo, 64 bits.</p>
+</div>
+</div>
+</header>
+<div class="linha"></div>
+
+<main class="conteudo">
+<section>
+<h2>O que ele faz</h2>
+<div class="colunas">
+<div class="cartao">
+<ul>
+<li>Varre uma unidade, uma pasta ou um caminho de rede e mostra as pastas em árvore, da maior para a menor.</li>
+<li>Mostra num gráfico de blocos ou de pizza o que ocupa cada pasta.</li>
+<li>Lista os maiores arquivos, os arquivos antigos e o espaço por tipo de arquivo e por usuário.</li>
+<li>Acha arquivos repetidos, comparando o conteúdo, quando você pede.</li>
+<li>Envia para a Lixeira ou move o que você escolher, sempre com confirmação.</li>
+<li>Gera um relatório para o cliente decidir o que apagar e lê a resposta dele.</li>
+<li>Grava o relatório do técnico em HTML, com o gráfico, e a lista das pastas em CSV.</li>
+<li>Roda pela linha de comando, para varrer e gerar relatório sem abrir a janela.</li>
+</ul>
+</div>
+<figure>
+<img class="tela" src="imagens/janela.png" alt="Janela do MapDisk com a árvore de pastas e o gráfico em blocos, em modo de demonstração" width="1280" height="800">
+<figcaption>A janela em modo de demonstração, com dados fictícios.</figcaption>
+</figure>
+</div>
+</section>
+
+<section>
+<h2>Relatório do técnico</h2>
+<div class="colunas">
+<figure>
+<img class="tela" src="imagens/relatorio.png" alt="Relatório de espaço em disco com o resumo e o gráfico em blocos, gerado em modo de demonstração" width="1280" height="900">
+<figcaption>O relatório em HTML, também com dados fictícios.</figcaption>
+</figure>
+<div class="cartao">
+<p>Um arquivo só, com o resumo da pasta, o gráfico, as maiores pastas e arquivos, o espaço por tipo e os arquivos antigos. Abre em qualquer navegador e vira PDF pelo "Imprimir".</p>
+<p>Pela linha de comando:</p>
+<p><code>mapdisk varrer D:\ --relatorio d.html</code></p>
+</div>
+</div>
+</section>
+
+<section>
+<h2>Segurança</h2>
+<div class="cartao">
+<p>O programa não envia nenhuma informação pela internet. Abre como usuário comum e só pede administrador pelo botão "Varrer como administrador". Não instala nada: roda de um pendrive ou de uma pasta de rede.</p>
+<p>Antes de apagar ou mover, mostra a lista, o total e o destino, e espera a sua confirmação. Cada ação fica registrada num arquivo do computador. As pastas do sistema do Windows e a raiz das unidades ficam bloqueadas para apagar e mover. Pasta que não pôde ser lida aparece como "sem acesso", nunca como zero.</p>
+</div>
+</section>
+
+<section class="aviso">
+<h2>Uso autorizado</h2>
+<p>O MapDisk - MT mostra o espaço ocupado em discos e pastas e permite enviar arquivos para a Lixeira, movê-los ou excluí-los definitivamente. Use o programa só em computadores e pastas que você tem autorização para administrar. Antes de apagar ou mover, confira a lista de itens e o destino. Em pastas de rede e em unidades removíveis ou mapeadas, o MapDisk não usa a Lixeira: a exclusão não pode ser desfeita pelo programa e os itens só voltam por uma cópia de segurança. O programa não envia nenhuma informação para fora do computador.</p>
+
+<h2>Licença e garantias</h2>
+<p>O MapDisk - MT é distribuído gratuitamente sob a GPL-3.0. Os tamanhos mostrados dependem do que o sistema de arquivos informa e das permissões da conta que roda o programa, e podem ficar incompletos quando alguma pasta não pode ser lida. A licença não inclui promessa de funcionamento em todo computador nem serviço de suporte técnico. Quem apaga ou move arquivos pelo programa decide o que tratar e deve ter cópia de segurança do que for importante. As disposições da GPL-3.0 sobre garantias e responsabilidade aplicam-se nos limites permitidos pela legislação brasileira e não restringem direitos assegurados ao consumidor por lei.</p>
+<p>Código-fonte e versões: <a href="https://github.com/manfredjr/mapdisk">github.com/manfredjr/mapdisk</a>.</p>
+
+<h2>Privacidade</h2>
+<p>O programa não coleta nem envia dados. Esta página não tem formulário, propaganda nem ferramenta de estatística. A hospedagem e o Cloudflare, que entrega a página, registram dados técnicos de acesso, como o endereço IP, e podem gravar um cookie técnico de segurança.</p>
+</section>
+</main>
+
+<footer class="faixa">
+<div class="conteudo">
+<a href="https://www.manfred.com.br"><img src="imagens/mt-logo.png" alt="MT - Manfred Tecnologia" width="80" height="60"></a>
+<div>
+MapDisk - MT. Desenvolvido por Manfred Heil Junior, da MT - Manfred Tecnologia (<a href="https://www.manfred.com.br" style="color:#fff">www.manfred.com.br</a>).<br>
+Copyright (c) 2026 MANFRED TECNOLOGIA LTDA. Licença GPL-3.0.
+</div>
+</div>
+</footer>
+</body>
+</html>

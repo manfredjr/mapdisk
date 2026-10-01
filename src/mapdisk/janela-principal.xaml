@@ -82,7 +82,7 @@
                 <Button DockPanel.Dock="Right" Content="Opções" Style="{StaticResource BotaoFaixaContorno}" Click="AoAbrirOpcoes"
                         VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="Menu do Explorer, números das análises, últimos alvos e registro de ações" />
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <ComboBox x:Name="CampoAlvo" Width="340" IsEditable="True"
+                    <ComboBox x:Name="CampoAlvo" Width="260" IsEditable="True"
                               ItemsSource="{Binding Opcoes}" TextSearch.TextPath="Caminho"
                               Text="{Binding TextoAlvo, UpdateSourceTrigger=PropertyChanged}"
                               ToolTip="Unidade, pasta ou caminho de rede, como C:, D:\Dados ou \\servidor\pasta"

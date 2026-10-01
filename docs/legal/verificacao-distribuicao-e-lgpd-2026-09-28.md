@@ -162,3 +162,52 @@ Autorização, na página e na planilha:
 
 **RECOMENDAÇÃO de processo, fora do programa.** O relatório tem nomes de pastas e de arquivos do cliente. No atendimento, enviar só ao contato do cliente que pediu o serviço e guardar a resposta junto da ordem de serviço. Não há pendência de validação.
 
+
+## 11. Página do programa (acréscimo de 01/10/2026)
+
+**Contexto.** A fatia 8 cria a página `public/index.html`, para `mapdisk.manfred.com.br`, com o download, a lista do que o programa faz, os textos "Uso autorizado" e "Licença e garantias" da seção 5 e uma nota de privacidade. A página fica num serviço de hospedagem, atrás do Cloudflare. A publicação é um passo separado, com autorização do Manfred.
+
+**Premissas.** Valem as da seção 3. Vale também a premissa de que a distribuição gratuita pode ser relação de consumo, adotada por cautela. Na página, a MT é quem decide sobre os registros de acesso que a hospedagem e o Cloudflare guardam, como o endereço IP. Nessa condição, ela é controladora desses dados, que são dados pessoais (LGPD, art. 5º, I e VI, verificados na seção 3).
+
+**FATO LEGAL.** CDC, art. 30, verificado no Planalto em 01/10/2026 (`https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm`):
+
+> "Toda informação ou publicidade, suficientemente precisa, veiculada por qualquer forma ou meio de comunicação com relação a produtos e serviços oferecidos ou apresentados, obriga o fornecedor que a fizer veicular ou dela se utilizar e integra o contrato que vier a ser celebrado."
+
+**Incidência:** a página apresenta o programa ao público, perto do download, e cada frase precisa sobre o que ele faz passa a valer como oferta. O art. 37, § 1º, verificado na mesma fonte e na mesma data, diz que "É enganosa qualquer modalidade de informação ou comunicação de caráter publicitário, inteira ou parcialmente falsa, ou, por qualquer outro modo, mesmo por omissão, capaz de induzir em erro o consumidor [...]".
+
+**FATO LEGAL.** LGPD, art. 6º, VI, na biblioteca local (`fontes-md/leis/03-lgpd-lei-13709-2018-compilado.md`), em dia no relatório de 23/09/2026: "transparência: garantia, aos titulares, de informações claras, precisas e facilmente acessíveis sobre a realização do tratamento e os respectivos agentes de tratamento [...]".
+
+**INTERPRETAÇÃO, ponto 1: "Uso autorizado".** O texto aprovado fala de exclusão definitiva só em pastas de rede. Desde a seção 9, a exclusão definitiva vale também em unidade removível e em unidade mapeada. Uma página que cita só a rede omite um caso de risco, e o art. 37, § 1º, alcança a omissão capaz de induzir em erro. O texto passa a citar as duas situações, com a mesma frase da seção 9 ("o MapDisk não usa a Lixeira").
+
+**INTERPRETAÇÃO, ponto 2: frases sobre segurança.** As frases sobre segurança e funcionamento vinculam a MT (art. 30). Por isso, cada uma tem que corresponder ao que o programa faz e ao que os testes conferem:
+
+| Frase | Situação |
+|---|---|
+| "Feito para não dar susto" | Promessa vaga de resultado. Sai. O título passa a ser "Segurança" |
+| "O programa não envia nenhuma informação pela internet" | Já aprovada na seção 5. Fica. A seção 6 pedia um teste que confira isso. A fatia 8 cria esse teste |
+| "Pasta do sistema e raiz de unidade ficam bloqueadas" | Fica, com o alcance exato: bloqueadas para apagar e mover |
+| "Nunca como zero" | Fica: regra 3 do produto, conferida por teste |
+| Requisitos (Windows 10 e 11, Windows Server 2016 ou mais novo, 64 bits) | Fica. A página só vai ao ar depois do teste de lançamento do Manfred, que inclui um Windows Server |
+
+**INTERPRETAÇÃO, ponto 3: privacidade da página.** "Não usa cookies" seria uma afirmação absoluta sobre um serviço de terceiros que a MT não controla por completo: o Cloudflare pode gravar cookie técnico de segurança. O texto passa a dizer o que a página não tem e o que a hospedagem registra, para atender o art. 6º, VI, sem prometer o que depende de terceiros.
+
+**INTERPRETAÇÃO, ponto 4: GitHub.** O nome do GitHub aparece só para indicar onde está o download e o código, sem o logotipo e sem sugerir parceria. Não precisa de aviso de marca. A marca TreeSize não aparece, e um teste confere isso (seção 4.7).
+
+**RECOMENDAÇÃO aplicada.** Textos finais da página:
+
+> Segurança. O programa não envia nenhuma informação pela internet. Abre como usuário comum e só pede administrador pelo botão "Varrer como administrador". Não instala nada: roda de um pendrive ou de uma pasta de rede. Antes de apagar ou mover, mostra a lista, o total e o destino, e espera a sua confirmação. Cada ação fica registrada num arquivo do computador. As pastas do sistema do Windows e a raiz das unidades ficam bloqueadas para apagar e mover. Pasta que não pôde ser lida aparece como "sem acesso", nunca como zero.
+
+> Uso autorizado. O MapDisk - MT mostra o espaço ocupado em discos e pastas e permite enviar arquivos para a Lixeira, movê-los ou excluí-los definitivamente. Use o programa só em computadores e pastas que você tem autorização para administrar. Antes de apagar ou mover, confira a lista de itens e o destino. Em pastas de rede e em unidades removíveis ou mapeadas, o MapDisk não usa a Lixeira: a exclusão não pode ser desfeita pelo programa e os itens só voltam por uma cópia de segurança. O programa não envia nenhuma informação para fora do computador.
+
+> Licença e garantias. Texto da seção 5, sem mudança.
+
+> Privacidade. O programa não coleta nem envia dados. Esta página não tem formulário, propaganda nem ferramenta de estatística. A hospedagem e o Cloudflare, que entrega a página, registram dados técnicos de acesso, como o endereço IP, e podem gravar um cookie técnico de segurança.
+
+**Requisitos para implementação.**
+
+- [ ] Página com os quatro textos acima, "Uso autorizado" e "Licença e garantias" perto do botão de download (fatia 8).
+- [ ] README com o novo "Uso autorizado" e com "Licença e garantias" perto do download (fatia 8). Fecha o primeiro item da seção 6.
+- [ ] Teste que confere que o programa não usa classe de rede (fatia 8). Fecha o item "Nada sai da máquina" da seção 6.
+- [ ] Página publicada só depois do teste de lançamento, que inclui um Windows Server.
+
+Não há pendência de validação.
