@@ -30,6 +30,9 @@ public sealed class PainelAnalises : INotifyPropertyChanged
     /// <summary>A aba Duplicados. O resultado diz de qual pasta é e só some numa nova varredura.</summary>
     public PainelDuplicados Duplicados { get; }
 
+    /// <summary>Quantos arquivos a aba "Maiores arquivos" mostra. Vem das Opções.</summary>
+    public int QuantosMaiores { get; set; } = 100;
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public AbaAnalise Aba { get; private set; }
@@ -80,8 +83,9 @@ public sealed class PainelAnalises : INotifyPropertyChanged
     {
         _pasta = pasta;
         var idade = Idade;
+        var quantos = QuantosMaiores;
         var r = await Task.Run(() => (
-            Maiores: Analises.MaioresArquivos(pasta),
+            Maiores: Analises.MaioresArquivos(pasta, quantos),
             Antigos: Analises.ArquivosAntigos(pasta, idade, hoje),
             Categorias: Analises.PorCategoria(pasta),
             Extensoes: Analises.PorExtensao(pasta),

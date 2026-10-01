@@ -19,6 +19,7 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     private readonly Func<IReadOnlyList<InfoVolume>> _listarUnidades;
     private readonly IHistoricoAlvos _historico;
     private readonly Func<string, ResultadoElevacao> _elevar;
+    private readonly IArmazemPreferencias _preferencias;
     private CancellationTokenSource? _cancelar;
     private Varredura? _varredura;
     private InfoVolume? _volume;
@@ -36,6 +37,8 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         LocalDoRegistro = dependencias.Registro.Local;
         Locais = dependencias.Locais;
         Analises = new PainelAnalises(dependencias.Leitor);
+        _preferencias = dependencias.Preferencias;
+        Aplicar(_preferencias.Ler());
         Unidades = _listarUnidades();
         TextoAlvo = Unidades.FirstOrDefault()?.Raiz ?? string.Empty;
         MontarOpcoes();
@@ -57,7 +60,18 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         Elevar = Elevacao.Reabrir,
         Operacoes = new OperacoesArquivo(),
         Registro = RegistroAcoes.Padrao(),
+        Preferencias = ArquivoPreferencias.Padrao(),
     });
+
+    public Preferencias Preferencias { get; private set; } = new();
+
+    /// <summary>Volume da última varredura, para o relatório do técnico.</summary>
+    public InfoVolume? Volume => _volume;
+
+    /// <summary>A última varredura foi interrompida antes do fim.</summary>
+    public bool Interrompida { get; private set; }
+
+    public IReadOnlyList<string> UltimosUsados => _historico.Ler();
 
     /// <summary>O processo já roda como administrador.</summary>
     public bool Administrador { get; }
@@ -381,6 +395,7 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         {
             var r = varredura.Conclusao.Result;
             _volume = r.Volume;
+            Interrompida = r.Cancelada;
             TextoEstado = r.Cancelada
                 ? $"Varredura interrompida em {Formatador.Duracao(r.Duracao)}. Os números mostram só o que foi lido até ali."
                 : $"Varredura concluída em {Formatador.Duracao(r.Duracao)}.";
@@ -428,6 +443,33 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
             ? $"Livre: {Formatador.Tamanho(v.Livre)} de {Formatador.Tamanho(v.Total)} | Cluster {Formatador.Tamanho(v.Cluster)} ({v.SistemaArquivos})"
             : string.Empty;
         Avisar();
+    }
+
+    public void GravarPreferencias(Preferencias preferencias)
+    {
+        _preferencias.Gravar(preferencias);
+        Aplicar(preferencias);
+    }
+
+    public void EsquecerAlvo(string alvo)
+    {
+        _historico.Gravar(UltimosAlvos.Esquecer(_historico.Ler(), alvo));
+        MontarOpcoes();
+        Avisar();
+    }
+
+    public void LimparAlvos()
+    {
+        _historico.Gravar([]);
+        MontarOpcoes();
+        Avisar();
+    }
+
+    private void Aplicar(Preferencias p)
+    {
+        Preferencias = p;
+        Analises.QuantosMaiores = p.MaioresArquivos;
+        Analises.Duplicados.TamanhoMinimoMb = p.DuplicadosMinimoMb;
     }
 
     private void MontarOpcoes()
