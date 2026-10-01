@@ -11,7 +11,8 @@ public static class ExecutorCli
 
     public static string Versao => typeof(ExecutorCli).Assembly.GetName().Version!.ToString(3);
 
-    public static int Executar(ArgumentosCli argumentos, IMotorVarredura motor, TextWriter saida, TextWriter erro, CancellationToken cancelar)
+    /// <summary>As chaves e o .exe só mudam nos testes; o padrão é o registro do usuário e este programa.</summary>
+    public static int Executar(ArgumentosCli argumentos, IMotorVarredura motor, TextWriter saida, TextWriter erro, CancellationToken cancelar, IChavesUsuario? chaves = null, string? exe = null)
     {
         if (!argumentos.Valido)
         {
@@ -31,6 +32,15 @@ public static class ExecutorCli
                 return CodigoSucesso;
             case ComandoCli.Ajuda or ComandoCli.Janela:
                 saida.WriteLine(ArgumentosCli.TextoAjuda);
+                return CodigoSucesso;
+            case ComandoCli.Integrar:
+                IntegracaoExplorer.Ligar(chaves ?? new ChavesUsuarioWindows(), exe ?? Environment.ProcessPath!);
+                saida.WriteLine("Item \"Analisar com MapDisk\" ligado no menu das pastas e unidades do Explorer.");
+                saida.WriteLine("No Windows 11, ele fica em \"Mostrar mais opções\". Se o mapdisk.exe mudar de lugar, rode --integrar de novo.");
+                return CodigoSucesso;
+            case ComandoCli.RemoverIntegracao:
+                IntegracaoExplorer.Desligar(chaves ?? new ChavesUsuarioWindows());
+                saida.WriteLine("Item \"Analisar com MapDisk\" tirado do menu do Explorer.");
                 return CodigoSucesso;
         }
 
@@ -88,6 +98,22 @@ public static class ExecutorCli
 
             saida.WriteLine();
             saida.WriteLine($"CSV gravado em {Path.GetFullPath(csv)}");
+        }
+
+        if (argumentos.Relatorio is { } relatorio)
+        {
+            try
+            {
+                RelatorioTecnico.Gravar(new DadosRelatorio(raiz, DateTime.Now, Environment.MachineName, r.Volume, r.Cancelada, argumentos.Top, null), relatorio);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                erro.WriteLine($"Não foi possível gravar o relatório: {e.Message}");
+                return CodigoFalha;
+            }
+
+            saida.WriteLine();
+            saida.WriteLine($"Relatório gravado em {Path.GetFullPath(relatorio)}");
         }
 
         return r.Cancelada ? CodigoCancelado : CodigoSucesso;
