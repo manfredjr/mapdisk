@@ -1,0 +1,15 @@
+---
+# Tarefas do botao Deploy HEAD Commit do Git Version Control do cPanel.
+# Pagina estatica: o Update from Remote ja troca os arquivos, e o deploy so
+# confere e acerta as permissoes. O dominio aponta para a pasta public do clone.
+deployment:
+    tasks:
+        - export REPO=$HOME/repositories/mapdisk
+        - echo "=== deploy em $REPO ==="
+        - cd $REPO && git log --oneline -1
+        - test -f $REPO/public/index.html
+        - test -f $REPO/public/.htaccess
+        - chmod 755 $REPO
+        - cd $REPO && find public -type d -exec chmod 755 {} \;
+        - cd $REPO && find public -type f -exec chmod 644 {} \;
+        - echo "=== deploy concluido ==="

@@ -18,3 +18,6 @@ TreeSizeFreeSetup.exe
 
 # Rascunhos locais
 .superpowers/
+
+# Gravado pelo servidor da hospedagem na pasta do site; deixa o clone do cPanel com alteracao pendente
+error_log

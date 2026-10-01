@@ -33,4 +33,17 @@ public class PaginaTestes
     {
         Assert.DoesNotContain("treesize", File.ReadAllText(Publico("index.html")), StringComparison.OrdinalIgnoreCase);
     }
+
+    [Fact]
+    public void Publicacao_confere_a_pagina_e_nao_expoe_a_conta()
+    {
+        var raiz = CaracteresProibidosTestes.RaizDoRepositorio();
+        var htaccess = File.ReadAllText(Publico(".htaccess"));
+        Assert.Contains("Options -Indexes", htaccess);
+        Assert.Contains("script-src 'none'", htaccess);
+        var deploy = File.ReadAllText(Path.Combine(raiz, ".cpanel.yml"));
+        Assert.Contains("test -f $REPO/public/index.html", deploy);
+        Assert.Contains("$HOME/repositories/mapdisk", deploy);
+        Assert.DoesNotContain("/home/", deploy);
+    }
 }
