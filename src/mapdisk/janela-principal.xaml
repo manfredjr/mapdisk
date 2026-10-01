@@ -35,6 +35,14 @@
             <MenuItem Header="Apagar..." InputGestureText="Delete" Click="AoRemover" />
             <MenuItem Header="Mover..." Click="AoMover" />
         </ContextMenu>
+        <ContextMenu x:Key="MenuDuplicado" x:Shared="False">
+            <MenuItem Header="Mostrar no Explorer" Click="AoMostrarArquivoNoExplorer" />
+            <MenuItem Header="Copiar caminho" Click="AoCopiarCaminhoDoArquivo" />
+            <MenuItem Header="Abrir a pasta na árvore" Click="AoAbrirPastaDoArquivo" />
+            <Separator />
+            <MenuItem Header="Apagar..." InputGestureText="Delete" Click="AoRemover" />
+            <MenuItem Header="Mover..." Click="AoMover" />
+        </ContextMenu>
         <ContextMenu x:Key="MenuPerfil" x:Shared="False">
             <MenuItem Header="Abrir aqui" Click="AoAbrirPerfil" />
             <Separator />
@@ -597,6 +605,48 @@
                                     </GridView>
                                 </ListView.View>
                             </ListView>
+                            </DockPanel>
+                        </TabItem>
+                        <TabItem Header="Duplicados">
+                            <DockPanel DataContext="{Binding Duplicados}" Margin="0,6,0,0">
+                                <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,4">
+                                    <TextBlock Text="Tamanho mínimo (MB)" VerticalAlignment="Center" Margin="0,0,4,0" />
+                                    <TextBox Text="{Binding TamanhoMinimoMb, UpdateSourceTrigger=PropertyChanged}" Width="44" Margin="0,0,8,0"
+                                             AutomationProperties.Name="Tamanho mínimo em MB" />
+                                    <Button Content="Procurar duplicados" Style="{StaticResource BotaoContorno}" Click="AoProcurarDuplicados" Margin="0,0,6,0"
+                                            ToolTip="Lê o conteúdo só dos arquivos de mesmo tamanho, na pasta das análises" />
+                                    <Button Content="Cancelar" Style="{StaticResource BotaoContorno}" Click="AoCancelarDuplicados" Margin="0,0,6,0"
+                                            Visibility="{Binding Procurando, Converter={StaticResource VisivelSe}}" />
+                                    <Button Content="Selecionar as cópias" Style="{StaticResource BotaoContorno}" Click="AoSelecionarCopias" Margin="0"
+                                            ToolTip="Seleciona todas as cópias menos a mais antiga de cada grupo" />
+                                </WrapPanel>
+                                <ProgressBar DockPanel.Dock="Top" Style="{StaticResource ProgressoMT}" IsIndeterminate="True" Height="6" Margin="0,2,0,2"
+                                             Visibility="{Binding Procurando, Converter={StaticResource VisivelSe}}" />
+                                <TextBlock DockPanel.Dock="Top" Text="{Binding TextoEstado}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,2,0,6" />
+                                <ListView x:Name="ListaDuplicados" ItemsSource="{Binding Linhas}" BorderThickness="0" SelectionMode="Extended"
+                                          SelectionChanged="AoSelecionarParaAcao" KeyDown="AoTeclarNaLista" VirtualizingPanel.IsVirtualizing="True">
+                                    <ListView.ItemContainerStyle>
+                                        <!-- Grupos alternam em cinza-claro, que não se confunde com a cor da seleção -->
+                                        <Style TargetType="{x:Type ListViewItem}">
+                                            <Setter Property="ToolTip" Value="{Binding Pasta}" />
+                                            <Setter Property="ContextMenu" Value="{StaticResource MenuDuplicado}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Alternada}" Value="True">
+                                                    <Setter Property="Background" Value="{StaticResource PincelCinzaClaro}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.View>
+                                        <GridView>
+                                            <GridViewColumn Header="Grupo" Width="50" DisplayMemberBinding="{Binding Grupo}" />
+                                            <GridViewColumn Header="Tamanho" Width="80" DisplayMemberBinding="{Binding TextoTamanho}" />
+                                            <GridViewColumn Header="Nome" Width="160" DisplayMemberBinding="{Binding Nome}" />
+                                            <GridViewColumn Header="Última alteração" Width="100" DisplayMemberBinding="{Binding TextoData}" />
+                                            <GridViewColumn Header="Pasta" Width="260" DisplayMemberBinding="{Binding Pasta}" />
+                                        </GridView>
+                                    </ListView.View>
+                                </ListView>
                             </DockPanel>
                         </TabItem>
                     </TabControl>

@@ -73,8 +73,16 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 
 | Item | Motivo | O que fecha |
 |---|---|---|
-| Duplicados como critério do "Sugerir" | Os duplicados ainda não existem | Fatia 7 |
+| Duplicados como critério do "Sugerir" | Os duplicados ainda não existem | Fechado: entrou na fatia 7, PR #15 |
 | Critérios do "Sugerir" guardados entre sessões | A tela de Opções ainda não existe. Cada relatório começa com os padrões | Opções da fatia 8 |
 | Planilha aberta e salva pelo Excel de verdade | Os testes simulam o jeito do Excel e do LibreOffice salvar. O agente não opera o Excel do computador do Manfred | Fechado: o Manfred testou no PR #13 em 30/09/2026 |
 | Varredura com a pasta do técnico em `C:\Users` | A pasta do registro de ações é protegida, então no computador do próprio técnico a pasta `Users` não entra no relatório | Aceito: no servidor do cliente, `Users` não é a do técnico |
+
+## Fatia 7: duplicados
+
+| Item | Motivo | O que fecha |
+|---|---|---|
+| Tamanho mínimo dos duplicados guardado entre sessões | A tela de Opções ainda não existe. Cada sessão começa com 1 MB | Opções da fatia 8 |
+| Resultado dos duplicados some ao atualizar uma pasta | "Atualizar esta pasta" e a releitura do destino do mover limpam o resultado, porque os caminhos podem ter mudado | Aceito. Procurar de novo |
+| Busca de duplicados num disco grande de verdade | Os testes usam arquivos pequenos. O tempo e o peso num servidor com muitos arquivos grandes só aparecem no uso | Fechado: teste do Manfred no PR #15, em 01/10/2026 |
 

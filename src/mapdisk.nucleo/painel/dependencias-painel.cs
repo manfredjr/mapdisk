@@ -18,6 +18,9 @@ public sealed class DependenciasPainel
     /// <summary>Operações no disco. O padrão não toca no disco: só o Padrao() do painel liga as reais.</summary>
     public IOperacoesArquivo Operacoes { get; init; } = new OperacoesDemonstracao();
 
+    /// <summary>Leitura de conteúdo para os duplicados. A demonstração troca por uma que não abre arquivo.</summary>
+    public ILeitorConteudo Leitor { get; init; } = new LeitorConteudo();
+
     public IRegistroAcoes Registro { get; init; } = new RegistroEmMemoria();
 
     public LocaisProtegidos Locais { get; init; } = LocaisProtegidos.DoSistema();

@@ -48,6 +48,9 @@ public sealed class PreparadorAcoes
                 case LinhaArvore arquivo:
                     itens.Add(ItemAcao.DoArquivo(arquivo.Pasta, arquivo.Arquivo));
                     break;
+                case LinhaDuplicado duplicado:
+                    itens.Add(ItemAcao.DoArquivo(duplicado.Encontrado.Pasta, duplicado.Encontrado.Arquivo));
+                    break;
                 case LinhaArquivo linha:
                     itens.Add(ItemAcao.DoArquivo(linha.Encontrado.Pasta, linha.Encontrado.Arquivo));
                     break;
@@ -62,7 +65,16 @@ public sealed class PreparadorAcoes
 
     public AvaliacaoSelecao Avaliar(IEnumerable<object> selecionados)
     {
-        var (itens, grupo) = ItensDaSelecao(selecionados);
+        var lista = selecionados.ToList();
+
+        // Sempre sobra uma cópia (regra 1).
+        var todasAsCopias = lista.OfType<LinhaDuplicado>().GroupBy(d => d.Grupo).FirstOrDefault(g => g.Count() >= g.First().ArquivosNoGrupo);
+        if (todasAsCopias is not null)
+        {
+            return Bloqueado($"Todas as cópias do grupo {todasAsCopias.Key} estão selecionadas. Deixe ao menos uma.");
+        }
+
+        var (itens, grupo) = ItensDaSelecao(lista);
         return grupo is not null ? Bloqueado($"{grupo}: abra o grupo e selecione os arquivos.") : AvaliarItens(itens);
     }
 

@@ -11,9 +11,11 @@ public sealed class PainelRelatorio : INotifyPropertyChanged
     private readonly NoPasta _pasta;
     private readonly long? _livre;
     private readonly ListaAvaliacao _lista;
+    private readonly ResultadoDuplicados? _duplicados;
 
-    public PainelRelatorio(NoPasta pasta, long? livre, string tecnico, LocaisProtegidos? locais = null)
+    public PainelRelatorio(NoPasta pasta, long? livre, string tecnico, LocaisProtegidos? locais = null, ResultadoDuplicados? duplicados = null)
     {
+        _duplicados = duplicados;
         _lista = new ListaAvaliacao(locais);
         _pasta = pasta;
         _livre = livre;
@@ -44,7 +46,7 @@ public sealed class PainelRelatorio : INotifyPropertyChanged
 
     public void Sugerir(DateTime hoje)
     {
-        Sugestao.Sugerir(_lista, _pasta, Criterios, hoje);
+        Sugestao.Sugerir(_lista, _pasta, Criterios, hoje, _duplicados);
         Avisar();
     }
 

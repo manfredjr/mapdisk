@@ -88,4 +88,14 @@ public class RecursosTestes
         Assert.True(File.Exists(App("janela-relatorio.xaml")));
         Assert.True(File.Exists(App("janela-resposta.xaml")));
     }
+
+    [Fact]
+    public void Janela_tem_a_aba_de_duplicados()
+    {
+        var janela = File.ReadAllText(App("janela-principal.xaml"));
+        Assert.Contains("Header=\"Duplicados\"", janela);
+        Assert.Contains("Click=\"AoProcurarDuplicados\"", janela);
+        Assert.Contains("Click=\"AoSelecionarCopias\"", janela);
+        Assert.Contains("x:Key=\"MenuDuplicado\"", janela);
+    }
 }
