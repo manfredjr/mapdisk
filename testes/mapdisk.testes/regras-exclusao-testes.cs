@@ -91,4 +91,58 @@ public class RegrasExclusaoTestes
         Assert.Equal(5000, raiz.Tamanho);
         Assert.Equal(0, raiz.PastasExcluidas);
     }
+
+    [Fact]
+    public void Painel_passa_as_regras_ao_motor_e_grava()
+    {
+        var motor = new MotorVarredura();
+        var armazem = new ExclusoesEmMemoria();
+        armazem.Gravar(RegrasExclusao.De(["node_modules"]));
+        var painel = new PainelPrincipal(new DependenciasPainel { Motor = motor, ListarUnidades = () => [], Exclusoes = armazem });
+        Assert.Equal(["node_modules"], motor.Exclusoes.Regras);
+
+        painel.GravarExclusoes(RegrasExclusao.De([".git"]));
+        Assert.Equal([".git"], armazem.Ler().Regras);
+        Assert.Equal([".git"], motor.Exclusoes.Regras);
+        Assert.Equal([".git"], painel.Exclusoes.Regras);
+    }
+
+    [Fact]
+    public void Linha_grafico_e_analises_tratam_a_pasta_excluida()
+    {
+        var raiz = ArvoreComExcluida();
+
+        var linha = new LinhaArvore(TipoLinha.Pasta, raiz.Subpastas[1]);
+        Assert.True(linha.SemValor);
+        Assert.Equal("excluída da varredura (regra: node_modules)", linha.Rotulo);
+
+        var grafico = ItensGrafico.DaPasta(raiz, ModoExibicao.Tamanho, 20);
+        Assert.Equal(["node_modules"], grafico.Excluidas);
+        Assert.Empty(grafico.NaoLidas);
+        Assert.Equal(1, raiz.PastasExcluidas);
+        Assert.Equal(1000, raiz.Tamanho);
+    }
+
+    [Fact]
+    public async Task Analises_avisam_e_demonstracao_mostra_a_excluida()
+    {
+        var analises = new PainelAnalises();
+        await analises.CalcularAsync(ArvoreComExcluida(), new DateTime(2026, 10, 1));
+        Assert.Equal("1 pasta excluída da varredura não entra nesta conta", analises.Aviso);
+
+        var demo = (await Demonstracao.Motor().Iniciar(@"C:\", CancellationToken.None).Conclusao).Raiz;
+        Assert.Equal(1, demo.PastasExcluidas);
+        Assert.Equal(["$Recycle.Bin"], Demonstracao.Painel().Exclusoes.Regras);
+    }
+
+    private static NoPasta ArvoreComExcluida()
+    {
+        var raiz = new NoPasta(@"D:\", null);
+        var dados = new NoPasta("Dados", raiz);
+        var modulos = new NoPasta("node_modules", raiz);
+        raiz.Preencher([], [dados, modulos]);
+        dados.Preencher([new ArquivoInfo("a.txt", 1000, 4096, new DateTime(2026, 1, 1), MarcaArquivo.Nenhuma)], []);
+        modulos.MarcarExcluida("node_modules");
+        return raiz;
+    }
 }

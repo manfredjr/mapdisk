@@ -20,6 +20,7 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     private readonly IHistoricoAlvos _historico;
     private readonly Func<string, ResultadoElevacao> _elevar;
     private readonly IArmazemPreferencias _preferencias;
+    private readonly IArmazemExclusoes _exclusoes;
     private CancellationTokenSource? _cancelar;
     private Varredura? _varredura;
     private InfoVolume? _volume;
@@ -39,6 +40,9 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         Analises = new PainelAnalises(dependencias.Leitor);
         _preferencias = dependencias.Preferencias;
         Aplicar(_preferencias.Ler());
+        _exclusoes = dependencias.Exclusoes;
+        Exclusoes = _exclusoes.Ler();
+        _motor.Exclusoes = Exclusoes;
         Unidades = _listarUnidades();
         TextoAlvo = Unidades.FirstOrDefault()?.Raiz ?? string.Empty;
         MontarOpcoes();
@@ -61,7 +65,11 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
         Operacoes = new OperacoesArquivo(),
         Registro = RegistroAcoes.Padrao(),
         Preferencias = ArquivoPreferencias.Padrao(),
+        Exclusoes = ArquivoExclusoes.Padrao(),
     });
+
+    /// <summary>Pastas que a próxima varredura não lê.</summary>
+    public RegrasExclusao Exclusoes { get; private set; } = RegrasExclusao.Nenhuma;
 
     public Preferencias Preferencias { get; private set; } = new();
 
@@ -436,6 +444,11 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
                 partes.Add(Formatador.Plural(raiz.PastasComErro, "pasta com erro de leitura", "pastas com erro de leitura"));
             }
 
+            if (raiz.PastasExcluidas > 0)
+            {
+                partes.Add(Formatador.Plural(raiz.PastasExcluidas, "pasta excluída", "pastas excluídas"));
+            }
+
             TextoSemLeitura = string.Join(" | ", partes);
         }
 
@@ -449,6 +462,15 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     {
         _preferencias.Gravar(preferencias);
         Aplicar(preferencias);
+    }
+
+    /// <summary>Grava a lista e entrega ao motor. Vale na próxima varredura.</summary>
+    public void GravarExclusoes(RegrasExclusao regras)
+    {
+        _exclusoes.Gravar(regras);
+        Exclusoes = regras;
+        _motor.Exclusoes = regras;
+        Avisar();
     }
 
     public void EsquecerAlvo(string alvo)

@@ -20,10 +20,21 @@ public static class Demonstracao
         Operacoes = new OperacoesDemonstracao(),
         Registro = new RegistroEmMemoria(),
         Leitor = new LeitorDemonstracao(),
+        Exclusoes = ExclusoesDaDemonstracao(),
         Demonstracao = true,
     });
 
+    private static ExclusoesEmMemoria ExclusoesDaDemonstracao()
+    {
+        var exclusoes = new ExclusoesEmMemoria();
+        exclusoes.Gravar(RegrasExclusao.De([Lixeira]));
+        return exclusoes;
+    }
+
     public static IMotorVarredura Motor() => new MotorDemonstracao();
+
+    // A pasta da Lixeira entra excluída, para a tela de exemplo mostrar o estado "excluída".
+    private const string Lixeira = "$Recycle.Bin";
 
     internal static NoPasta Montar(string alvo)
     {
@@ -34,13 +45,15 @@ public static class Demonstracao
         var programas = new NoPasta("Program Files", raiz, d);
         var dados = new NoPasta("Dados", raiz, d);
         var sistema = new NoPasta("System Volume Information", raiz, d);
+        var lixeira = new NoPasta(Lixeira, raiz, d);
         raiz.Preencher(
             [
                 new ArquivoInfo("pagefile.sys", 16 * Gb, 16 * Gb, d, MarcaArquivo.Sistema),
                 new ArquivoInfo("hiberfil.sys", 12 * Gb, 12 * Gb, d, MarcaArquivo.Sistema),
             ],
-            [users, windows, programas, dados, sistema]);
+            [users, windows, programas, dados, sistema, lixeira]);
         sistema.MarcarSemAcesso("acesso negado");
+        lixeira.MarcarExcluida(Lixeira);
 
         var ana = new NoPasta("ana.souza", users, d);
         var bruno = new NoPasta("bruno.lima", users, d);
