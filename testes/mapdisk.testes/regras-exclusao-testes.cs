@@ -145,4 +145,21 @@ public class RegrasExclusaoTestes
         modulos.MarcarExcluida("node_modules");
         return raiz;
     }
+
+    [Fact]
+    public void Csv_e_relatorios_citam_a_pasta_excluida()
+    {
+        var raiz = new NoPasta(@"D:\", null);
+        var modulos = new NoPasta("node_modules", raiz);
+        raiz.Preencher([], [modulos]);
+        modulos.MarcarExcluida("node_modules");
+
+        var csv = new StringWriter();
+        ExportadorCsv.Gravar(raiz, csv);
+        Assert.Contains(@"D:\node_modules;excluída;", csv.ToString());
+
+        var html = System.Net.WebUtility.HtmlDecode(RelatorioTecnico.Gerar(new DadosRelatorio(raiz, DateTime.Now, "PC", null, false, 10, null)));
+        Assert.Contains("1 pasta excluída da varredura não entra nesta conta", html);
+        Assert.Contains("excluída da varredura (regra: node_modules)", html);
+    }
 }

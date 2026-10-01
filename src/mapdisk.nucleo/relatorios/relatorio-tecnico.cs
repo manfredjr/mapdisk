@@ -90,6 +90,11 @@ public static class RelatorioTecnico
             s.Append($"<p class=\"aviso\">{H(Formatador.Plural(semLeitura, "pasta não pôde ser lida e não entra nesta conta", "pastas não puderam ser lidas e não entram nesta conta"))}. ");
             s.Append("O botão \"Varrer como administrador\" lê as pastas locais que ficaram sem acesso.</p>");
         }
+
+        if (p.PastasExcluidas > 0)
+        {
+            s.Append($"<p class=\"aviso\">{H(Formatador.Plural(p.PastasExcluidas, "pasta excluída da varredura não entra nesta conta", "pastas excluídas da varredura não entram nesta conta"))}.</p>");
+        }
     }
 
     private static void Grafico(StringBuilder s, NoPasta p)
@@ -132,7 +137,7 @@ public static class RelatorioTecnico
     {
         s.Append("<h2>Maiores pastas</h2><table><thead><tr><th>Pasta</th><th>Tamanho</th><th>% da pasta</th><th>Arquivos</th><th>Última alteração</th></tr></thead><tbody>");
         var lidas = p.Subpastas.Where(x => x.Estado == EstadoPasta.Lida).OrderByDescending(x => x.Tamanho).Take(quantos);
-        var semLeitura = p.Subpastas.Where(x => x.Estado is EstadoPasta.SemAcesso or EstadoPasta.ErroLeitura or EstadoPasta.Pendente);
+        var semLeitura = p.Subpastas.Where(x => x.Estado is EstadoPasta.SemAcesso or EstadoPasta.ErroLeitura or EstadoPasta.Pendente or EstadoPasta.Excluida);
         foreach (var x in lidas)
         {
             s.Append($"<tr><td>{H(x.Nome)}</td><td class=\"n\">{H(Formatador.Tamanho(x.Tamanho))}</td>");
@@ -146,9 +151,10 @@ public static class RelatorioTecnico
             {
                 EstadoPasta.SemAcesso => "sem acesso",
                 EstadoPasta.ErroLeitura => "erro de leitura",
+                EstadoPasta.Excluida => $"excluída da varredura (regra: {x.Motivo})",
                 _ => "não lida",
             };
-            s.Append($"<tr><td>{H(x.Nome)}</td><td colspan=\"4\">{estado}</td></tr>");
+            s.Append($"<tr><td>{H(x.Nome)}</td><td colspan=\"4\">{H(estado)}</td></tr>");
         }
 
         s.Append("</tbody></table>");
