@@ -71,7 +71,7 @@ public class ExecutorCliTestes
         Assert.Equal(0, Rodar(Demonstracao.Motor(), out var ajuda, out _, "--ajuda"));
         Assert.Contains("mapdisk varrer", ajuda);
         Assert.Equal(0, Rodar(Demonstracao.Motor(), out var versao, out _, "--versao"));
-        Assert.StartsWith("MapDisk - MT 0.1.0", versao);
+        Assert.StartsWith("MapDisk - MT 1.0.0", versao);
     }
 
     private sealed class MotorInterrompido : IMotorVarredura
