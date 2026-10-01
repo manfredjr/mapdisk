@@ -26,4 +26,17 @@ public static class Paleta
 
     /// <summary>Grafite sobre as cores claras, branco sobre as escuras.</summary>
     public static string CorTexto(string cor) => Claras.Contains(cor) ? "#202020" : "#FFFFFF";
+
+    /// <summary>As subpastas contam a posição entre elas, para a primeira ser sempre o verde da MT.</summary>
+    public static string[] CoresDe(IReadOnlyList<ItemGrafico> itens)
+    {
+        var cores = new string[itens.Count];
+        var pasta = 0;
+        for (var i = 0; i < itens.Count; i++)
+        {
+            cores[i] = Cor(itens[i].Tipo == TipoItemGrafico.Pasta ? pasta++ : 0, itens[i].Tipo);
+        }
+
+        return cores;
+    }
 }

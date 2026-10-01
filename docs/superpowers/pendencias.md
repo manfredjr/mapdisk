@@ -38,7 +38,7 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 
 | Item | Motivo | O que fecha |
 |---|---|---|
-| Esquecer um alvo da lista de últimos alvos | Fora do escopo da fatia 2. A lista guarda até 10 caminhos só nesta máquina, em `%LOCALAPPDATA%\MapDisk\alvos.txt` | Opções da fatia 7, junto com "limpar a lista" |
+| Esquecer um alvo da lista de últimos alvos | Fora do escopo da fatia 2. A lista guarda até 10 caminhos só nesta máquina, em `%LOCALAPPDATA%\MapDisk\alvos.txt` | Fechado: entrou na fatia 8, PR #17 (Opções > Últimos alvos) |
 | Hard link depois de "Atualizar esta pasta" | A releitura confere hard link só dentro da pasta relida. Um arquivo com outro nome fora dela passa a somar duas vezes | Aceito. Reavaliar se aparecer caso real |
 | Leitura como administrador em caminho de rede | O privilégio de backup vale só para disco local. Em `\\servidor\pasta`, quem manda são as permissões do servidor | Aceito, é como o Windows funciona |
 | Conferência da janela elevada | O aviso de elevação do Windows é confirmado pelo Manfred, não pelo agente | Teste do Manfred no PR da fatia 2 |
@@ -47,7 +47,7 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 
 | Item | Motivo | O que fecha |
 |---|---|---|
-| Quantidade de maiores arquivos configurável (R11) | A fatia 3 usa 100, o padrão da spec | Tela de Opções da fatia 8 (era a 7 antes da mudança de ordem de 30/09/2026) |
+| Quantidade de maiores arquivos configurável (R11) | A fatia 3 usa 100, o padrão da spec | Fechado: entrou na fatia 8, PR #17 |
 | Pasta de perfis fora do padrão | O resumo por usuário procura a pasta `Users`. Perfis redirecionados para outra pasta ou compartilhamento de rede não entram | Aceito. Reavaliar se aparecer caso real |
 | Idade pela data de último acesso | "Antigo" usa a última modificação. O último acesso muitas vezes vem desligado no Windows e não é confiável | Aceito |
 
@@ -55,7 +55,7 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 
 | Item | Motivo | O que fecha |
 |---|---|---|
-| Imagem do gráfico no relatório | O R10 pede o gráfico na tela. Levar a imagem para o relatório é decisão do relatório | Relatório HTML da fatia 8 (era a 7 antes da mudança de ordem de 30/09/2026) |
+| Imagem do gráfico no relatório | O R10 pede o gráfico na tela. Levar a imagem para o relatório é decisão do relatório | Fechado: entrou na fatia 8, PR #17 (gráfico em blocos no relatório do técnico) |
 | Gráfico com mais de um nível | O gráfico mostra um nível abaixo da pasta, que se lê de relance. Para descer, clique duplo | Aceito. Reavaliar se o uso pedir |
 | Clique duplo no gráfico conferido pelo agente | O Windows não deixou o roteiro de teste trazer a janela para a frente e clicar | Fechado: o Manfred testou no PR #8 em 30/09/2026 |
 
@@ -65,7 +65,7 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 |---|---|---|
 | Registro de ações sem limite de tamanho | Uma linha por item, antes e depois. Em uso normal cresce devagar | Aceito. Reavaliar se aparecer registro grande |
 | Hard link apagado que deixa a outra cópia sem somar | Se o item apagado era a cópia que somava, a outra continua marcada como repetida até a próxima varredura | Aceito. Atualizar a pasta resolve |
-| Botão "Registro de ações" no cartão das pastas | A tela de Opções ainda não existe | Tela de Opções da fatia 8 (era a 7 antes da mudança de ordem de 30/09/2026) |
+| Botão "Registro de ações" no cartão das pastas | A tela de Opções ainda não existe | Fechado: entrou na fatia 8, PR #17 (Opções > Registro de ações) |
 | Permissões (ACL) no mover entre unidades | A cópia recebe as permissões da pasta de destino, como no Explorer | Aceito |
 | Teste da Lixeira real, da exclusão em rede e do mover pela janela | A Lixeira leva o arquivo para fora da pasta do projeto e o programa real grava o registro em `%LOCALAPPDATA%`. O agente testou pela janela só em demonstração | Fechado: o Manfred testou no PR #10 em 30/09/2026 |
 
@@ -74,7 +74,7 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 | Item | Motivo | O que fecha |
 |---|---|---|
 | Duplicados como critério do "Sugerir" | Os duplicados ainda não existem | Fechado: entrou na fatia 7, PR #15 |
-| Critérios do "Sugerir" guardados entre sessões | A tela de Opções ainda não existe. Cada relatório começa com os padrões | Opções da fatia 8 |
+| Critérios do "Sugerir" guardados entre sessões | A tela de Opções ainda não existe. Cada relatório começa com os padrões | Fechado: entrou na fatia 8, PR #17 |
 | Planilha aberta e salva pelo Excel de verdade | Os testes simulam o jeito do Excel e do LibreOffice salvar. O agente não opera o Excel do computador do Manfred | Fechado: o Manfred testou no PR #13 em 30/09/2026 |
 | Varredura com a pasta do técnico em `C:\Users` | A pasta do registro de ações é protegida, então no computador do próprio técnico a pasta `Users` não entra no relatório | Aceito: no servidor do cliente, `Users` não é a do técnico |
 
@@ -82,7 +82,16 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 
 | Item | Motivo | O que fecha |
 |---|---|---|
-| Tamanho mínimo dos duplicados guardado entre sessões | A tela de Opções ainda não existe. Cada sessão começa com 1 MB | Opções da fatia 8 |
+| Tamanho mínimo dos duplicados guardado entre sessões | A tela de Opções ainda não existe. Cada sessão começa com 1 MB | Fechado: entrou na fatia 8, PR #17 |
 | Resultado dos duplicados some ao atualizar uma pasta | "Atualizar esta pasta" e a releitura do destino do mover limpam o resultado, porque os caminhos podem ter mudado | Aceito. Procurar de novo |
 | Busca de duplicados num disco grande de verdade | Os testes usam arquivos pequenos. O tempo e o peso num servidor com muitos arquivos grandes só aparecem no uso | Fechado: teste do Manfred no PR #15, em 01/10/2026 |
 
+## Fatia 8: relatório do técnico, linha de comando, Explorer, Opções e página
+
+| Item | Motivo | O que fecha |
+|---|---|---|
+| Pastas excluídas da varredura (spec, seção 6) | Fica para depois da versão 1, por decisão do Manfred em 01/10/2026. Mexe no motor e em todas as contas | Uma fatia própria depois da versão 1.0.0 |
+| Item no menu compacto do Windows 11 | Exige empacotamento MSIX e assinatura (spec, seção 13) | Fora da versão 1 |
+| Publicação da página | Publicar pede autorização. O roteiro do cPanel fica fora da pasta do projeto | Passo da versão 1.0.0, depois do teste de lançamento, com autorização |
+| Teste do item do Explorer | Ligar grava no registro do Windows do Manfred. O agente testou só com as chaves em memória | Fechado: teste do Manfred no PR #17, em 01/10/2026 |
+| Exportar pela janela | O diálogo de salvar não foi operado pelo agente. O relatório e o CSV foram conferidos pela linha de comando, que usa o mesmo código | Fechado: teste do Manfred no PR #17, em 01/10/2026 |

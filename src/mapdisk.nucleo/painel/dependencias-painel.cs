@@ -21,6 +21,9 @@ public sealed class DependenciasPainel
     /// <summary>Leitura de conteúdo para os duplicados. A demonstração troca por uma que não abre arquivo.</summary>
     public ILeitorConteudo Leitor { get; init; } = new LeitorConteudo();
 
+    /// <summary>Opções guardadas. O padrão fica só na memória; o Padrao() do painel liga o arquivo.</summary>
+    public IArmazemPreferencias Preferencias { get; init; } = new PreferenciasEmMemoria();
+
     public IRegistroAcoes Registro { get; init; } = new RegistroEmMemoria();
 
     public LocaisProtegidos Locais { get; init; } = LocaisProtegidos.DoSistema();

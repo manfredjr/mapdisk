@@ -64,4 +64,7 @@ public static class UltimosAlvos
             .Concat(atuais.Where(a => !string.Equals(a, alvo, StringComparison.OrdinalIgnoreCase)))
             .Take(Maximo)
             .ToList();
+
+    public static IReadOnlyList<string> Esquecer(IReadOnlyList<string> atuais, string alvo) =>
+        atuais.Where(a => !string.Equals(a, alvo, StringComparison.OrdinalIgnoreCase)).ToList();
 }

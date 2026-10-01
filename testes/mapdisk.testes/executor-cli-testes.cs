@@ -128,4 +128,27 @@ public class ExecutorCliTestes
 
         Assert.Contains("Atenção: 2 pastas não foram lidas", saida);
     }
+
+    [Fact]
+    public void Grava_o_relatorio_pedido()
+    {
+        var arquivo = Path.Combine(AppContext.BaseDirectory, "cli-" + Guid.NewGuid().ToString("N") + ".html");
+        var codigo = Rodar(Demonstracao.Motor(), out var saida, out _, "varrer", "C:", "--relatorio", arquivo);
+        Assert.Equal(ExecutorCli.CodigoSucesso, codigo);
+        Assert.Contains("Relatório gravado em", saida);
+        Assert.Contains("Relatório de espaço em disco", File.ReadAllText(arquivo));
+        File.Delete(arquivo);
+    }
+
+    [Fact]
+    public void Integrar_e_remover_mexem_so_nas_chaves()
+    {
+        var chaves = new ChavesEmMemoria();
+        var s = new StringWriter();
+        Assert.Equal(ExecutorCli.CodigoSucesso, ExecutorCli.Executar(ArgumentosCli.Interpretar(["--integrar"]), Demonstracao.Motor(), s, new StringWriter(), CancellationToken.None, chaves, @"E:\mapdisk.exe"));
+        Assert.Equal(EstadoIntegracao.Ligada, IntegracaoExplorer.Estado(chaves, @"E:\mapdisk.exe"));
+        Assert.Contains("Mostrar mais opções", s.ToString());
+        ExecutorCli.Executar(ArgumentosCli.Interpretar(["--remover-integracao"]), Demonstracao.Motor(), s, new StringWriter(), CancellationToken.None, chaves, @"E:\mapdisk.exe");
+        Assert.Empty(chaves.Todas);
+    }
 }

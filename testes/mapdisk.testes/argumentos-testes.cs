@@ -63,4 +63,29 @@ public class ArgumentosTestes
     {
         Assert.Contains("nunca apaga nem move", ArgumentosCli.TextoAjuda);
     }
+
+    [Fact]
+    public void Le_o_relatorio_e_exige_html()
+    {
+        Assert.Equal("d.html", ArgumentosCli.Interpretar(["varrer", "D:", "--relatorio", "d.html"]).Relatorio);
+        Assert.Contains("O arquivo de --relatorio tem que terminar em .html.", ArgumentosCli.Interpretar(["varrer", "D:", "--relatorio", "d.txt"]).Erros);
+        Assert.Contains("As opções --csv, --relatorio e --top pedem o comando varrer.", ArgumentosCli.Interpretar(["--relatorio", "d.html"]).Erros);
+    }
+
+    [Fact]
+    public void Le_integrar_e_remover()
+    {
+        Assert.Equal(ComandoCli.Integrar, ArgumentosCli.Interpretar(["--integrar"]).Comando);
+        Assert.Equal(ComandoCli.RemoverIntegracao, ArgumentosCli.Interpretar(["--remover-integracao"]).Comando);
+        Assert.False(ArgumentosCli.Interpretar(["--integrar", "varrer", "C:"]).Valido);
+    }
+
+    [Fact]
+    public void Ajuda_lista_todas_as_opcoes()
+    {
+        foreach (var opcao in new[] { "--relatorio", "--integrar", "--remover-integracao", "--csv", "--top" })
+        {
+            Assert.Contains(opcao, ArgumentosCli.TextoAjuda);
+        }
+    }
 }

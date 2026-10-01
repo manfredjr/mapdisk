@@ -78,8 +78,11 @@
                 <!-- Sobre: autoria, avisos da licenca GPL-3.0 e onde baixar -->
                 <Button DockPanel.Dock="Right" Content="Sobre" Style="{StaticResource BotaoFaixaContorno}" Click="AoAbrirSobre"
                         VerticalAlignment="Center" ToolTip="Versão, autoria, licença e onde baixar" />
+                <!-- Opcoes: o que vale entre sessoes, o item do Explorer, os ultimos alvos e o registro de acoes -->
+                <Button DockPanel.Dock="Right" Content="Opções" Style="{StaticResource BotaoFaixaContorno}" Click="AoAbrirOpcoes"
+                        VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="Menu do Explorer, números das análises, últimos alvos e registro de ações" />
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <ComboBox x:Name="CampoAlvo" Width="340" IsEditable="True"
+                    <ComboBox x:Name="CampoAlvo" Width="260" IsEditable="True"
                               ItemsSource="{Binding Opcoes}" TextSearch.TextPath="Caminho"
                               Text="{Binding TextoAlvo, UpdateSourceTrigger=PropertyChanged}"
                               ToolTip="Unidade, pasta ou caminho de rede, como C:, D:\Dados ou \\servidor\pasta"
@@ -183,8 +186,16 @@
                         </ContextMenu>
                     </Button.ContextMenu>
                 </Button>
-                <Button Content="Registro de ações" Style="{StaticResource BotaoContorno}" Click="AoAbrirRegistro" Margin="0"
-                        ToolTip="Mostra no Explorer o arquivo com o registro de cada ação" />
+                <!-- Relatorio do tecnico (R17) e CSV da pasta das analises -->
+                <Button Content="Exportar" Style="{StaticResource BotaoContorno}" Click="AoAbrirMenuRelatorio" Margin="0"
+                        ToolTip="Grava o relatório da pasta das análises em HTML ou CSV">
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Relatório HTML..." Click="AoExportarHtml" />
+                            <MenuItem Header="Planilha CSV..." Click="AoExportarCsv" />
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <Border Style="{StaticResource BarraTitulo}" />

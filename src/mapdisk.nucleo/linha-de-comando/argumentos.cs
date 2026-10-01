@@ -8,6 +8,8 @@ public enum ComandoCli
     Ajuda,
     Versao,
     Varrer,
+    Integrar,
+    RemoverIntegracao,
 }
 
 /// <summary>Argumentos da linha de comando já interpretados. A linha de comando só lê.</summary>
@@ -20,6 +22,8 @@ public sealed class ArgumentosCli
         Uso:
           mapdisk                          abre a janela
           mapdisk varrer <alvo> [opções]   varre e mostra os maiores itens
+          mapdisk --integrar               põe "Analisar com MapDisk" no menu do Explorer
+          mapdisk --remover-integracao     tira o item do menu do Explorer
           mapdisk --ajuda                  mostra esta ajuda
           mapdisk --versao                 mostra a versão
 
@@ -27,11 +31,14 @@ public sealed class ArgumentosCli
         (\\servidor\pasta).
 
         Opções de varrer:
-          --csv <arquivo.csv>   grava todas as pastas num arquivo CSV
-          --top <n>             quantos itens mostrar, de 1 a 1000 (padrão: 10)
+          --csv <arquivo.csv>         grava todas as pastas num arquivo CSV
+          --relatorio <arquivo.html>  grava o relatório com a marca da MT e o gráfico
+          --top <n>                   quantos itens mostrar e pôr em cada lista do
+                                      relatório, de 1 a 1000 (padrão: 10)
 
         Exemplos:
           mapdisk varrer C:
+          mapdisk varrer D:\ --relatorio d.html
           mapdisk varrer \\servidor\dados --csv dados.csv --top 30
 
         A linha de comando só lê. Ela nunca apaga nem move arquivos.
@@ -43,6 +50,8 @@ public sealed class ArgumentosCli
     public string? Caminho { get; private set; }
 
     public string? Csv { get; private set; }
+
+    public string? Relatorio { get; private set; }
 
     public int Top { get; private set; } = 10;
 
@@ -74,6 +83,17 @@ public sealed class ArgumentosCli
                     a.Comando = ComandoCli.Varrer;
                     comandos++;
                     break;
+                case "--integrar":
+                    a.Comando = ComandoCli.Integrar;
+                    comandos++;
+                    break;
+                case "--remover-integracao":
+                    a.Comando = ComandoCli.RemoverIntegracao;
+                    comandos++;
+                    break;
+                case "--relatorio":
+                    a.Relatorio = Valor(args, ref i, arg, a.Erros);
+                    break;
                 case "--csv":
                     a.Csv = Valor(args, ref i, arg, a.Erros);
                     break;
@@ -101,7 +121,7 @@ public sealed class ArgumentosCli
 
         if (comandos > 1)
         {
-            a.Erros.Add("Use só um comando por vez: varrer, --ajuda ou --versao.");
+            a.Erros.Add("Use só um comando por vez: varrer, --integrar, --remover-integracao, --ajuda ou --versao.");
         }
 
         if (a.Comando == ComandoCli.Varrer)
@@ -127,6 +147,11 @@ public sealed class ArgumentosCli
             {
                 a.Erros.Add("O arquivo de --csv tem que terminar em .csv.");
             }
+
+            if (a.Relatorio is { } rel && !rel.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+            {
+                a.Erros.Add("O arquivo de --relatorio tem que terminar em .html.");
+            }
         }
         else
         {
@@ -135,9 +160,9 @@ public sealed class ArgumentosCli
                 a.Erros.Add($"Comando desconhecido: {alvos[0]}. Use varrer ou --ajuda.");
             }
 
-            if (a.Csv != null || topDado)
+            if (a.Csv != null || a.Relatorio != null || topDado)
             {
-                a.Erros.Add("As opções --csv e --top pedem o comando varrer.");
+                a.Erros.Add("As opções --csv, --relatorio e --top pedem o comando varrer.");
             }
         }
 
