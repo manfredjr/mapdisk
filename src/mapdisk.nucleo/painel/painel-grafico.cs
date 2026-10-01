@@ -89,7 +89,7 @@ public sealed class PainelGrafico : INotifyPropertyChanged
         {
             var c = ItensGrafico.DaPasta(pasta, Modo, Tipo == TipoGrafico.Blocos ? MaximoBlocos : MaximoFatias);
             TextoNaoLidas = c.NaoLidas.Count == 0 ? string.Empty : $"Sem leitura, fora do gráfico: {string.Join(", ", c.NaoLidas)}";
-            var cores = Cores(c.Itens);
+            var cores = Paleta.CoresDe(c.Itens);
             if (Tipo == TipoGrafico.Blocos)
             {
                 var r = Treemap.Dispor(c.Itens.Select(i => i.Valor).ToList(), _largura, _altura);
@@ -114,19 +114,6 @@ public sealed class PainelGrafico : INotifyPropertyChanged
         }
 
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));
-    }
-
-    // As subpastas contam a posição entre elas, para a primeira ser sempre o verde da MT.
-    private static string[] Cores(IReadOnlyList<ItemGrafico> itens)
-    {
-        var cores = new string[itens.Count];
-        var pasta = 0;
-        for (var i = 0; i < itens.Count; i++)
-        {
-            cores[i] = Paleta.Cor(itens[i].Tipo == TipoItemGrafico.Pasta ? pasta++ : 0, itens[i].Tipo);
-        }
-
-        return cores;
     }
 
     private string TextoValor(long valor) => Modo == ModoExibicao.Contagem
