@@ -90,7 +90,7 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 
 | Item | Motivo | O que fecha |
 |---|---|---|
-| Pastas excluídas da varredura (spec, seção 6) | Fica para depois da versão 1, por decisão do Manfred em 01/10/2026. Mexe no motor e em todas as contas | Uma fatia própria depois da versão 1.0.0 |
+| Pastas excluídas da varredura (spec, seção 6) | Fica para depois da versão 1, por decisão do Manfred em 01/10/2026. Mexe no motor e em todas as contas | Fechado: entrou na fatia 9, PR #26 |
 | Item no menu compacto do Windows 11 | Exige empacotamento MSIX e assinatura (spec, seção 13) | Fora da versão 1 |
 | Publicação da página | Publicar pede autorização. O roteiro do cPanel fica fora da pasta do projeto | Fechado: publicada em 01/10/2026 pelo Git do cPanel, depois do teste de lançamento e da Release v1.0.0 |
 | Teste do item do Explorer | Ligar grava no registro do Windows do Manfred. O agente testou só com as chaves em memória | Fechado: teste do Manfred no PR #17, em 01/10/2026 |
@@ -101,3 +101,11 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 | Item | Motivo | O que fecha |
 |---|---|---|
 | Memória da janela com 1 milhão de arquivos | A janela parada já usa cerca de 150 MB (WPF e fontes), e a árvore do disco ocupa cerca de 145 MB. Varrendo um disco com 1,1 milhão de arquivos, o pico ficou entre 390 e 430 MB, contra cerca de 480 MB com o `.exe` comprimido. O que sobra é lixo temporário da varredura e das análises, que o coletor junta antes de limpar. Um ajuste do coletor (`GCgen0MaxBudget`) baixa uns 40 MB, mas só vale por variável de ambiente: o programa não aceita esse ajuste na própria configuração | Aceito para a versão 1. Se fizer falta: criar menos objetos de vida curta nas análises (a extensão de cada arquivo vira um texto novo) e guardar a data do arquivo em 4 bytes |
+
+## Fatia 9: pastas excluídas da varredura
+
+| Item | Motivo | O que fecha |
+|---|---|---|
+| Curinga nas regras (`*`, `?`) | Fora por decisão do plano: curinga mal escrito exclui demais sem o técnico perceber | Reavaliar se o uso pedir |
+| Pasta excluída em nível fundo no relatório do técnico | O relatório lista as excluídas logo abaixo da pasta do relatório e conta as de níveis mais fundos no aviso do resumo | Aceito. O CSV traz todas, uma por linha |
+| Teste num disco real com pastas excluídas por nome e por caminho | Os testes usam pastas pequenas | Teste do Manfred no PR #26 |

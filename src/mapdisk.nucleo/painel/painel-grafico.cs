@@ -44,6 +44,8 @@ public sealed class PainelGrafico : INotifyPropertyChanged
 
     public string TextoNaoLidas { get; private set; } = string.Empty;
 
+    public string TextoExcluidas { get; private set; } = string.Empty;
+
     public bool MostrarBlocos => Tipo == TipoGrafico.Blocos;
 
     public bool MostrarPizza => Tipo == TipoGrafico.Pizza;
@@ -84,11 +86,12 @@ public sealed class PainelGrafico : INotifyPropertyChanged
     {
         Blocos = [];
         Fatias = [];
-        TextoNaoLidas = string.Empty;
+        TextoNaoLidas = TextoExcluidas = string.Empty;
         if (_pasta is { } pasta)
         {
             var c = ItensGrafico.DaPasta(pasta, Modo, Tipo == TipoGrafico.Blocos ? MaximoBlocos : MaximoFatias);
             TextoNaoLidas = c.NaoLidas.Count == 0 ? string.Empty : $"Sem leitura, fora do gráfico: {string.Join(", ", c.NaoLidas)}";
+            TextoExcluidas = c.Excluidas.Count == 0 ? string.Empty : $"Excluídas da varredura, fora do gráfico: {string.Join(", ", c.Excluidas)}";
             var cores = Paleta.CoresDe(c.Itens);
             if (Tipo == TipoGrafico.Blocos)
             {

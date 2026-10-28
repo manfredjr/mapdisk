@@ -24,6 +24,9 @@ public sealed class DependenciasPainel
     /// <summary>Opções guardadas. O padrão fica só na memória; o Padrao() do painel liga o arquivo.</summary>
     public IArmazemPreferencias Preferencias { get; init; } = new PreferenciasEmMemoria();
 
+    /// <summary>Pastas excluídas da varredura. O padrão fica só na memória; o Padrao() do painel liga o arquivo.</summary>
+    public IArmazemExclusoes Exclusoes { get; init; } = new ExclusoesEmMemoria();
+
     public IRegistroAcoes Registro { get; init; } = new RegistroEmMemoria();
 
     public LocaisProtegidos Locais { get; init; } = LocaisProtegidos.DoSistema();

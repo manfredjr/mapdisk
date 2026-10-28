@@ -11,7 +11,7 @@ public enum TipoItemGrafico
 public sealed record ItemGrafico(string Nome, long Valor, TipoItemGrafico Tipo, NoPasta? Pasta);
 
 /// <summary>Itens do maior para o menor, o total deles e as subpastas sem leitura, que ficam fora do desenho.</summary>
-public sealed record ConteudoGrafico(IReadOnlyList<ItemGrafico> Itens, long Total, IReadOnlyList<string> NaoLidas);
+public sealed record ConteudoGrafico(IReadOnlyList<ItemGrafico> Itens, long Total, IReadOnlyList<string> NaoLidas, IReadOnlyList<string> Excluidas);
 
 /// <summary>
 /// O que o gráfico desenha de uma pasta: um nível abaixo dela, no mesmo critério da árvore.
@@ -25,10 +25,17 @@ public static class ItensGrafico
     {
         var itens = new List<ItemGrafico>();
         var naoLidas = new List<string>();
+        var excluidas = new List<string>();
         foreach (var sub in pasta.Subpastas)
         {
             if (sub.Estado == EstadoPasta.Link)
             {
+                continue;
+            }
+
+            if (sub.Estado == EstadoPasta.Excluida)
+            {
+                excluidas.Add(sub.Nome);
                 continue;
             }
 
@@ -68,7 +75,7 @@ public static class ItensGrafico
                 null));
         }
 
-        return new ConteudoGrafico(itens, itens.Sum(i => i.Valor), naoLidas);
+        return new ConteudoGrafico(itens, itens.Sum(i => i.Valor), naoLidas, excluidas);
     }
 
     private static long Valor(NoPasta pasta, ModoExibicao modo) => modo switch

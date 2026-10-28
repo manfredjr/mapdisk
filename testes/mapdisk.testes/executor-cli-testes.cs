@@ -151,4 +151,18 @@ public class ExecutorCliTestes
         ExecutorCli.Executar(ArgumentosCli.Interpretar(["--remover-integracao"]), Demonstracao.Motor(), s, new StringWriter(), CancellationToken.None, chaves, @"E:\mapdisk.exe");
         Assert.Empty(chaves.Todas);
     }
+
+    [Fact]
+    public void Excluir_deixa_a_pasta_fora_e_avisa()
+    {
+        using var p = new PastaTeste();
+        p.Arquivo(@"site\index.html", 1000);
+        p.Arquivo(@"node_modules\a.js", 50_000);
+
+        var codigo = Rodar(new MotorVarredura(), out var saida, out _, "varrer", p.Raiz, "--excluir", "node_modules");
+
+        Assert.Equal(ExecutorCli.CodigoSucesso, codigo);
+        Assert.Contains("Atenção: 1 pasta excluída da varredura, fora do total.", saida);
+        Assert.Contains(saida.Split(Environment.NewLine), l => l.Contains("excluída") && l.Contains("node_modules"));
+    }
 }

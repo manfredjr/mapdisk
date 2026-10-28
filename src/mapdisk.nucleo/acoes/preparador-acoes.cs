@@ -103,6 +103,11 @@ public sealed class PreparadorAcoes
                 return Bloqueado($"{item.Nome}: é link. Trate pelo Explorer.", unicos);
             }
 
+            if (item.EhPasta && item.Pasta.Estado == EstadoPasta.Excluida)
+            {
+                return Bloqueado($"{item.Nome}: pasta excluída da varredura. Use Atualizar esta pasta para ler antes de agir.", unicos);
+            }
+
             if (item.EhPasta && item.Pasta.Estado != EstadoPasta.Lida)
             {
                 return Bloqueado($"{item.Nome}: pasta sem leitura. Atualize ou varra como administrador antes.", unicos);

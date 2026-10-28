@@ -94,6 +94,11 @@ public static class PaginaAvaliacao
             s.Append($" {H(Formatador.Plural(semLeitura, "pasta não pôde ser lida e não entra", "pastas não puderam ser lidas e não entram"))} nesta conta.");
         }
 
+        if (p.PastasExcluidas > 0)
+        {
+            s.Append($" {H(Formatador.Plural(p.PastasExcluidas, "pasta foi excluída da varredura pelo técnico e não entra", "pastas foram excluídas da varredura pelo técnico e não entram"))} nesta conta.");
+        }
+
         s.Append("</p><div class=\"resumo\"><div><h3>Maiores pastas</h3><ul>");
         foreach (var sub in p.Subpastas.Where(x => x.Estado == EstadoPasta.Lida).OrderByDescending(x => x.Tamanho).Take(5))
         {

@@ -60,6 +60,7 @@ O botão **Opções**, ao lado de Sobre, guarda o que vale entre sessões, em `%
 
 - **Menu do Explorer:** **Ligar** põe "Analisar com MapDisk" no botão direito das pastas, das unidades e do fundo de uma pasta, só para o seu usuário e sem administrador. Esse item abre o MapDisk já varrendo. No Windows 11, ele fica em "Mostrar mais opções". Se o `mapdisk.exe` mudar de lugar, as Opções avisam e **Ligar** aponta para o novo lugar. **Desligar** tira o item por completo.
 - **Análises:** quantos maiores arquivos mostrar e o tamanho mínimo dos duplicados.
+- **Pastas excluídas da varredura:** pastas que a varredura não lê, guardadas em `%LOCALAPPDATA%\MapDisk\excluidas.txt`. O nome, como `node_modules`, vale em qualquer nível; o caminho completo, como `D:\Backup\Veeam`, vale só para aquela pasta. Sem `*` nem `?`. A pasta excluída aparece como **excluída**, fora dos totais, e é contada na barra de baixo, nas análises e nos relatórios. Para olhar dentro dela, use **Atualizar esta pasta**. A lista vale na próxima varredura.
 - **Relatório para o cliente:** os critérios do **Sugerir**. A janela do relatório também guarda os critérios usados.
 - **Últimos alvos:** **Esquecer** um alvo ou **Limpar a lista**.
 - **Registro de ações:** onde ele fica, com o botão para abrir.
@@ -72,7 +73,7 @@ Linha de comando (só lê, nunca apaga nem move arquivo). O alvo é um caminho c
     mapdisk --integrar
     mapdisk --remover-integracao
 
-`--relatorio` grava o relatório HTML, com `--top` itens em cada lista (padrão: 10). `--integrar` e `--remover-integracao` ligam e desligam o item do menu do Explorer.
+`--relatorio` grava o relatório HTML, com `--top` itens em cada lista (padrão: 10). `--excluir <nome ou caminho>` deixa uma pasta fora da varredura e pode repetir; a linha de comando não usa a lista das Opções. `--integrar` e `--remover-integracao` ligam e desligam o item do menu do Explorer.
 
 No Prompt de Comando, use `start /wait mapdisk varrer C:` para o prompt esperar o fim. No PowerShell, termine a linha com `| Out-Host`.
 
@@ -88,6 +89,6 @@ No Prompt de Comando, use `start /wait mapdisk varrer C:` para o prompt esperar 
 | 6 | Relatório para o cliente avaliar: página, planilha e leitura da resposta | `relatorio-cliente` | Spec em [#11](https://github.com/manfredjr/mapdisk/pull/11), plano em [#12](https://github.com/manfredjr/mapdisk/pull/12), código em [#13](https://github.com/manfredjr/mapdisk/pull/13) | Concluída em 30/09/2026 |
 | 7 | Duplicados: busca em três etapas, aba no painel e cópias no relatório para o cliente | `duplicados` | Plano em [#14](https://github.com/manfredjr/mapdisk/pull/14), código em [#15](https://github.com/manfredjr/mapdisk/pull/15) | Concluída em 01/10/2026 |
 | 8 | Relatório do técnico em HTML com o gráfico, exportar pela janela, linha de comando completa, item "Analisar com MapDisk" no Explorer, tela de Opções e página do programa | `relatorio-e-integracao` | Plano em [#16](https://github.com/manfredjr/mapdisk/pull/16), código em [#17](https://github.com/manfredjr/mapdisk/pull/17) | Concluída em 01/10/2026 |
-| 9 | Pastas excluídas da varredura: regras por nome ou caminho nas Opções, estado "excluída" fora dos totais, relatórios e `--excluir` | `pastas-excluidas` | Plano em [#25](https://github.com/manfredjr/mapdisk/pull/25) | Plano em revisão |
+| 9 | Pastas excluídas da varredura: regras por nome ou caminho nas Opções, estado "excluída" fora dos totais, relatórios e `--excluir` | `pastas-excluidas` | Plano em [#25](https://github.com/manfredjr/mapdisk/pull/25), código em [#26](https://github.com/manfredjr/mapdisk/pull/26) | Aguardando o teste do Manfred |
 | - | Versão 1.0.0: troca a versão de 0.1.0 para 1.0.0, para a primeira Release | `versao-1-0-0` | [#19](https://github.com/manfredjr/mapdisk/pull/19) | Publicada em 01/10/2026: [Release v1.0.0](https://github.com/manfredjr/mapdisk/releases/tag/v1.0.0) |
 | - | Página do programa em mapdisk.manfred.com.br, pelo Git do cPanel | `publicar-pagina` | [#20](https://github.com/manfredjr/mapdisk/pull/20) | Publicada em 01/10/2026: [mapdisk.manfred.com.br](https://mapdisk.manfred.com.br) |

@@ -51,6 +51,13 @@ public interface IMotorVarredura
     /// <summary>Começa a varrer o alvo, já normalizado, e devolve na hora, com a raiz para a tela.</summary>
     Varredura Iniciar(string alvo, CancellationToken cancelar);
 
+    /// <summary>Pastas que a próxima varredura não lê. O padrão não exclui nada.</summary>
+    RegrasExclusao Exclusoes
+    {
+        get => RegrasExclusao.Nenhuma;
+        set { }
+    }
+
     /// <summary>Lê de novo só esta pasta. O padrão não relê nada e devolve a mesma pasta.</summary>
     Varredura Reler(NoPasta pasta, CancellationToken cancelar) =>
         new Varredura(pasta).Comecar(_ => Task.FromResult(new ResultadoVarredura
@@ -68,6 +75,9 @@ public interface IMotorVarredura
 /// </summary>
 public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
 {
+    /// <summary>Lidas no começo de cada varredura: mudar no meio vale só para a próxima.</summary>
+    public RegrasExclusao Exclusoes { get; set; } = RegrasExclusao.Nenhuma;
+
     public Varredura Iniciar(string alvo, CancellationToken cancelar) => Comecar(new NoPasta(alvo, null), alvo, cancelar);
 
     /// <summary>
@@ -96,10 +106,11 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
     private Varredura Comecar(NoPasta raiz, string caminho, CancellationToken cancelar)
     {
         var quantas = tarefas ?? (Alvo.EhRede(caminho) ? 4 : Math.Clamp(Environment.ProcessorCount, 4, 16));
-        return new Varredura(raiz).Comecar(v => Task.Run(() => Executar(v, caminho, quantas, cancelar), CancellationToken.None));
+        var regras = Exclusoes;
+        return new Varredura(raiz).Comecar(v => Task.Run(() => Executar(v, caminho, quantas, regras, cancelar), CancellationToken.None));
     }
 
-    private static ResultadoVarredura Executar(Varredura varredura, string caminhoDaRaiz, int tarefas, CancellationToken cancelar)
+    private static ResultadoVarredura Executar(Varredura varredura, string caminhoDaRaiz, int tarefas, RegrasExclusao regras, CancellationToken cancelar)
     {
         var relogio = Stopwatch.StartNew();
         var raiz = varredura.Raiz;
@@ -129,7 +140,7 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
                     {
                         foreach (var (no, caminho) in fila.GetConsumingEnumerable(cancelar))
                         {
-                            LerPasta(varredura, no, caminho, alvoERaizDoVolume && no == raiz, primeiraVez, nomes, arquivos, entradas);
+                            LerPasta(varredura, no, caminho, alvoERaizDoVolume && no == raiz, primeiraVez, nomes, regras, arquivos, entradas);
                             foreach (var sub in no.Subpastas)
                             {
                                 if (sub.Estado == EstadoPasta.Pendente)
@@ -171,6 +182,7 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
         bool raizDoVolume,
         Func<long, bool> primeiraVez,
         ConjuntoNomes nomes,
+        RegrasExclusao regras,
         List<ArquivoInfo> arquivos,
         List<EntradaPasta> entradas)
     {
@@ -203,6 +215,10 @@ public sealed class MotorVarredura(int? tarefas = null) : IMotorVarredura
             if (entrada.EhLink)
             {
                 sub.MarcarLink(DestinoDoLink(Alvo.Juntar(caminho, entrada.Nome)));
+            }
+            else if (regras.Motivo(Alvo.Juntar(caminho, entrada.Nome), entrada.Nome) is { } regra)
+            {
+                sub.MarcarExcluida(regra);
             }
 
             subpastas[i] = sub;

@@ -10,6 +10,9 @@ public enum EstadoPasta
 
     /// <summary>Junção ou link simbólico. Não é seguido e não soma.</summary>
     Link,
+
+    /// <summary>Pasta que bate com uma regra das Opções. Não é lida e não soma; aparece como "excluída".</summary>
+    Excluida,
 }
 
 [Flags]
@@ -50,6 +53,7 @@ public sealed class NoPasta
     private long _pastasTotal;
     private long _semAcesso;
     private long _comErro;
+    private long _excluidas;
     private long _modificacao;
 
     public NoPasta(string nome, NoPasta? pai, DateTime modificacao = default)
@@ -94,6 +98,9 @@ public sealed class NoPasta
     public long PastasSemAcesso => Interlocked.Read(ref _semAcesso);
 
     public long PastasComErro => Interlocked.Read(ref _comErro);
+
+    /// <summary>Pastas excluídas da varredura nesta subárvore, contando esta.</summary>
+    public long PastasExcluidas => Interlocked.Read(ref _excluidas);
 
     public DateTime UltimaModificacao => new(Interlocked.Read(ref _modificacao));
 
@@ -142,6 +149,7 @@ public sealed class NoPasta
         var pastas = PastasTotal;
         var semAcesso = PastasSemAcesso;
         var comErro = PastasComErro;
+        var excluidas = PastasExcluidas;
         for (var no = Pai; no != null; no = no.Pai)
         {
             Interlocked.Add(ref no._tamanho, -tamanho);
@@ -150,6 +158,7 @@ public sealed class NoPasta
             Interlocked.Add(ref no._pastasTotal, -pastas);
             Interlocked.Add(ref no._semAcesso, -semAcesso);
             Interlocked.Add(ref no._comErro, -comErro);
+            Interlocked.Add(ref no._excluidas, -excluidas);
         }
     }
 
@@ -157,7 +166,7 @@ public sealed class NoPasta
     internal void RemoverSubpasta(NoPasta sub)
     {
         sub.DescontarAcima();
-        Somar(0, 0, 0, -1, 0, 0, 0);
+        Somar(0, 0, 0, -1, 0, 0, 0, 0);
         Volatile.Write(ref _subpastas, Volatile.Read(ref _subpastas).Where(s => s != sub).ToArray());
     }
 
@@ -174,7 +183,7 @@ public sealed class NoPasta
         var alocado = arquivo.Soma ? arquivo.Alocado : 0;
         TamanhoProprio -= tamanho;
         AlocadoProprio -= alocado;
-        Somar(-tamanho, -alocado, -1, 0, 0, 0, 0);
+        Somar(-tamanho, -alocado, -1, 0, 0, 0, 0, 0);
         Volatile.Write(ref _arquivos, lista.ToArray());
     }
 
@@ -259,31 +268,38 @@ public sealed class NoPasta
         Volatile.Write(ref _arquivos, arquivos);
         Volatile.Write(ref _subpastas, subpastas);
         _estado = EstadoPasta.Lida;
-        Somar(tamanho, alocado, arquivos.Length, subpastas.Length, 0, 0, recente);
+        Somar(tamanho, alocado, arquivos.Length, subpastas.Length, 0, 0, 0, recente);
     }
 
     public void MarcarSemAcesso(string motivo)
     {
         Motivo = motivo;
         _estado = EstadoPasta.SemAcesso;
-        Somar(0, 0, 0, 0, 1, 0, ModificacaoPropria.Ticks);
+        Somar(0, 0, 0, 0, 1, 0, 0, ModificacaoPropria.Ticks);
     }
 
     public void MarcarErro(string motivo)
     {
         Motivo = motivo;
         _estado = EstadoPasta.ErroLeitura;
-        Somar(0, 0, 0, 0, 0, 1, ModificacaoPropria.Ticks);
+        Somar(0, 0, 0, 0, 0, 1, 0, ModificacaoPropria.Ticks);
     }
 
     public void MarcarLink(string? destino)
     {
         DestinoLink = destino;
         _estado = EstadoPasta.Link;
-        Somar(0, 0, 0, 0, 0, 0, ModificacaoPropria.Ticks);
+        Somar(0, 0, 0, 0, 0, 0, 0, ModificacaoPropria.Ticks);
     }
 
-    private void Somar(long tamanho, long alocado, long arquivos, long pastas, long semAcesso, long comErro, long modificacao)
+    public void MarcarExcluida(string regra)
+    {
+        Motivo = regra;
+        _estado = EstadoPasta.Excluida;
+        Somar(0, 0, 0, 0, 0, 0, 1, ModificacaoPropria.Ticks);
+    }
+
+    private void Somar(long tamanho, long alocado, long arquivos, long pastas, long semAcesso, long comErro, long excluidas, long modificacao)
     {
         for (var no = this; no != null; no = no.Pai)
         {
@@ -293,6 +309,7 @@ public sealed class NoPasta
             Interlocked.Add(ref no._pastasTotal, pastas);
             Interlocked.Add(ref no._semAcesso, semAcesso);
             Interlocked.Add(ref no._comErro, comErro);
+            Interlocked.Add(ref no._excluidas, excluidas);
 
             long atual;
             while (modificacao > (atual = Interlocked.Read(ref no._modificacao))
