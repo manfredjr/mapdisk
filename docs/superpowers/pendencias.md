@@ -108,4 +108,5 @@ Rascunho feito a partir da seção 4.2 da verificação jurídica de 28/09/2026.
 |---|---|---|
 | Curinga nas regras (`*`, `?`) | Fora por decisão do plano: curinga mal escrito exclui demais sem o técnico perceber | Reavaliar se o uso pedir |
 | Pasta excluída em nível fundo no relatório do técnico | O relatório lista as excluídas logo abaixo da pasta do relatório e conta as de níveis mais fundos no aviso do resumo | Aceito. O CSV traz todas, uma por linha |
+| Espaço livre no mover entre unidades com pasta excluída dentro | A conta de espaço usa o tamanho lido, sem o que a excluída tem. A confirmação avisa que o total pode ser maior, e a origem só sai depois da cópia conferida | Proposta do agente, a confirmar no teste do Manfred. Se a cópia parar por falta de espaço, ler a pasta antes de mover |
 | Teste num disco real com pastas excluídas por nome e por caminho | Os testes usam pastas pequenas | Teste do Manfred no PR #26 |

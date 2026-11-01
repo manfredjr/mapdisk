@@ -175,23 +175,32 @@ public class RegrasExclusaoTestes
     }
 
     [Fact]
-    public void Sugerir_e_pagina_do_cliente_tratam_a_excluida()
+    public void Pagina_do_cliente_cita_a_excluida()
     {
         var raiz = ArvoreComExcluida();
-        var lista = new ListaAvaliacao();
-        Sugestao.Sugerir(lista, raiz, new CriteriosSugestao(TamanhoMinimo: 1), new DateTime(2030, 1, 1));
-        Assert.DoesNotContain(lista.Itens, i => i.Item.Caminho.Contains("node_modules"));
-
-        var html = System.Net.WebUtility.HtmlDecode(PaginaAvaliacao.Gerar(new Avaliacao("1", "Cliente", "t", "", raiz, DateTime.Now, null, lista.Itens)));
+        var html = System.Net.WebUtility.HtmlDecode(PaginaAvaliacao.Gerar(new Avaliacao("1", "Cliente", "t", "", raiz, DateTime.Now, null, [])));
         Assert.Contains("1 pasta foi excluída da varredura pelo técnico e não entra nesta conta.", html);
     }
 
-    [Fact]
-    public async Task Duplicados_nao_procuram_na_excluida()
+    // Com a regra, a cópia dentro de node_modules some do Sugerir e dos Duplicados. Sem a regra, aparece.
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Sugerir_e_duplicados_ignoram_a_excluida(bool excluir)
     {
-        var r = await Duplicados.ProcurarAsync(ArvoreComExcluida(), new OpcoesDuplicados(TamanhoMinimo: 1), new LeitorQueFalha(), null, CancellationToken.None);
-        Assert.Empty(r.Grupos);
-        Assert.Equal(0, r.NaoLidos);
+        using var p = new PastaTeste();
+        p.Arquivo("a.bin", 2 * 1024 * 1024);
+        p.Arquivo(@"node_modules\a.bin", 2 * 1024 * 1024);
+        var motor = new MotorVarredura { Exclusoes = excluir ? RegrasExclusao.De(["node_modules"]) : RegrasExclusao.Nenhuma };
+        var raiz = (await motor.Iniciar(p.Raiz, CancellationToken.None).Conclusao).Raiz;
+
+        var duplicados = await Duplicados.ProcurarAsync(raiz, new OpcoesDuplicados(TamanhoMinimo: 1), new LeitorConteudo(), null, CancellationToken.None);
+        var lista = new ListaAvaliacao();
+        Sugestao.Sugerir(lista, raiz, new CriteriosSugestao(TamanhoMinimo: 1), new DateTime(2030, 1, 1));
+        var sugeriuModulos = lista.Itens.Any(i => i.Item.Caminho.Contains("node_modules"));
+
+        Assert.Equal(excluir ? 0 : 1, duplicados.Grupos.Count);
+        Assert.Equal(!excluir, sugeriuModulos);
     }
 
     [Fact]
@@ -201,11 +210,6 @@ public class RegrasExclusaoTestes
         File.WriteAllText(pasta.Caminho("ocupado"), "x");
         var armazem = new ArquivoExclusoes(Path.Combine(pasta.Caminho("ocupado"), "excluidas.txt"));
         Assert.False(armazem.Gravar(RegrasExclusao.De(["node_modules"])));
-    }
-
-    private sealed class LeitorQueFalha : ILeitorConteudo
-    {
-        public byte[] Resumo(string caminho, long bytes, CancellationToken cancelar) => throw new InvalidOperationException(caminho);
     }
 
     private static NoPasta ArvoreComExcluida()
