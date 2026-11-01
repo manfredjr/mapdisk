@@ -4,13 +4,13 @@ Leia este arquivo antes de escrever qualquer linha.
 
 ## Regras matrizes da MT
 
-As regras matrizes do Manfred, em `C:\COWORK\CODE\BRIEFING-MT\REGRAS_MATRIZES.md`, valem acima deste arquivo e de qualquer roteiro. Quando este arquivo divergir delas, valem as regras matrizes. O MapDisk é derivado de código aberto e fica na GPL-3.0 (exceção da regra 2), e as regras de proteção contra cópia cedem ao que a licença exige.
+As regras matrizes do Manfred, em `C:\COWORK\CODE\BRIEFING-MT\REGRAS_MATRIZES.md`, valem acima deste arquivo e de qualquer roteiro. Quando este arquivo divergir delas, valem as regras matrizes. O código do MapDisk é todo da MT. A GPL-3.0 foi escolhida pelo Manfred em 26/09/2026, no mesmo modelo do MapNet e do CronoAula, o que corresponde à exceção da regra 2 para licença escolhida por ele. Nessa exceção, as regras 11 e 12 cedem ao que a licença exige.
 
 Pontos que mudam o dia a dia aqui:
 
 - Ramo novo usa o prefixo `mt/`. Nenhum commit entra direto no `main`, inclusive documentação.
 - O gancho `.githooks/commit-msg` recusa crédito de ferramenta na mensagem, e o `.githooks/pre-commit` repassa para a trava global da MT.
-- Todo Pull Request passa pelo `revisor-mt` antes do teste do Manfred.
+- Todo Pull Request, inclusive só de documentação, passa pelo `revisor-mt` e só chega ao Manfred depois do veredito.
 - Lição vai para `C:\COWORK\CODE\BRIEFING-MT\licoes\mapdisk\`, no modelo do ciclo de aprendizado.
 
 ## O que é
@@ -66,7 +66,7 @@ Se aparecer o aviso de que o commit não chegou ao GitHub, enviar à mão assim 
 
 ## Git
 
-- Ramo principal `main`. Um ramo por fatia, com nome curto em português. Nunca trabalhar direto no `main`, com exceção dos commits do dia zero (regras, licença, `.gitignore` e spec).
+- Ramo principal `main`. Um ramo por fatia, com o prefixo `mt/` e nome curto em português. Nenhum commit entra direto no `main`.
 - Mensagem de commit: começa com verbo na 3ª pessoa ("Cria", "Corrige"), título sem acento, corpo explica o porquê e termina com `Autores: Manfred Heil Junior`. Texto longo entra por arquivo, com `-F` ou `--body-file`.
 - Nunca emendar nem reescrever commit que já subiu. Correção é commit novo por cima.
 - Cada fatia entra por Pull Request, com "O que muda", "Como testar" e a linha de autores.
