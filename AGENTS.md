@@ -9,7 +9,7 @@ As regras matrizes do Manfred, em `C:\COWORK\CODE\BRIEFING-MT\REGRAS_MATRIZES.md
 Pontos que mudam o dia a dia aqui:
 
 - Ramo novo usa o prefixo `mt/`. Nenhum commit entra direto no `main`, inclusive documentação.
-- O gancho `.githooks/commit-msg` recusa crédito de ferramenta na mensagem, e o `.githooks/pre-commit` repassa para a trava global da MT.
+- Os ganchos `.githooks/commit-msg` e `.githooks/pre-commit` repassam para a trava global da MT, em `C:\COWORK\.githooks-mt`. Sem ela, o `commit-msg` ainda recusa crédito de ferramenta na mensagem.
 - Todo Pull Request, inclusive só de documentação, passa pelo `revisor-mt` e só chega ao Manfred depois do veredito.
 - Lição vai para `C:\COWORK\CODE\BRIEFING-MT\licoes\mapdisk\`, no modelo do ciclo de aprendizado.
 
