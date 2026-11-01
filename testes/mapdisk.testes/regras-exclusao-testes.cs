@@ -132,7 +132,80 @@ public class RegrasExclusaoTestes
 
         var demo = (await Demonstracao.Motor().Iniciar(@"C:\", CancellationToken.None).Conclusao).Raiz;
         Assert.Equal(1, demo.PastasExcluidas);
-        Assert.Equal(["$Recycle.Bin"], Demonstracao.Painel().Exclusoes.Regras);
+        Assert.Equal(["node_modules"], Demonstracao.Painel().Exclusoes.Regras);
+        var projetos = demo.Subpastas.Single(s => s.Nome == "Dados").Subpastas.Single(s => s.Nome == "Projetos");
+        Assert.Equal(EstadoPasta.Excluida, projetos.Subpastas.Single(s => s.Nome == "node_modules").Estado);
+    }
+
+    [Fact]
+    public void Pasta_lida_avisa_a_excluida_dentro_na_linha_e_na_confirmacao()
+    {
+        var raiz = new NoPasta(@"D:\", null);
+        var site = new NoPasta("site", raiz);
+        raiz.Preencher([], [site]);
+        var modulos = new NoPasta("node_modules", site);
+        site.Preencher([new ArquivoInfo("index.html", 1024, 4096, new DateTime(2026, 1, 1), MarcaArquivo.Nenhuma)], [modulos]);
+        modulos.MarcarExcluida("node_modules");
+
+        Assert.Equal("1 pasta excluída dentro", new LinhaArvore(TipoLinha.Pasta, site).Rotulo);
+
+        var preparador = new PreparadorAcoes(AcoesTestes.Protegidos, _ => System.IO.DriveType.Fixed, new OperacoesDemonstracao(), false);
+        var c = preparador.Confirmar(new PedidoAcao(TipoAcao.Lixeira, [ItemAcao.DaPasta(site)], null));
+        Assert.Contains("1 pasta excluída da varredura fica dentro da seleção. O total pode ser maior que o mostrado.", c.Avisos);
+    }
+
+    [Fact]
+    public async Task Perfil_excluido_aparece_como_excluido_e_nao_como_sem_acesso()
+    {
+        var raiz = new NoPasta(@"C:\", null);
+        var users = new NoPasta("Users", raiz);
+        raiz.Preencher([], [users]);
+        var ana = new NoPasta("ana.souza", users);
+        var bruno = new NoPasta("bruno.lima", users);
+        users.Preencher([], [ana, bruno]);
+        ana.Preencher([new ArquivoInfo("a.pdf", 1000, 4096, new DateTime(2026, 1, 1), MarcaArquivo.Nenhuma)], []);
+        bruno.MarcarExcluida(@"C:\Users\bruno.lima");
+
+        var analises = new PainelAnalises();
+        await analises.CalcularAsync(raiz, new DateTime(2026, 10, 1));
+        Assert.Equal("excluída", analises.Usuarios.Single(u => u.Nome == "bruno.lima").TextoTamanho);
+
+        var html = System.Net.WebUtility.HtmlDecode(RelatorioTecnico.Gerar(new DadosRelatorio(raiz, DateTime.Now, "PC", null, false, 10, null)));
+        Assert.Contains("<td>bruno.lima</td><td class=\"n\">excluída</td>", html);
+    }
+
+    [Fact]
+    public void Sugerir_e_pagina_do_cliente_tratam_a_excluida()
+    {
+        var raiz = ArvoreComExcluida();
+        var lista = new ListaAvaliacao();
+        Sugestao.Sugerir(lista, raiz, new CriteriosSugestao(TamanhoMinimo: 1), new DateTime(2030, 1, 1));
+        Assert.DoesNotContain(lista.Itens, i => i.Item.Caminho.Contains("node_modules"));
+
+        var html = System.Net.WebUtility.HtmlDecode(PaginaAvaliacao.Gerar(new Avaliacao("1", "Cliente", "t", "", raiz, DateTime.Now, null, lista.Itens)));
+        Assert.Contains("1 pasta foi excluída da varredura pelo técnico e não entra nesta conta.", html);
+    }
+
+    [Fact]
+    public async Task Duplicados_nao_procuram_na_excluida()
+    {
+        var r = await Duplicados.ProcurarAsync(ArvoreComExcluida(), new OpcoesDuplicados(TamanhoMinimo: 1), new LeitorQueFalha(), null, CancellationToken.None);
+        Assert.Empty(r.Grupos);
+        Assert.Equal(0, r.NaoLidos);
+    }
+
+    [Fact]
+    public void Arquivo_que_nao_grava_devolve_falso()
+    {
+        using var pasta = new PastaTeste();
+        File.WriteAllText(pasta.Caminho("ocupado"), "x");
+        var armazem = new ArquivoExclusoes(Path.Combine(pasta.Caminho("ocupado"), "excluidas.txt"));
+        Assert.False(armazem.Gravar(RegrasExclusao.De(["node_modules"])));
+    }
+
+    private sealed class LeitorQueFalha : ILeitorConteudo
+    {
+        public byte[] Resumo(string caminho, long bytes, CancellationToken cancelar) => throw new InvalidOperationException(caminho);
     }
 
     private static NoPasta ArvoreComExcluida()

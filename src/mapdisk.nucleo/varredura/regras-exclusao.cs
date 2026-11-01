@@ -102,10 +102,11 @@ public interface IArmazemExclusoes
 {
     RegrasExclusao Ler();
 
-    void Gravar(RegrasExclusao regras);
+    /// <summary>Falso quando não deu para guardar. A lista vale só até fechar o programa.</summary>
+    bool Gravar(RegrasExclusao regras);
 }
 
-/// <summary>Uma regra por linha, só nesta máquina. Falha de leitura ou de gravação deixa a lista vazia.</summary>
+/// <summary>Uma regra por linha, só nesta máquina. Falha de leitura deixa a lista vazia; falha de gravação devolve falso.</summary>
 public sealed class ArquivoExclusoes(string arquivo) : IArmazemExclusoes
 {
     public static ArquivoExclusoes Padrao() => new(Path.Combine(
@@ -123,15 +124,17 @@ public sealed class ArquivoExclusoes(string arquivo) : IArmazemExclusoes
         }
     }
 
-    public void Gravar(RegrasExclusao regras)
+    public bool Gravar(RegrasExclusao regras)
     {
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(arquivo)!);
             File.WriteAllLines(arquivo, regras.Regras);
+            return true;
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
+            return false;
         }
     }
 }
@@ -142,5 +145,9 @@ public sealed class ExclusoesEmMemoria : IArmazemExclusoes
 
     public RegrasExclusao Ler() => _atual;
 
-    public void Gravar(RegrasExclusao regras) => _atual = regras;
+    public bool Gravar(RegrasExclusao regras)
+    {
+        _atual = regras;
+        return true;
+    }
 }

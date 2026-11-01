@@ -160,7 +160,7 @@ public sealed class PainelAnalises : INotifyPropertyChanged
         Usuarios = usuarios.Perfis
             .Select(p => p.Estado == EstadoPasta.Lida
                 ? Resumo(p.Nome, p.ArquivosTotal, p.Tamanho, perfis.Tamanho, p)
-                : new LinhaResumo(p.Nome, string.Empty, "sem acesso", string.Empty, 0, p))
+                : new LinhaResumo(p.Nome, string.Empty, p.Estado == EstadoPasta.Excluida ? "excluída" : "sem acesso", string.Empty, 0, p))
             .ToList();
     }
 

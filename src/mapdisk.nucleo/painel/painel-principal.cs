@@ -465,12 +465,13 @@ public sealed class PainelPrincipal : INotifyPropertyChanged
     }
 
     /// <summary>Grava a lista e entrega ao motor. Vale na próxima varredura.</summary>
-    public void GravarExclusoes(RegrasExclusao regras)
+    public bool GravarExclusoes(RegrasExclusao regras)
     {
-        _exclusoes.Gravar(regras);
+        var gravou = _exclusoes.Gravar(regras);
         Exclusoes = regras;
         _motor.Exclusoes = regras;
         Avisar();
+        return gravou;
     }
 
     public void EsquecerAlvo(string alvo)

@@ -66,9 +66,7 @@ public partial class JanelaOpcoes : Window
     {
         if (ListaExcluidas.SelectedItem is string regra)
         {
-            _painel.GravarExclusoes(RegrasExclusao.De(_painel.Exclusoes.Regras.Where(r => r != regra)));
-            TextoErroExcluir.Text = string.Empty;
-            MostrarExcluidas();
+            Gravar(RegrasExclusao.De(_painel.Exclusoes.Regras.Where(r => r != regra)));
         }
     }
 
@@ -81,16 +79,28 @@ public partial class JanelaOpcoes : Window
             return false;
         }
 
+        if (_painel.Exclusoes.Regras.Contains(regra, StringComparer.OrdinalIgnoreCase))
+        {
+            TextoErroExcluir.Text = "Esta pasta já está na lista.";
+            return false;
+        }
+
         if (_painel.Exclusoes.Regras.Count >= RegrasExclusao.Maximo)
         {
             TextoErroExcluir.Text = $"Limite de {RegrasExclusao.Maximo} pastas excluídas.";
             return false;
         }
 
-        _painel.GravarExclusoes(RegrasExclusao.De(_painel.Exclusoes.Regras.Append(regra)));
-        TextoErroExcluir.Text = string.Empty;
-        MostrarExcluidas();
+        Gravar(RegrasExclusao.De(_painel.Exclusoes.Regras.Append(regra)));
         return true;
+    }
+
+    private void Gravar(RegrasExclusao regras)
+    {
+        TextoErroExcluir.Text = _painel.GravarExclusoes(regras)
+            ? string.Empty
+            : "Não foi possível guardar a lista. Ela vale só até fechar o programa.";
+        MostrarExcluidas();
     }
 
     private void AoLigar(object sender, RoutedEventArgs e)

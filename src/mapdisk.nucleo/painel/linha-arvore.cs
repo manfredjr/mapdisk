@@ -96,13 +96,28 @@ public sealed class LinhaArvore : INotifyPropertyChanged
             EstadoPasta.ErroLeitura => $"erro de leitura: {Pasta.Motivo}",
             EstadoPasta.Link => Pasta.DestinoLink is { } destino ? $"link para {destino}" : "link",
             EstadoPasta.Excluida => $"excluída da varredura (regra: {Pasta.Motivo})",
-            EstadoPasta.Lida when Pasta.PastasSemAcesso + Pasta.PastasComErro is var n and > 0
-                => $"{Formatador.Plural(n, "pasta", "pastas")} sem leitura dentro",
+            EstadoPasta.Lida => RotuloDentro(Pasta),
             _ => string.Empty,
         },
         TipoLinha.Arquivo => RotuloDoArquivo(Arquivo.Marcas),
         _ => string.Empty,
     };
+
+    private static string RotuloDentro(NoPasta pasta)
+    {
+        var partes = new List<string>();
+        if (pasta.PastasSemAcesso + pasta.PastasComErro is var n and > 0)
+        {
+            partes.Add($"{Formatador.Plural(n, "pasta", "pastas")} sem leitura dentro");
+        }
+
+        if (pasta.PastasExcluidas > 0)
+        {
+            partes.Add($"{Formatador.Plural(pasta.PastasExcluidas, "pasta excluída", "pastas excluídas")} dentro");
+        }
+
+        return string.Join(", ", partes);
+    }
 
     public long Tamanho => Tipo switch
     {

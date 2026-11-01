@@ -72,7 +72,7 @@
                             </StackPanel>
                             <TextBox x:Name="CampoExcluir" VerticalContentAlignment="Center" AutomationProperties.Name="Nome ou caminho da pasta a excluir" />
                         </DockPanel>
-                        <TextBlock x:Name="TextoErroExcluir" TextWrapping="Wrap" Foreground="#B3261E" />
+                        <TextBlock x:Name="TextoErroExcluir" TextWrapping="Wrap" Foreground="{StaticResource PincelErro}" />
                     </StackPanel>
                 </Border>
 

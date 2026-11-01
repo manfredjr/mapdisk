@@ -206,7 +206,12 @@ public static class RelatorioTecnico
         s.Append("<h2>Por usuário</h2><table><thead><tr><th>Perfil</th><th>Tamanho</th></tr></thead><tbody>");
         foreach (var perfil in u.Perfis)
         {
-            var valor = perfil.Estado == EstadoPasta.Lida ? Formatador.Tamanho(perfil.Tamanho) : "sem acesso";
+            var valor = perfil.Estado switch
+            {
+                EstadoPasta.Lida => Formatador.Tamanho(perfil.Tamanho),
+                EstadoPasta.Excluida => "excluída",
+                _ => "sem acesso",
+            };
             s.Append($"<tr><td>{H(perfil.Nome)}</td><td class=\"n\">{H(valor)}</td></tr>");
         }
 

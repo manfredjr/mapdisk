@@ -176,6 +176,13 @@ public sealed class PreparadorAcoes
             avisos.Add($"{Formatador.Plural(semLeitura, "pasta sem leitura fica", "pastas sem leitura ficam")} dentro da seleção. O total pode ser maior que o mostrado.");
         }
 
+        // A excluída não foi lida: o que ela tem vai junto com a pasta-mãe e não entra no total.
+        var excluidas = pedido.Itens.Where(i => i.EhPasta).Sum(i => i.Pasta.PastasExcluidas);
+        if (excluidas > 0)
+        {
+            avisos.Add($"{Formatador.Plural(excluidas, "pasta excluída da varredura fica", "pastas excluídas da varredura ficam")} dentro da seleção. O total pode ser maior que o mostrado.");
+        }
+
         return pedido.Acao switch
         {
             TipoAcao.Lixeira => new Confirmacao(
