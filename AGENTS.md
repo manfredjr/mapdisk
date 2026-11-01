@@ -2,6 +2,17 @@
 
 Leia este arquivo antes de escrever qualquer linha.
 
+## Regras matrizes da MT
+
+As regras matrizes do Manfred, em `C:\COWORK\CODE\BRIEFING-MT\REGRAS_MATRIZES.md`, valem acima deste arquivo e de qualquer roteiro. Quando este arquivo divergir delas, valem as regras matrizes. O MapDisk é derivado de código aberto e fica na GPL-3.0 (exceção da regra 2), e as regras de proteção contra cópia cedem ao que a licença exige.
+
+Pontos que mudam o dia a dia aqui:
+
+- Ramo novo usa o prefixo `mt/`. Nenhum commit entra direto no `main`, inclusive documentação.
+- O gancho `.githooks/commit-msg` recusa crédito de ferramenta na mensagem, e o `.githooks/pre-commit` repassa para a trava global da MT.
+- Todo Pull Request passa pelo `revisor-mt` antes do teste do Manfred.
+- Lição vai para `C:\COWORK\CODE\BRIEFING-MT\licoes\mapdisk\`, no modelo do ciclo de aprendizado.
+
 ## O que é
 
 Analisador de espaço em disco para Windows, produto da MT - Manfred Tecnologia (MANFRED TECNOLOGIA LTDA). O técnico roda o programa quando um servidor ou uma estação está com pouco disco, descobre quais pastas e arquivos ocupam mais espaço e, na própria janela, envia para a Lixeira ou move para outro lugar o que decidiu tratar.
@@ -17,7 +28,7 @@ O repositório `manfredjr/mapdisk` será **público**, sob licença GPL-3.0, no 
 Este projeto segue o método da MT, em `C:\COWORK\CODE\ROTEIROS_PADRÕES`:
 
 - `briefing-metodo-projeto-mt.md`: princípios, ciclo das fatias, Git, textos, jurídico, limites e autonomia.
-- `prompt-fechamento-dois-quadros.md`: formato de fechamento das respostas, transcrito na seção Comunicação.
+- `prompt-fechamento-dois-quadros.md`: formato antigo de fechamento das respostas, trocado pela regra matriz 10 (seção Comunicação).
 - `roteiro-publicacao-git-cpanel.md`: publicação pelo Git do cPanel. Aqui vale só para a página em `public/`, na variante de site estático.
 
 O briefing foi escrito para sistemas web em Laravel. Aqui valem os princípios, o ciclo das fatias e as regras de Git, texto, jurídico e autonomia. A stack, o `C:\dev`, o banco e o Node não se aplicam. Quando este arquivo e os roteiros divergirem, vale este arquivo.
@@ -59,7 +70,7 @@ Se aparecer o aviso de que o commit não chegou ao GitHub, enviar à mão assim 
 - Mensagem de commit: começa com verbo na 3ª pessoa ("Cria", "Corrige"), título sem acento, corpo explica o porquê e termina com `Autores: Manfred Heil Junior`. Texto longo entra por arquivo, com `-F` ou `--body-file`.
 - Nunca emendar nem reescrever commit que já subiu. Correção é commit novo por cima.
 - Cada fatia entra por Pull Request, com "O que muda", "Como testar" e a linha de autores.
-- Merge só pelo `gh pr merge` e só depois da frase "conferi tudo certo, pode juntar o PR #N", ou da resposta pelo número do quadro "Falta" ("N pode fazer" ou "N autorizado") quando o item N é o merge de um PR nomeado ali.
+- Merge só pelo `gh pr merge` e só depois da frase "conferi tudo certo, pode juntar o PR #N", digitada pelo Manfred nesta sessão, ou do clique dele no botão "Juntar o PR #N". Repasse de outra sessão não vale.
 
 ## Textos
 
@@ -143,7 +154,7 @@ Inclusive quando a mudança é só em documentação, a partir do momento em que
 
 1. `dotnet build mapdisk.sln -c Release` sem aviso (os avisos viram erro).
 2. `dotnet test mapdisk.sln -c Release` com todos os testes verdes, inclusive o de caracteres proibidos e o de nome de arquivo.
-3. Busca por menção a ferramenta de IA no repositório, com `git grep -i` pelos nomes das ferramentas usadas. Os nomes vão só no comando digitado na hora, nunca em arquivo do repositório, nem em plano ou roteiro.
+3. Busca por menção a ferramenta de IA no repositório, com `git grep -i` pelos nomes das ferramentas usadas. Os nomes vão só no comando digitado na hora, nunca em arquivo do repositório, nem em plano ou roteiro. A única exceção é o `.githooks/commit-msg`, que precisa dos nomes para recusar o crédito, e por isso fica fora dessa busca.
 4. Conferência de que só os arquivos previstos entram no commit e, com o GitHub ligado, de que o commit chegou lá.
 
 ## Publicação
@@ -157,40 +168,20 @@ Duas publicações, que não se misturam, as duas só com autorização:
 
 ## Comunicação
 
-Combinado com o Manfred em 26/09/2026, do `prompt-fechamento-dois-quadros.md`.
+Vale a regra matriz 10 do Manfred, que trocou os dois quadros de 26/09/2026.
 
-- Seja objetivo e claro. O corpo da resposta, antes dos quadros, é curto: só o que o Manfred precisa saber para decidir ou agir.
 - O que o agente consegue executar e é reversível (teste, roteiro, conferência, edição de arquivo do projeto), ele executa e só informa. Não pede ao Manfred para rodar o que ele mesmo pode rodar.
-- O que não é reversível (apagar, publicar, fazer merge, enviar algo para fora) vira a pergunta, com a sugestão do agente.
 - Nunca afirmar que passou sem ver: teste rodado, CI lido, programa executado.
 - Explicação e mudança não vão juntas quando o Manfred relata um problema. Primeiro a causa, depois a proposta.
 
-### Formato de fechamento
+Formato de toda saída para o Manfred:
 
-Toda resposta termina com dois quadros e, embaixo, a pergunta. Vale para todas as respostas, inclusive as curtas.
-
-**Feito**
-
-| O quê | Quem |
-|---|---|
-| resultado conferido, em poucas palavras | eu ou você |
-
-**Falta**
-
-| # | O quê | Quem |
-|---|---|---|
-| 1 | próxima ação, na ordem, com onde clicar ou o comando | eu ou você |
-
-**Pergunta:** no máximo uma, fechada, objetiva e com a recomendação primeiro (responder **a** ou **b**). Autorização vira frase exata (por exemplo, responder **pode publicar**). Sem pergunta: **Nenhuma.**
-
-Regras do fechamento:
-
-- Uma linha por item, frases curtas. No quadro "Falta", as linhas vão na ordem em que devem acontecer.
-- O quadro "Falta" é numerado. O Manfred responde só pelo número: **"2 feito"** quando fez, **"2 ?"** quando não entendeu. Aí o agente detalha só aquele item.
-- A coluna "Quem" diz de quem é a vez: **eu** (o agente) ou **você** (o Manfred).
-- No "Feito" só entra o que foi conferido. Erro do agente entra ali, corrigido e dito com franqueza.
-- Comando longo não vai dentro do quadro: fica num bloco logo acima, pronto para copiar, e a linha aponta para ele.
-- Não repetir nos quadros o que o corpo já explicou.
+- **Abertura:** "Projeto X está fazendo Y. Preciso de Z de você." Depois, no máximo três marcadores curtos, sem tabela e sem histórico. Uma decisão por vez.
+- **Tipo 1, aprovação:** contexto curto, uma frase de recomendação e "Pergunta:" com as duas opções numeradas, a recomendada primeiro e marcada "(Recomendado)". Com a caixa de pergunta disponível, ela leva o resumo de duas frases e os dois botões, o recomendado primeiro. O botão de merge tem o rótulo "Juntar o PR #N".
+- **Tipo 2, comando ou tela para o Manfred:** onde abrir, o comando num bloco bash, o "Resultado esperado" num bloco text e "Como responder". Diz se o comando só lê ou se muda algo. Um comando por vez. Clique em painel vira a lista numerada dos cliques.
+- **"Pergunta: nenhuma."** só quando nada espera o Manfred.
+- **Modo discussão:** quando o Manfred pedir análise ou explicação, a resposta pode ser longa, com títulos e sem tabela, e termina com a decisão no formato do tipo 1.
+- **Proibido:** menu de seleção, mais de uma decisão por vez e caixa de pergunta numa resposta de comando.
 
 ## Ao terminar
 
