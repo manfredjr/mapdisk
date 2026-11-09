@@ -1,0 +1,17 @@
+#!/bin/sh
+# Repassa para a trava global da MT: credito de ferramenta (regra 1) e sinal mecanico
+# de IA na mensagem (regra 3). Sem a trava global (clone de outra pessoa, CI), vale a
+# reserva abaixo, que so recusa o credito.
+global="C:/COWORK/.githooks-mt/commit-msg"
+if [ -f "$global" ]; then
+  exec sh "$global" "$@"
+fi
+
+# Reserva: regra matriz 1 do Manfred (22/10/2026), autoria so humana.
+# Nomes de arquivo e pasta (CLAUDE.md, .claude/) nao contam como credito.
+if sed -e 's/[Cc][Ll][Aa][Uu][Dd][Ee]\.[Mm][Dd]//g' -e 's/\.[Cc][Ll][Aa][Uu][Dd][Ee]//g' "$1" | grep -qiE 'co-authored-by|generated with|gerado com|claude|anthropic'; then
+  echo "COMMIT RECUSADO: a mensagem credita ferramenta de IA (Co-Authored-By, 'Generated with' ou o nome da ferramenta)." >&2
+  echo "Regra matriz MT: autor Manfred Heil Junior, titular MANFRED TECNOLOGIA LTDA. Tire essas linhas e refaca o commit." >&2
+  exit 1
+fi
+exit 0
