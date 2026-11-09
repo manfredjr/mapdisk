@@ -20,10 +20,21 @@ public static class Demonstracao
         Operacoes = new OperacoesDemonstracao(),
         Registro = new RegistroEmMemoria(),
         Leitor = new LeitorDemonstracao(),
+        Exclusoes = ExclusoesDaDemonstracao(),
         Demonstracao = true,
     });
 
+    private static ExclusoesEmMemoria ExclusoesDaDemonstracao()
+    {
+        var exclusoes = new ExclusoesEmMemoria();
+        exclusoes.Gravar(RegrasExclusao.De([Modulos]));
+        return exclusoes;
+    }
+
     public static IMotorVarredura Motor() => new MotorDemonstracao();
+
+    // Dados\Projetos\node_modules entra excluída, para a tela de exemplo mostrar o estado "excluída".
+    private const string Modulos = "node_modules";
 
     internal static NoPasta Montar(string alvo)
     {
@@ -52,14 +63,22 @@ public static class Demonstracao
         Encher(windows, d, ("System32", 9 * Gb, 19000), ("WinSxS", 11 * Gb, 60000), ("Temp", 3 * Gb, 2400));
         Encher(programas, d, ("Office", 4 * Gb, 5600), ("Sistemas", 7 * Gb, 9800));
         // "Backup antigo" repete dois arquivos de "Backup", para a aba Duplicados mostrar grupos.
-        Encher(dados, d, ("Backup", 120 * Gb, 48), ("Fotos", 31 * Gb, 15000), ("Backup antigo", 5 * Gb, 2));
+        var projetos = new NoPasta("Projetos", dados, d);
+        Encher(dados, d, [projetos], ("Backup", 120 * Gb, 48), ("Fotos", 31 * Gb, 15000), ("Backup antigo", 5 * Gb, 2));
+        var modulos = new NoPasta(Modulos, projetos, d);
+        Encher(projetos, d, [modulos], ("site", 2 * Gb, 900));
+        modulos.MarcarExcluida(Modulos);
         return raiz;
     }
 
-    private static void Encher(NoPasta pasta, DateTime data, params (string Nome, long Bytes, int Arquivos)[] filhas)
+    private static void Encher(NoPasta pasta, DateTime data, params (string Nome, long Bytes, int Arquivos)[] filhas) =>
+        Encher(pasta, data, [], filhas);
+
+    // As extras entram como subpastas sem arquivos; quem chama decide o estado delas.
+    private static void Encher(NoPasta pasta, DateTime data, NoPasta[] extras, params (string Nome, long Bytes, int Arquivos)[] filhas)
     {
         var subpastas = filhas.Select(f => new NoPasta(f.Nome, pasta, data)).ToArray();
-        pasta.Preencher([], subpastas);
+        pasta.Preencher([], [.. subpastas, .. extras]);
         for (var i = 0; i < filhas.Length; i++)
         {
             var (nome, bytes, quantos) = filhas[i];

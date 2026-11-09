@@ -35,6 +35,9 @@ public sealed class ArgumentosCli
           --relatorio <arquivo.html>  grava o relatório com a marca da MT e o gráfico
           --top <n>                   quantos itens mostrar e pôr em cada lista do
                                       relatório, de 1 a 1000 (padrão: 10)
+          --excluir <nome ou caminho> não lê esta pasta, que fica fora do total
+                                      (pode repetir: --excluir node_modules
+                                      --excluir D:\Backup\Veeam)
 
         Exemplos:
           mapdisk varrer C:
@@ -52,6 +55,9 @@ public sealed class ArgumentosCli
     public string? Csv { get; private set; }
 
     public string? Relatorio { get; private set; }
+
+    /// <summary>Pastas que esta varredura não lê, já conferidas. A lista das Opções não entra aqui.</summary>
+    public List<string> Excluir { get; } = [];
 
     public int Top { get; private set; } = 10;
 
@@ -90,6 +96,20 @@ public sealed class ArgumentosCli
                 case "--remover-integracao":
                     a.Comando = ComandoCli.RemoverIntegracao;
                     comandos++;
+                    break;
+                case "--excluir":
+                    if (Valor(args, ref i, arg, a.Erros) is { } texto)
+                    {
+                        if (RegrasExclusao.Validar(texto, out var motivo) is { } regra)
+                        {
+                            a.Excluir.Add(regra);
+                        }
+                        else
+                        {
+                            a.Erros.Add($"--excluir {texto}: {motivo}");
+                        }
+                    }
+
                     break;
                 case "--relatorio":
                     a.Relatorio = Valor(args, ref i, arg, a.Erros);
@@ -160,9 +180,9 @@ public sealed class ArgumentosCli
                 a.Erros.Add($"Comando desconhecido: {alvos[0]}. Use varrer ou --ajuda.");
             }
 
-            if (a.Csv != null || a.Relatorio != null || topDado)
+            if (a.Csv != null || a.Relatorio != null || topDado || a.Excluir.Count > 0)
             {
-                a.Erros.Add("As opções --csv, --relatorio e --top pedem o comando varrer.");
+                a.Erros.Add("As opções --csv, --relatorio, --top e --excluir pedem o comando varrer.");
             }
         }
 

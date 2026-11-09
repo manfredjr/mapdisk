@@ -86,7 +86,7 @@ public sealed class LinhaArvore : INotifyPropertyChanged
     /// A pasta ainda não lida aparece durante a varredura e depois de uma varredura interrompida.
     /// </summary>
     public bool SemValor => Tipo == TipoLinha.Pasta
-        && Pasta.Estado is EstadoPasta.Pendente or EstadoPasta.SemAcesso or EstadoPasta.ErroLeitura or EstadoPasta.Link;
+        && Pasta.Estado is EstadoPasta.Pendente or EstadoPasta.SemAcesso or EstadoPasta.ErroLeitura or EstadoPasta.Link or EstadoPasta.Excluida;
 
     public string Rotulo => Tipo switch
     {
@@ -95,13 +95,29 @@ public sealed class LinhaArvore : INotifyPropertyChanged
         {
             EstadoPasta.ErroLeitura => $"erro de leitura: {Pasta.Motivo}",
             EstadoPasta.Link => Pasta.DestinoLink is { } destino ? $"link para {destino}" : "link",
-            EstadoPasta.Lida when Pasta.PastasSemAcesso + Pasta.PastasComErro is var n and > 0
-                => $"{Formatador.Plural(n, "pasta", "pastas")} sem leitura dentro",
+            EstadoPasta.Excluida => $"excluída da varredura (regra: {Pasta.Motivo})",
+            EstadoPasta.Lida => RotuloDentro(Pasta),
             _ => string.Empty,
         },
         TipoLinha.Arquivo => RotuloDoArquivo(Arquivo.Marcas),
         _ => string.Empty,
     };
+
+    private static string RotuloDentro(NoPasta pasta)
+    {
+        var partes = new List<string>();
+        if (pasta.PastasSemAcesso + pasta.PastasComErro is var n and > 0)
+        {
+            partes.Add($"{Formatador.Plural(n, "pasta", "pastas")} sem leitura dentro");
+        }
+
+        if (pasta.PastasExcluidas > 0)
+        {
+            partes.Add($"{Formatador.Plural(pasta.PastasExcluidas, "pasta excluída", "pastas excluídas")} dentro");
+        }
+
+        return string.Join(", ", partes);
+    }
 
     public long Tamanho => Tipo switch
     {
@@ -169,6 +185,7 @@ public sealed class LinhaArvore : INotifyPropertyChanged
                 EstadoPasta.Pendente => "não lida",
                 EstadoPasta.SemAcesso => "sem acesso",
                 EstadoPasta.Link => "link",
+                EstadoPasta.Excluida => "excluída",
                 _ => "erro",
             };
             Fracao = 0;

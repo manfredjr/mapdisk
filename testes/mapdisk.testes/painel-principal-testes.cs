@@ -195,7 +195,7 @@ public class PainelPrincipalTestes
         p.Tique();
 
         Assert.Equal(EstadoPainel.Parado, p.Estado);
-        Assert.Equal("1 pasta sem acesso", p.TextoSemLeitura);
+        Assert.Equal("1 pasta sem acesso | 1 pasta excluída", p.TextoSemLeitura);
         Assert.Equal(@"C:\", p.Arvore.Linhas[0].Nome);
         Assert.True(p.Arvore.Linhas.Count > 3);
         Assert.Contains("NTFS", p.TextoVolume);

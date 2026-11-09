@@ -98,9 +98,18 @@ public sealed class PainelAnalises : INotifyPropertyChanged
         Grafico.Carregar(pasta);
         Titulo = $"Análise de {pasta.CaminhoCompleto()}";
         var semLeitura = pasta.PastasSemAcesso + pasta.PastasComErro;
-        Aviso = semLeitura > 0
-            ? $"{Formatador.Plural(semLeitura, "pasta sem leitura não entra", "pastas sem leitura não entram")} nesta conta"
-            : string.Empty;
+        var avisos = new List<string>();
+        if (semLeitura > 0)
+        {
+            avisos.Add($"{Formatador.Plural(semLeitura, "pasta sem leitura não entra", "pastas sem leitura não entram")} nesta conta");
+        }
+
+        if (pasta.PastasExcluidas > 0)
+        {
+            avisos.Add($"{Formatador.Plural(pasta.PastasExcluidas, "pasta excluída da varredura não entra", "pastas excluídas da varredura não entram")} nesta conta");
+        }
+
+        Aviso = string.Join(". ", avisos);
         Maiores = r.Maiores.Select(Linha).ToList();
         AplicarAntigos(r.Antigos, idade);
         var total = pasta.Tamanho;
@@ -151,7 +160,7 @@ public sealed class PainelAnalises : INotifyPropertyChanged
         Usuarios = usuarios.Perfis
             .Select(p => p.Estado == EstadoPasta.Lida
                 ? Resumo(p.Nome, p.ArquivosTotal, p.Tamanho, perfis.Tamanho, p)
-                : new LinhaResumo(p.Nome, string.Empty, "sem acesso", string.Empty, 0, p))
+                : new LinhaResumo(p.Nome, string.Empty, p.Estado == EstadoPasta.Excluida ? "excluída" : "sem acesso", string.Empty, 0, p))
             .ToList();
     }
 

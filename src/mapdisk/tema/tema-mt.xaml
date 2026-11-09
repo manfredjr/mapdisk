@@ -25,6 +25,7 @@
     <SolidColorBrush x:Key="PincelBorda" Color="#E3E3E3" />
     <SolidColorBrush x:Key="PincelTextoConsole" Color="#CFE9B8" />
     <SolidColorBrush x:Key="PincelVerdeFundo" Color="#E8F5DC" />
+    <SolidColorBrush x:Key="PincelErro" Color="#B3261E" />
 
     <!-- Gradiente da marca: faixa do topo -->
     <LinearGradientBrush x:Key="GradienteFaixa" StartPoint="0,0" EndPoint="1,0">

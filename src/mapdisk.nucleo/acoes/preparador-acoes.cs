@@ -103,6 +103,11 @@ public sealed class PreparadorAcoes
                 return Bloqueado($"{item.Nome}: é link. Trate pelo Explorer.", unicos);
             }
 
+            if (item.EhPasta && item.Pasta.Estado == EstadoPasta.Excluida)
+            {
+                return Bloqueado($"{item.Nome}: pasta excluída da varredura. Use Atualizar esta pasta para ler antes de agir.", unicos);
+            }
+
             if (item.EhPasta && item.Pasta.Estado != EstadoPasta.Lida)
             {
                 return Bloqueado($"{item.Nome}: pasta sem leitura. Atualize ou varra como administrador antes.", unicos);
@@ -169,6 +174,13 @@ public sealed class PreparadorAcoes
         if (semLeitura > 0)
         {
             avisos.Add($"{Formatador.Plural(semLeitura, "pasta sem leitura fica", "pastas sem leitura ficam")} dentro da seleção. O total pode ser maior que o mostrado.");
+        }
+
+        // A excluída não foi lida: o que ela tem vai junto com a pasta-mãe e não entra no total.
+        var excluidas = pedido.Itens.Where(i => i.EhPasta).Sum(i => i.Pasta.PastasExcluidas);
+        if (excluidas > 0)
+        {
+            avisos.Add($"{Formatador.Plural(excluidas, "pasta excluída da varredura fica", "pastas excluídas da varredura ficam")} dentro da seleção. O total pode ser maior que o mostrado.");
         }
 
         return pedido.Acao switch

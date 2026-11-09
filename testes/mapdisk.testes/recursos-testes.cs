@@ -106,6 +106,19 @@ public class RecursosTestes
     }
 
     [Fact]
+    public void Opcoes_tem_as_pastas_excluidas()
+    {
+        var opcoes = File.ReadAllText(App("janela-opcoes.xaml"));
+        foreach (var nome in new[] { "ListaExcluidas", "CampoExcluir", "TextoErroExcluir" })
+        {
+            Assert.Contains($"x:Name=\"{nome}\"", opcoes);
+        }
+
+        Assert.Contains("Click=\"AoEscolherExcluida\"", opcoes);
+        Assert.Contains("{Binding TextoExcluidas}", File.ReadAllText(App("janela-principal.xaml")));
+    }
+
+    [Fact]
     public void Janela_tem_a_aba_de_duplicados()
     {
         var janela = File.ReadAllText(App("janela-principal.xaml"));
